@@ -6,278 +6,277 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <!-- FONTS -->
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Crimson+Text&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --velvet: #4b1d24;
-  --velvet-dark: #2a0f14;
+  --bg: #f6f1e7;
+  --ink: #1c0f12;
   --gold: #c9a44c;
-  --gold-muted: #a8893c;
-  --parchment: #f3efe6;
-  --wood: #3a2415;
-  --wood-dark: #24160c;
+  --wood: #6b4228;
+  --wood-dark: #3b2316;
+  --book-red: #6b2b34;
 }
 
 /* RESET */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background:
-    radial-gradient(circle at top, #1a0d10, #060404),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255,255,255,0.03),
-      rgba(255,255,255,0.03) 1px,
-      transparent 1px,
-      transparent 80px
-    );
-  color: var(--parchment);
+  background: radial-gradient(circle at top, #fffaf3, #e9e1d4);
   font-family: 'Crimson Text', serif;
-  min-height: 100vh;
-  padding: 80px 40px;
+  color: var(--ink);
+  padding: 40px;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+nav button {
+  padding: 8px 14px;
+  background: var(--gold);
+  border: none;
+  cursor: pointer;
 }
 
 /* HEADER */
 header {
   text-align: center;
-  margin-bottom: 70px;
-}
-header h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 3.5rem;
-  letter-spacing: 0.12em;
-}
-header p {
-  margin-top: 10px;
-  font-style: italic;
-  opacity: 0.8;
+  margin-bottom: 80px;
 }
 
-/* SHELF SECTION */
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  letter-spacing: 0.15em;
+}
+
+/* SECTIONS */
 .shelf-section {
-  margin-bottom: 80px;
+  margin-bottom: 90px;
 }
 
 .shelf-title {
   text-align: center;
   font-family: 'Playfair Display', serif;
   letter-spacing: 0.3em;
+  margin-bottom: 35px;
   color: var(--gold);
-  margin-bottom: 25px;
 }
 
-/* WOODEN SHELF */
+/* SHELF */
 .shelf {
-  position: relative;
-  background: linear-gradient(
-    to bottom,
-    #4a2e1b,
-    #2b190f
-  );
-  height: 26px;
-  margin-top: 120px;
+  background: linear-gradient(to bottom, var(--wood), var(--wood-dark));
+  height: 30px;
+  display: flex;
+  gap: 16px;
   padding: 0 18px;
-  display: flex;
   align-items: flex-end;
-  gap: 10px;
-
   border-radius: 4px;
-  box-shadow:
-    inset 0 -3px 4px rgba(0,0,0,0.6),
-    0 10px 25px rgba(0,0,0,0.8);
+  box-shadow: 0 15px 25px rgba(0,0,0,0.4);
 }
 
-/* Front lip */
-.shelf::before {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(
-    to bottom,
-    #2a160b,
-    #1b0f07
-  );
-  border-radius: 0 0 4px 4px;
-}
-
-/* Shadow under shelf */
-.shelf::after {
-  content: '';
-  position: absolute;
-  bottom: -18px;
-  left: 10%;
-  width: 80%;
-  height: 18px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0,0,0,0.6),
-    transparent 70%
-  );
-}
-
-/* BOOK SPINE */
+/* BOOK */
 .book {
-  height: 180px;
-  width: 42px;
-  background:
-    linear-gradient(180deg, #61252d, #3a1419);
-  border-radius: 6px 6px 3px 3px;
+  width: 54px;
+  height: 210px;
+  background: linear-gradient(180deg, #7a2e3a, #4b1820);
+  border-radius: 6px;
   display: flex;
-  margin-bottom: 26px;
   align-items: center;
   justify-content: center;
   cursor: grab;
-  position: relative;
-  box-shadow:
-    inset 2px 0 4px rgba(255,255,255,0.15),
-    inset -2px 0 4px rgba(0,0,0,0.6),
-    0 6px 12px rgba(0,0,0,0.8);
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  margin-bottom: 28px;
+  transition: transform 0.3s;
 }
 
-.book::after {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border: 1px solid rgba(255,215,130,0.25);
-}
-
-/* GOLD FINISHED BOOK */
-.book.finished {
-  background:
-    linear-gradient(180deg, #c9a44c, #8a6c2a);
-}
-.book.finished::after {
-  border-color: rgba(255,255,255,0.5);
-}
-
-/* BOOK TEXT */
 .book span {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-family: 'Playfair Display', serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  text-align: center;
-  padding: 6px;
-  color: #f7f2e7;
+  font-size: 0.9rem;
+  color: #f6f1e7;
 }
 
-/* HOVER */
 .book:hover {
   transform: translateY(-8px);
-  box-shadow:
-    0 0 18px rgba(201,164,76,0.5),
-    0 10px 30px rgba(0,0,0,0.9);
 }
 
-/* DRAG STATES */
-.book.dragging {
-  opacity: 0.4;
-  transform: scale(1.05);
+.book.finished {
+  background: linear-gradient(180deg, #c9a44c, #8c6b2e);
 }
 
-.shelf.drag-over {
-  box-shadow:
-    inset 0 0 0 2px rgba(201,164,76,0.6),
-    0 25px 40px rgba(0,0,0,0.8);
+/* MODALS */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  align-items: center;
+  justify-content: center;
 }
 
-/* FOOTER NOTE */
-footer {
+.modal-content {
+  background: #fffaf3;
+  padding: 30px;
+  width: 340px;
+  border-radius: 6px;
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* ANALYTICS */
+.analytics {
+  margin-top: 80px;
   text-align: center;
-  font-style: italic;
-  opacity: 0.7;
-  margin-top: 60px;
+  font-family: 'Playfair Display', serif;
+}
+
+.analytics span {
+  display: block;
+  margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
+<nav>
+  <div class="logo" onclick="location.href='index.html'">The Nook</div>
+  <button onclick="openAdd()">+ Add Book</button>
+</nav>
+
 <header>
   <h1>The Library</h1>
   <p>A sanctuary of bound memories</p>
 </header>
 
-<!-- TBR -->
 <section class="shelf-section">
   <div class="shelf-title">TO BE READ</div>
-  <div class="shelf" data-shelf="tbr">
-    <div class="book" draggable="true"><span>Dune</span></div>
-    <div class="book" draggable="true"><span>Circe</span></div>
-    <div class="book" draggable="true"><span>The Odyssey</span></div>
-  </div>
+  <div class="shelf" id="tbr"></div>
 </section>
 
-<!-- CURRENT -->
 <section class="shelf-section">
   <div class="shelf-title">CURRENTLY READING</div>
-  <div class="shelf" data-shelf="current">
-    <div class="book" draggable="true"><span>The Name of the Rose</span></div>
-    <div class="book" draggable="true"><span>Atomic Habits</span></div>
-  </div>
+  <div class="shelf" id="current"></div>
 </section>
 
-<!-- FINISHED -->
 <section class="shelf-section">
   <div class="shelf-title">FINISHED</div>
-  <div class="shelf" data-shelf="finished">
-    <div class="book finished" draggable="true"><span>Pride & Prejudice</span></div>
-    <div class="book finished" draggable="true"><span>1984</span></div>
-  </div>
+  <div class="shelf" id="finished"></div>
 </section>
 
-<footer>
-  Each book, a quiet witness to who you were
-</footer>
+<div class="analytics">
+  <span>Total Books: <b id="totalBooks">0</b></span>
+  <span>Finished Books: <b id="finishedBooks">0</b></span>
+</div>
+
+<!-- ADD BOOK MODAL -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <h3>Add Book</h3>
+    <input id="title" placeholder="Title">
+    <input id="author" placeholder="Author">
+    <input id="moods" placeholder="Moods (comma separated)">
+    <input type="number" id="rating" min="1" max="5" placeholder="Rating (1-5)">
+    <textarea id="review" placeholder="Review"></textarea>
+    <button onclick="addBook()">Add</button>
+    <button onclick="closeAdd()">Cancel</button>
+  </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="modal" id="detailsModal">
+  <div class="modal-content">
+    <h3 id="dTitle"></h3>
+    <p><b>Author:</b> <span id="dAuthor"></span></p>
+    <p><b>Moods:</b> <span id="dMoods"></span></p>
+    <p><b>Rating:</b> <span id="dRating"></span></p>
+    <p id="dReview"></p>
+    <button onclick="closeDetails()">Close</button>
+  </div>
+</div>
 
 <script>
-const books = document.querySelectorAll('.book');
-const shelves = document.querySelectorAll('.shelf');
+let books = [];
+let dragId = null;
 
-let draggedBook = null;
+function render() {
+  ['tbr','current','finished'].forEach(id => document.getElementById(id).innerHTML = '');
 
-books.forEach(book => {
-  book.addEventListener('dragstart', () => {
-    draggedBook = book;
-    book.classList.add('dragging');
+  books.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'book' + (b.status === 'finished' ? ' finished' : '');
+    el.draggable = true;
+    el.ondragstart = e => dragId = b.id;
+    el.onclick = () => showDetails(b.id);
+    el.innerHTML = `<span>${b.title}</span>`;
+    document.getElementById(b.status).appendChild(el);
   });
 
-  book.addEventListener('dragend', () => {
-    draggedBook = null;
-    book.classList.remove('dragging');
-  });
+  document.getElementById('totalBooks').textContent = books.length;
+  document.getElementById('finishedBooks').textContent =
+    books.filter(b => b.status === 'finished').length;
+}
+
+['tbr','current','finished'].forEach(zone => {
+  const el = document.getElementById(zone);
+  el.ondragover = e => e.preventDefault();
+  el.ondrop = () => {
+    const book = books.find(b => b.id === dragId);
+    book.status = zone;
+    render();
+  };
 });
 
-shelves.forEach(shelf => {
-  shelf.addEventListener('dragover', e => {
-    e.preventDefault();
-    shelf.classList.add('drag-over');
+function openAdd() {
+  document.getElementById('addModal').style.display = 'flex';
+}
+function closeAdd() {
+  document.getElementById('addModal').style.display = 'none';
+}
+
+function addBook() {
+  books.push({
+    id: Date.now(),
+    title: title.value,
+    author: author.value,
+    moods: moods.value.split(','),
+    rating: rating.value,
+    review: review.value,
+    status: 'tbr'
   });
+  closeAdd();
+  render();
+}
 
-  shelf.addEventListener('dragleave', () => {
-    shelf.classList.remove('drag-over');
-  });
+function showDetails(id) {
+  const b = books.find(x => x.id === id);
+  dTitle.textContent = b.title;
+  dAuthor.textContent = b.author;
+  dMoods.textContent = b.moods.join(', ');
+  dRating.textContent = '★'.repeat(b.rating);
+  dReview.textContent = b.review;
+  document.getElementById('detailsModal').style.display = 'flex';
+}
 
-  shelf.addEventListener('drop', () => {
-    shelf.classList.remove('drag-over');
-    if (!draggedBook) return;
-
-    shelf.appendChild(draggedBook);
-
-    // Update finished style
-    if (shelf.dataset.shelf === 'finished') {
-      draggedBook.classList.add('finished');
-    } else {
-      draggedBook.classList.remove('finished');
-    }
-  });
-});
+function closeDetails() {
+  document.getElementById('detailsModal').style.display = 'none';
+}
 </script>
 
 </body>
