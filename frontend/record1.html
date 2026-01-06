@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Nook — Vinyl Library</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Crimson+Text&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #2a0f16;
+  --bg-soft: #3a151d;
+  --parchment: #f6f1e7;
+  --gold: #e1c36a;
+  --wood: #6b4228;
+  --wood-dark: #3a2114;
+  --maroon: #7b1f2e;
+  --maroon-dark: #3a0f18;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: radial-gradient(circle at top, var(--bg-soft), #120608);
+  color: var(--parchment);
+  font-family: 'Crimson Text', serif;
+  padding: 80px;
+}
+
+/* HEADER */
+header {
+  text-align: center;
+  margin-bottom: 100px;
+}
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.4rem;
+  letter-spacing: 0.25em;
+}
+header p {
+  margin-top: 16px;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+/* MAIN GRID */
+.room {
+  display: grid;
+  grid-template-columns: 1fr 460px 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+/* SECTION TITLES */
+.section-title {
+  text-align: center;
+  color: var(--gold);
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.35em;
+  margin-bottom: 70px; /* BIG GAP */
+}
+
+/* SHELVES */
+.shelf {
+  background: linear-gradient(to bottom, #7a4b30, #3a2114);
+  height: 28px;
+  padding: 0 26px;
+  display: flex;
+  gap: 26px;
+  align-items: flex-end;
+  border-radius: 5px;
+  margin-bottom: 90px; /* SPACE BETWEEN SHELVES */
+  box-shadow:
+    inset 0 -4px 6px rgba(0,0,0,0.7),
+    0 20px 35px rgba(0,0,0,0.9);
+}
+
+/* VINYL */
+.vinyl {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #111, var(--maroon), var(--maroon-dark));
+  margin-bottom: 18px; /* sits ON shelf */
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 0 0 6px #1a0a0f,
+    inset 0 0 0 14px #2b0f18,
+    0 12px 22px rgba(0,0,0,0.85);
+}
+
+.vinyl span {
+  width: 44px;
+  height: 44px;
+  background: var(--gold);
+  border-radius: 50%;
+  color: #2b160d;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.55rem;
+  text-align: center;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vinyl.dragging {
+  opacity: 0.4;
+}
+
+/* PLAYER */
+.turntable {
+  background: linear-gradient(180deg, #4a2b18, #221208);
+  padding: 45px;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0 6px #1a0c06,
+    0 30px 50px rgba(0,0,0,0.95);
+  text-align: center;
+}
+
+.platter {
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: #0f0508;
+  margin: 0 auto 35px;
+  position: relative;
+  border: 12px solid var(--wood);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SPINNING */
+.platter .vinyl {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 0;
+  animation: spin 6s linear infinite;
+  cursor: default;
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+button {
+  background: var(--gold);
+  border: none;
+  padding: 12px 18px;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+}
+
+/* MOOD */
+.mood {
+  margin-top: 30px;
+}
+.mood label {
+  color: var(--gold);
+  letter-spacing: 0.25em;
+}
+input[type="range"] {
+  width: 70%;
+  margin-top: 12px;
+  accent-color: var(--gold);
+}
+
+/* STATS */
+.stats {
+  margin-top: 45px;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* DRAG FEEDBACK */
+.shelf.drag-over,
+.platter.drag-over {
+  box-shadow:
+    inset 0 0 0 2px var(--gold),
+    0 0 35px rgba(225,195,106,0.6);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+footer {
+  text-align: center;
+  margin-top: 130px;
+  opacity: 0.6;
+  font-style: italic;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>THE NOOK</h1>
+  <p>A listening chamber for treasured sound</p>
+</header>
+
+<div class="room">
+
+  <!-- LEFT -->
+  <div>
+    <div class="section-title">TO BE PLAYED</div>
+
+    <div class="shelf" data-zone="to-play">
+      <div class="vinyl" draggable="true"><span>Brass<br>Nocturne</span></div>
+      <div class="vinyl" draggable="true"><span>Parchment<br>Rhythms</span></div>
+    </div>
+
+    <div class="shelf" data-zone="to-play">
+      <div class="vinyl" draggable="true"><span>Midnight<br>Soliloquy</span></div>
+    </div>
+
+    <div class="shelf" data-zone="to-play"></div>
+    <div class="shelf" data-zone="to-play"></div>
+    <div class="shelf" data-zone="to-play"></div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="turntable">
+    <div class="section-title">NOW SPINNING</div>
+    <div class="platter" data-zone="now-playing"></div>
+
+    <div class="controls">
+      <button>◀</button>
+      <button>▶</button>
+      <button>LOG FINISHED</button>
+    </div>
+
+    <div class="mood">
+      <label>SESSION MOOD</label><br>
+      <input type="range" min="1" max="4" value="2">
+    </div>
+
+    <div class="stats">
+      Total Records Played: <strong>3</strong>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div>
+    <div class="section-title">FINISHED</div>
+
+    <div class="shelf" data-zone="finished">
+      <div class="vinyl" draggable="true"><span>Smoky<br>Blue</span></div>
+    </div>
+
+    <div class="shelf" data-zone="finished"></div>
+    <div class="shelf" data-zone="finished"></div>
+    <div class="shelf" data-zone="finished"></div>
+    <div class="shelf" data-zone="finished"></div>
+  </div>
+
+</div>
+
+<footer>Every record leaves a trace</footer>
+
+<script>
+let dragged = null;
+
+document.querySelectorAll('.vinyl').forEach(v => {
+  v.addEventListener('dragstart', () => {
+    dragged = v;
+    v.classList.add('dragging');
+  });
+  v.addEventListener('dragend', () => {
+    dragged = null;
+    v.classList.remove('dragging');
+  });
+});
+
+document.querySelectorAll('.shelf, .platter').forEach(zone => {
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('drag-over');
+  });
+  zone.addEventListener('drop', () => {
+    zone.classList.remove('drag-over');
+    if (!dragged) return;
+    zone.appendChild(dragged);
+  });
+});
+</script>
+
+</body>
+</html>
