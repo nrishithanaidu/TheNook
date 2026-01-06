@@ -5,13 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>The Nook — Amphitheatre</title>
 
-<!-- FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 
 <style>
 :root {
   --velvet: #3a0f17;
-  --velvet-deep: #22070c;
+  --velvet-deep: #1a060a;
   --gold: #d6b46a;
   --gold-muted: #b89a5a;
   --brass-dark: #8c6f38;
@@ -27,214 +26,244 @@ body {
   background: radial-gradient(circle at top, #2b0c12, #090405);
   color: var(--stone);
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* ---------- CURTAINS ---------- */
-.curtain {
+/* ---------- IMPROVED OPAQUE FABRIC CURTAINS ---------- */
+.curtain-wrapper {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  width: 15vw;
-  background: linear-gradient(90deg, #5a151f, #3a0f17);
-  z-index: 20;
-  animation: curtain-open 1.6s cubic-bezier(.22,1,.36,1) forwards,
-             curtain-fade 0.8s ease forwards;
-  animation-delay: 0s, 1.6s;
+  inset: 0;
+  z-index: 100;
   pointer-events: none;
+  display: flex;
+  overflow: hidden;
 }
 
-@keyframes curtain-open {
-  to { transform: translateX(var(--shift)); }
+.curtain-panel {
+  flex: 1;
+  height: 100vh;
+  /* Higher opacity velvet gradient */
+  background: linear-gradient(90deg, #150406 0%, #4a111a 20%, #3a0f17 50%, #4a111a 80%, #150406 100%);
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.95);
+  position: relative;
+  transition: transform 3s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 2.8s ease-in-out,
+              filter 2.5s ease;
+  z-index: 101;
+  opacity: 1; /* Start fully opaque */
 }
 
-@keyframes curtain-fade {
-  to { opacity: 0; }
+/* Fabric texture lines */
+.curtain-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(90deg, 
+    rgba(0,0,0,0.4) 0%, 
+    transparent 1.5%, 
+    rgba(255,255,255,0.03) 3%, 
+    transparent 4.5%);
 }
 
-.curtain.left {
+.curtain-panel::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
   left: 0;
-  --shift: -110%;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
+  box-shadow: 0 -5px 20px rgba(214,180,106,0.4);
 }
 
-.curtain.right {
-  right: 0;
-  --shift: 110%;
+.left-panel { transform-origin: left center; border-right: 3px solid var(--gold); }
+.right-panel { transform-origin: right center; border-left: 3px solid var(--gold); }
+
+/* Dramatic Opening State: Still somewhat visible but bunched to sides */
+body.loaded .left-panel { 
+  transform: scaleX(0.12) translateX(-70%) skewY(1deg); 
+  opacity: 0.9; /* Remains visible at the edges */
+  filter: brightness(0.4);
 }
+body.loaded .right-panel { 
+  transform: scaleX(0.12) translateX(70%) skewY(-1deg); 
+  opacity: 0.9;
+  filter: brightness(0.4);
+}
+
 /* ---------- HEADER ---------- */
-header {
-  text-align: center;
-  padding: 120px 20px 40px;
-}
-header h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(36px, 5vw, 56px);
-  letter-spacing: .08em;
-}
-header p {
-  opacity: .8;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  font-size: 12px;
-}
+header { text-align: center; padding: 120px 20px 40px; }
+header h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 5vw, 64px); margin: 0; color: var(--stone); text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+header p { opacity: .6; letter-spacing: .3em; text-transform: uppercase; font-size: 12px; margin-top: 10px; }
 
 /* ---------- STAGE ---------- */
 .stage {
   position: relative;
-  max-width: 900px;
+  max-width: 850px;
   margin: auto;
-  background: linear-gradient(180deg, #4b141d, #22070c);
-  border-radius: 120px 120px 40px 40px;
-  padding: 70px 30px;
-  box-shadow: 0 40px 80px rgba(0,0,0,.8);
-  overflow: hidden;
-}
-
-/* Spotlight */
-.stage::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 20%, rgba(214,180,106,.45), transparent 70%);
-  animation: spotlight-breathe 8s ease-in-out infinite;
-}
-@keyframes spotlight-breathe {
-  50% { opacity: .7; }
-}
-
-.stage-content {
-  position: relative;
+  background: linear-gradient(180deg, #5a1823, #22070c);
+  border-radius: 80px 80px 40px 40px;
+  padding: 70px 40px;
+  box-shadow: 0 50px 100px rgba(0,0,0,0.9);
   text-align: center;
+  border: 1px solid rgba(214,180,106,0.15);
+}
+.stage::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 10%, rgba(214,180,106,.25), transparent 75%);
+  pointer-events: none;
 }
 
-/* ---------- BADGE ---------- */
 .badge {
   display: inline-block;
-  padding: 6px 14px;
+  padding: 8px 18px;
   background: linear-gradient(180deg, var(--gold), var(--brass-dark));
-  color: var(--ink);
-  font-size: 12px;
-  letter-spacing: .18em;
+  color: #1a1102;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: .2em;
   text-transform: uppercase;
   border-radius: 999px;
-}
-
-/* ---------- TITLE ---------- */
-.stage h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(30px, 4vw, 44px);
-  margin: 18px 0 8px;
-}
-.meta {
-  opacity: .85;
-  font-size: 14px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 /* ---------- PROGRESS ARC ---------- */
 .progress-arc {
   margin: 30px auto 10px;
-  width: 240px;
+  width: 260px;
+  position: relative;
 }
-.progress-arc svg {
-  width: 100%;
-}
+.progress-arc svg { width: 100%; filter: drop-shadow(0 0 5px rgba(214,180,106,0.2)); }
 .progress-label {
-  font-size: 12px;
-  letter-spacing: .12em;
-  opacity: .8;
-  margin-top: -4px;
+  font-size: 13px;
+  font-family: 'Playfair Display';
+  letter-spacing: .1em;
+  color: var(--gold);
+  margin-top: -12px;
 }
 
-/* ---------- CONTROLS ---------- */
-.controls {
-  margin-top: 30px;
-  display: flex;
-  gap: 18px;
-  justify-content: center;
-}
+/* ---------- BUTTONS ---------- */
 .btn {
-  padding: 12px 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
   background: linear-gradient(180deg, var(--gold), var(--brass-dark));
-  color: var(--ink);
+  color: #1a1102;
   border-radius: 999px;
   border: none;
   font-family: 'Playfair Display';
+  font-weight: 700;
+  font-size: 15px;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
+.btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.btn:active { transform: translateY(1px) scale(0.98); }
+
 .btn.secondary {
   background: transparent;
   border: 1px solid var(--gold-muted);
   color: var(--stone);
+  box-shadow: none;
+}
+.btn.delete {
+  background: #5c1414;
+  color: #ffcccc;
+  font-size: 11px;
+  padding: 6px 14px;
+  margin-top: 15px;
 }
 
-/* ---------- UPCOMING ---------- */
-.section {
-  margin: 90px auto;
-  max-width: 1100px;
-  padding: 0 20px;
+/* ---------- FORM ---------- */
+.add-form {
+  max-width: 850px;
+  margin: 50px auto;
+  background: rgba(255,255,255,0.03);
+  padding: 30px;
+  border-radius: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  border: 1px solid rgba(214,180,106,0.1);
+  backdrop-filter: blur(10px);
 }
-.section h3 {
-  text-align: center;
-  letter-spacing: .3em;
-  font-size: 13px;
-  margin-bottom: 40px;
+.add-form input, .add-form select {
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(214,180,106,0.3);
+  background: rgba(0,0,0,0.4);
+  color: var(--stone);
+  min-width: 180px;
 }
-.cards {
+
+/* ---------- GRID ---------- */
+.section { margin: 80px auto; max-width: 1150px; padding: 0 20px; }
+.section h3 { text-align: center; letter-spacing: .4em; text-transform: uppercase; font-size: 14px; margin-bottom: 40px; color: var(--gold-muted); }
+
+.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
 }
-.card {
-  background: #efe8dc;
-  color: var(--ink);
-  border-radius: 18px;
-  padding: 22px;
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,.08);
-}
-.card small {
-  display: inline-block;
-  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
-  color: var(--ink);
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-}
-.card h4 {
-  font-family: 'Playfair Display';
-  margin: 14px 0 8px;
-}
-.card em {
-  opacity: .6;
-}
 
-/* ---------- ARCHIVE ---------- */
-.archive {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-  gap: 24px;
+.card {
+  background: #f4f0e6;
+  color: var(--ink);
+  border-radius: 20px;
+  padding: 28px;
+  position: relative;
+  transition: all 0.4s ease;
+  border-bottom: 4px solid var(--gold-muted);
 }
+.card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.card small { 
+  display: inline-block; background: var(--velvet); color: white; 
+  padding: 3px 12px; border-radius: 999px; font-size: 11px; font-weight: bold;
+}
+.card h4 { font-family: 'Playfair Display'; margin: 15px 0 8px; font-size: 22px; line-height: 1.2; }
+.card p { margin: 0; opacity: 0.8; font-size: 14px; }
+.card em { display: block; margin-top: 12px; font-size: 14px; opacity: 0.7; color: var(--velvet); font-weight: 600; }
+
+/* ARCHIVE PLAQUE */
 .plaque {
-  background: linear-gradient(145deg, #c9a85a, #9a7b3a);
-  color: #2b1b05;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,.2);
+  background: linear-gradient(145deg, #d4b673, #8c6f38);
+  color: #1a1102;
+  padding: 30px;
+  border-radius: 4px; /* More rectangular plaque feel */
   text-align: center;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.2);
+  border: 1px solid #5a4a24;
+  position: relative;
 }
-.plaque h5 {
-  font-family: 'Playfair Display';
+.plaque::before, .plaque::after {
+  content: ""; position: absolute; width: 6px; height: 6px; background: #3a2e12; border-radius: 50%;
 }
-.plaque .mood {
-  font-style: italic;
-  opacity: .85;
-  margin-top: 6px;
+.plaque::before { top: 10px; left: 10px; }
+.plaque::after { bottom: 10px; right: 10px; }
+
+.plaque h5 { font-family: 'Playfair Display'; margin: 0 0 10px; font-size: 20px; font-weight: 700; }
+.plaque .mood { font-style: italic; font-size: 14px; margin: 12px 0; font-weight: bold; color: #3a2e12; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; }
+.plaque small { opacity: 0.8; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: bold; }
+
+.controls {
+  margin-top: 30px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
 }
 </style>
 </head>
 
 <body>
 
-<div class="curtain left"></div>
-<div class="curtain right"></div>
+<div class="curtain-wrapper">
+  <div class="curtain-panel left-panel"></div>
+  <div class="curtain-panel right-panel"></div>
+</div>
 
 <header>
   <p>Echo Arena Presents</p>
@@ -244,88 +273,244 @@ header p {
 
 <section class="stage">
   <div class="stage-content">
-    <span class="badge">Now Performing — Talk</span>
-    <h2>The Philosophy of Silence</h2>
-    <div class="meta">1h 24m • Contemplative</div>
-
+    <span class="badge" id="now-performing-type">Now Performing — Podcast</span>
+    <h2 id="now-performing-title" style="font-family: 'Playfair Display', serif; margin: 10px 0; font-size: 32px;">The Joe Rogan Experience</h2>
+    
     <div class="progress-arc">
       <svg viewBox="0 0 220 120">
-        <path d="M20 100 A90 90 0 0 1 200 100" stroke="rgba(255,255,255,.2)" stroke-width="8" fill="none"/>
-        <path d="M20 100 A90 90 0 0 1 200 100"
-              stroke="url(#gold)"
-              stroke-width="8"
+        <path d="M20 100 A90 90 0 0 1 200 100" stroke="rgba(255,255,255,.1)" stroke-width="12" fill="none"/>
+        <path id="progress-path" d="M20 100 A90 90 0 0 1 200 100"
+              stroke="url(#gold-gradient)"
+              stroke-width="12"
               fill="none"
               stroke-linecap="round"
               stroke-dasharray="283"
-              stroke-dashoffset="calc(283 - (283 * 34) / 100)" />
+              stroke-dashoffset="283"
+              style="transition: stroke-dashoffset 0.5s linear;" />
         <defs>
-          <linearGradient id="gold">
+          <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stop-color="#b08a3c"/>
             <stop offset="50%" stop-color="#f3d58a"/>
             <stop offset="100%" stop-color="#8c6f38"/>
           </linearGradient>
         </defs>
       </svg>
-      <div class="progress-label">34% attended</div>
+      <div class="progress-label" id="progress-text">0% attended</div>
     </div>
 
+    <div class="meta" style="margin-top: 15px; font-family: 'Playfair Display';">Status: <span id="playback-status" style="color: var(--gold);">Ready</span></div>
+
     <div class="controls">
-      <button class="btn">▶ Play</button>
-      <button class="btn secondary">Conclude</button>
+      <button class="btn" onclick="togglePlay()" id="play-btn">▶ Play</button>
+      <button class="btn secondary" onclick="concludePerformance()">Conclude</button>
     </div>
   </div>
 </section>
 
+<div class="add-form">
+  <input type="text" id="new-title" placeholder="Title of the Work">
+  <select id="new-type">
+    <option value="Podcast">Podcast</option>
+    <option value="Audiobook">Audiobook</option>
+    <option value="Essay">Essay</option>
+    <option value="Talk">Talk</option>
+  </select>
+  <input type="text" id="new-meta" placeholder="Duration (e.g. 1h 20m)">
+  <input type="text" id="new-mood" placeholder="Mood (e.g. Intellectual)">
+  <button class="btn" onclick="addPerformance()">+ Add to Upcoming</button>
+</div>
 
 <section class="section">
   <h3>Upcoming Performances</h3>
-  <div class="cards">
-    <div class="card">
-      <small>Audiobook</small>
-      <h4>Midnight in the Library</h4>
-      <p>8h 45m</p>
-      <em>"Mysterious"</em>
-    </div>
-    <div class="card">
-      <small>Podcast</small>
-      <h4>Conversations with the Cosmos</h4>
-      <p>52m</p>
-      <em>"Inspiring"</em>
-    </div>
-    <div class="card">
-      <small>Essay</small>
-      <h4>The Art of Slowness</h4>
-      <p>28m</p>
-      <em>"Meditative"</em>
-    </div>
-  </div>
+  <div class="grid" id="upcoming-list"></div>
 </section>
 
 <section class="section">
   <h3>Hall of Past Performances</h3>
-  <div class="archive">
-    <div class="plaque">
-      <h5>Echoes of Empire</h5>
-      <small>Audiobook • Dec 28, 2024</small>
-      <div class="mood">“Thoughtful”</div>
-    </div>
-    <div class="plaque">
-      <h5>The Quiet Revolution</h5>
-      <small>Podcast • Dec 25, 2024</small>
-      <div class="mood">“Energized”</div>
-    </div>
-    <div class="plaque">
-      <h5>Letters from Vienna</h5>
-      <small>Essay • Dec 20, 2024</small>
-      <div class="mood">“Nostalgic”</div>
-    </div>
-    <div class="plaque">
-      <h5>The Clockmaker’s Daughter</h5>
-      <small>Audiobook • Dec 15, 2024</small>
-      <div class="mood">“Enchanted”</div>
-    </div>
-  </div>
+  <div class="grid" id="past-list"></div>
 </section>
+
+<script>
+  // Top Spotify Stats / Trending Podcasts 2024-2025
+  let upcoming = [
+    { id: 1, type: 'Podcast', title: 'The Joe Rogan Experience', meta: '2h 45m', mood: 'Provocative' },
+    { id: 2, type: 'Podcast', title: 'The Daily', meta: '25m', mood: 'Informative' },
+    { id: 3, type: 'Podcast', title: 'Call Her Daddy', meta: '1h 10m', mood: 'Empowering' },
+    { id: 4, type: 'Podcast', title: 'Huberman Lab', meta: '2h 15m', mood: 'Scientific' }
+  ];
+
+  // Rich historical data for the Hall of Past Performances
+  let past = [
+    { id: 101, title: 'Meditations by Marcus Aurelius', date: 'Jan 4, 2025', mood: 'Stoic', type: 'Audiobook' },
+    { id: 102, title: 'The Lex Fridman Podcast #400', date: 'Jan 2, 2025', mood: 'Visionary', type: 'Podcast' },
+    { id: 103, title: 'TED: The Power of Vulnerability', date: 'Dec 28, 2024', mood: 'Emotional', type: 'Talk' },
+    { id: 104, title: 'A Short History of Nearly Everything', date: 'Dec 20, 2024', mood: 'Awe-inspiring', type: 'Audiobook' }
+  ];
+
+  let isPlaying = false;
+  let progress = 0;
+  let progressInterval;
+
+  // Wait for load then trigger dramatic opening
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.body.classList.add('loaded');
+    }, 1000);
+  });
+
+  function updateArc(val) {
+    const path = document.getElementById('progress-path');
+    const label = document.getElementById('progress-text');
+    // Ensure value doesn't exceed 100
+    const clampedVal = Math.min(val, 100);
+    const offset = 283 - (283 * clampedVal) / 100;
+    path.style.strokeDashoffset = offset;
+    label.innerText = `${clampedVal}% attended`;
+  }
+
+  function render() {
+    const upcomingContainer = document.getElementById('upcoming-list');
+    const pastContainer = document.getElementById('past-list');
+
+    upcomingContainer.innerHTML = upcoming.length ? '' : '<p class="empty-msg">The stage manager has no upcoming notes.</p>';
+    upcoming.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <small>${item.type}</small>
+        <h4>${item.title}</h4>
+        <p>${item.meta}</p>
+        <em>"${item.mood}"</em>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+           <button class="btn" style="padding: 6px 16px; font-size: 13px" onclick="setNowPerforming(${item.id})">Stage This</button>
+           <button class="btn delete" style="margin:0" onclick="deletePerformance(${item.id})">Remove</button>
+        </div>
+      `;
+      upcomingContainer.appendChild(div);
+    });
+
+    pastContainer.innerHTML = past.length ? '' : '<p class="empty-msg">The archives are awaiting the first performance.</p>';
+    past.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'plaque';
+      div.innerHTML = `
+        <h5>${item.title}</h5>
+        <small>${item.type} • ${item.date}</small>
+        <div class="mood">Atmosphere: ${item.mood}</div>
+        <button class="btn delete" onclick="deletePast(${item.id})">Melt Archive</button>
+      `;
+      pastContainer.appendChild(div);
+    });
+  }
+
+  function togglePlay() {
+    isPlaying = !isPlaying;
+    const status = document.getElementById('playback-status');
+    const playBtn = document.getElementById('play-btn');
+    
+    status.innerText = isPlaying ? "Performing..." : "Intermission";
+    playBtn.innerText = isPlaying ? "⏸ Pause" : "▶ Play";
+
+    if (isPlaying) {
+      progressInterval = setInterval(() => {
+        if (progress < 100) {
+          progress += 0.5; // Smoother increment
+          updateArc(Math.floor(progress));
+        } else {
+          clearInterval(progressInterval);
+          status.innerText = "Curtain Call (Finished)";
+        }
+      }, 200);
+    } else {
+      clearInterval(progressInterval);
+    }
+  }
+
+  function concludePerformance() {
+    const title = document.getElementById('now-performing-title').innerText;
+    const typeLabel = document.getElementById('now-performing-type').innerText;
+    
+    if(title === "The Amphitheatre is Quiet") return;
+
+    const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const type = typeLabel.split('— ')[1] || 'Performance';
+    
+    // Add to past
+    past.unshift({ 
+      id: Date.now(), 
+      title, 
+      date, 
+      mood: progress >= 100 ? 'Complete' : 'Briefly Visited', 
+      type: type 
+    });
+    
+    // Reset Stage
+    document.getElementById('now-performing-title').innerText = "The Amphitheatre is Quiet";
+    document.getElementById('now-performing-type').innerText = "Select from Upcoming";
+    
+    clearInterval(progressInterval);
+    isPlaying = false;
+    progress = 0;
+    updateArc(0);
+    
+    document.getElementById('playback-status').innerText = "Ready";
+    document.getElementById('play-btn').innerText = "▶ Play";
+    
+    render();
+  }
+
+  function addPerformance() {
+    const titleEl = document.getElementById('new-title');
+    const typeEl = document.getElementById('new-type');
+    const metaEl = document.getElementById('new-meta');
+    const moodEl = document.getElementById('new-mood');
+
+    if (!titleEl.value.trim()) return;
+
+    upcoming.push({ 
+      id: Date.now(), 
+      title: titleEl.value, 
+      type: typeEl.value, 
+      meta: metaEl.value || 'TBD',
+      mood: moodEl.value || 'Curated'
+    });
+    
+    titleEl.value = '';
+    metaEl.value = '';
+    moodEl.value = '';
+    render();
+  }
+
+  function deletePerformance(id) {
+    upcoming = upcoming.filter(i => i.id !== id);
+    render();
+  }
+
+  function deletePast(id) {
+    past = past.filter(i => i.id !== id);
+    render();
+  }
+
+  function setNowPerforming(id) {
+    const item = upcoming.find(i => i.id === id);
+    if (item) {
+      document.getElementById('now-performing-title').innerText = item.title;
+      document.getElementById('now-performing-type').innerText = `Now Performing — ${item.type}`;
+      
+      clearInterval(progressInterval);
+      isPlaying = false;
+      progress = 0;
+      updateArc(0);
+      document.getElementById('playback-status').innerText = "Ready";
+      document.getElementById('play-btn').innerText = "▶ Play";
+
+      deletePerformance(id);
+    }
+  }
+
+  render();
+  updateArc(0);
+</script>
 
 </body>
 </html>
