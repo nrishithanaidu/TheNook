@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Nook — Amphitheatre</title>
+
+<!-- FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --velvet: #3a0f17;
+  --velvet-deep: #22070c;
+  --gold: #d6b46a;
+  --gold-muted: #b89a5a;
+  --brass-dark: #8c6f38;
+  --stone: #e9e4da;
+  --ink: #1b1412;
+}
+
+/* RESET */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Crimson Text', serif;
+  background: radial-gradient(circle at top, #2b0c12, #090405);
+  color: var(--stone);
+  overflow-x: hidden;
+}
+
+/* ---------- CURTAINS ---------- */
+.curtain {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 15vw;
+  background: linear-gradient(90deg, #5a151f, #3a0f17);
+  z-index: 20;
+  animation: curtain-open 1.6s cubic-bezier(.22,1,.36,1) forwards,
+             curtain-fade 0.8s ease forwards;
+  animation-delay: 0s, 1.6s;
+  pointer-events: none;
+}
+
+@keyframes curtain-open {
+  to { transform: translateX(var(--shift)); }
+}
+
+@keyframes curtain-fade {
+  to { opacity: 0; }
+}
+
+.curtain.left {
+  left: 0;
+  --shift: -110%;
+}
+
+.curtain.right {
+  right: 0;
+  --shift: 110%;
+}
+/* ---------- HEADER ---------- */
+header {
+  text-align: center;
+  padding: 120px 20px 40px;
+}
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: .08em;
+}
+header p {
+  opacity: .8;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+/* ---------- STAGE ---------- */
+.stage {
+  position: relative;
+  max-width: 900px;
+  margin: auto;
+  background: linear-gradient(180deg, #4b141d, #22070c);
+  border-radius: 120px 120px 40px 40px;
+  padding: 70px 30px;
+  box-shadow: 0 40px 80px rgba(0,0,0,.8);
+  overflow: hidden;
+}
+
+/* Spotlight */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 20%, rgba(214,180,106,.45), transparent 70%);
+  animation: spotlight-breathe 8s ease-in-out infinite;
+}
+@keyframes spotlight-breathe {
+  50% { opacity: .7; }
+}
+
+.stage-content {
+  position: relative;
+  text-align: center;
+}
+
+/* ---------- BADGE ---------- */
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
+  color: var(--ink);
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  border-radius: 999px;
+}
+
+/* ---------- TITLE ---------- */
+.stage h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(30px, 4vw, 44px);
+  margin: 18px 0 8px;
+}
+.meta {
+  opacity: .85;
+  font-size: 14px;
+}
+
+/* ---------- PROGRESS ARC ---------- */
+.progress-arc {
+  margin: 30px auto 10px;
+  width: 240px;
+}
+.progress-arc svg {
+  width: 100%;
+}
+.progress-label {
+  font-size: 12px;
+  letter-spacing: .12em;
+  opacity: .8;
+  margin-top: -4px;
+}
+
+/* ---------- CONTROLS ---------- */
+.controls {
+  margin-top: 30px;
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+.btn {
+  padding: 12px 22px;
+  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
+  color: var(--ink);
+  border-radius: 999px;
+  border: none;
+  font-family: 'Playfair Display';
+  cursor: pointer;
+}
+.btn.secondary {
+  background: transparent;
+  border: 1px solid var(--gold-muted);
+  color: var(--stone);
+}
+
+/* ---------- UPCOMING ---------- */
+.section {
+  margin: 90px auto;
+  max-width: 1100px;
+  padding: 0 20px;
+}
+.section h3 {
+  text-align: center;
+  letter-spacing: .3em;
+  font-size: 13px;
+  margin-bottom: 40px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 30px;
+}
+.card {
+  background: #efe8dc;
+  color: var(--ink);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.08);
+}
+.card small {
+  display: inline-block;
+  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
+  color: var(--ink);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+.card h4 {
+  font-family: 'Playfair Display';
+  margin: 14px 0 8px;
+}
+.card em {
+  opacity: .6;
+}
+
+/* ---------- ARCHIVE ---------- */
+.archive {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 24px;
+}
+.plaque {
+  background: linear-gradient(145deg, #c9a85a, #9a7b3a);
+  color: #2b1b05;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.2);
+  text-align: center;
+}
+.plaque h5 {
+  font-family: 'Playfair Display';
+}
+.plaque .mood {
+  font-style: italic;
+  opacity: .85;
+  margin-top: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="curtain left"></div>
+<div class="curtain right"></div>
+
+<header>
+  <p>Echo Arena Presents</p>
+  <h1>The Amphitheatre</h1>
+  <p>A sanctuary for the spoken word</p>
+</header>
+
+<section class="stage">
+  <div class="stage-content">
+    <span class="badge">Now Performing — Talk</span>
+    <h2>The Philosophy of Silence</h2>
+    <div class="meta">1h 24m • Contemplative</div>
+
+    <div class="progress-arc">
+      <svg viewBox="0 0 220 120">
+        <path d="M20 100 A90 90 0 0 1 200 100" stroke="rgba(255,255,255,.2)" stroke-width="8" fill="none"/>
+        <path d="M20 100 A90 90 0 0 1 200 100"
+              stroke="url(#gold)"
+              stroke-width="8"
+              fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="283"
+              stroke-dashoffset="calc(283 - (283 * 34) / 100)" />
+        <defs>
+          <linearGradient id="gold">
+            <stop offset="0%" stop-color="#b08a3c"/>
+            <stop offset="50%" stop-color="#f3d58a"/>
+            <stop offset="100%" stop-color="#8c6f38"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="progress-label">34% attended</div>
+    </div>
+
+    <div class="controls">
+      <button class="btn">▶ Play</button>
+      <button class="btn secondary">Conclude</button>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <h3>Upcoming Performances</h3>
+  <div class="cards">
+    <div class="card">
+      <small>Audiobook</small>
+      <h4>Midnight in the Library</h4>
+      <p>8h 45m</p>
+      <em>"Mysterious"</em>
+    </div>
+    <div class="card">
+      <small>Podcast</small>
+      <h4>Conversations with the Cosmos</h4>
+      <p>52m</p>
+      <em>"Inspiring"</em>
+    </div>
+    <div class="card">
+      <small>Essay</small>
+      <h4>The Art of Slowness</h4>
+      <p>28m</p>
+      <em>"Meditative"</em>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h3>Hall of Past Performances</h3>
+  <div class="archive">
+    <div class="plaque">
+      <h5>Echoes of Empire</h5>
+      <small>Audiobook • Dec 28, 2024</small>
+      <div class="mood">“Thoughtful”</div>
+    </div>
+    <div class="plaque">
+      <h5>The Quiet Revolution</h5>
+      <small>Podcast • Dec 25, 2024</small>
+      <div class="mood">“Energized”</div>
+    </div>
+    <div class="plaque">
+      <h5>Letters from Vienna</h5>
+      <small>Essay • Dec 20, 2024</small>
+      <div class="mood">“Nostalgic”</div>
+    </div>
+    <div class="plaque">
+      <h5>The Clockmaker’s Daughter</h5>
+      <small>Audiobook • Dec 15, 2024</small>
+      <div class="mood">“Enchanted”</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

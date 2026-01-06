@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>The Nook — Grand Library</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --velvet: #4b1d24;
+  --velvet-dark: #2a0f14;
+  --gold: #c9a44c;
+  --gold-muted: #a8893c;
+  --parchment: #f3efe6;
+  --wood: #3a2415;
+  --wood-dark: #24160c;
+}
+
+/* RESET */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background:
+    radial-gradient(circle at top, #1a0d10, #060404),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.03) 1px,
+      transparent 1px,
+      transparent 80px
+    );
+  color: var(--parchment);
+  font-family: 'Crimson Text', serif;
+  min-height: 100vh;
+  padding: 80px 40px;
+}
+
+/* HEADER */
+header {
+  text-align: center;
+  margin-bottom: 70px;
+}
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  letter-spacing: 0.12em;
+}
+header p {
+  margin-top: 10px;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* SHELF SECTION */
+.shelf-section {
+  margin-bottom: 80px;
+}
+
+.shelf-title {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  margin-bottom: 25px;
+}
+
+/* WOODEN SHELF */
+.shelf {
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    #4a2e1b,
+    #2b190f
+  );
+  height: 26px;
+  margin-top: 120px;
+  padding: 0 18px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+
+  border-radius: 4px;
+  box-shadow:
+    inset 0 -3px 4px rgba(0,0,0,0.6),
+    0 10px 25px rgba(0,0,0,0.8);
+}
+
+/* Front lip */
+.shelf::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(
+    to bottom,
+    #2a160b,
+    #1b0f07
+  );
+  border-radius: 0 0 4px 4px;
+}
+
+/* Shadow under shelf */
+.shelf::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 10%;
+  width: 80%;
+  height: 18px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0,0,0,0.6),
+    transparent 70%
+  );
+}
+
+/* BOOK SPINE */
+.book {
+  height: 180px;
+  width: 42px;
+  background:
+    linear-gradient(180deg, #61252d, #3a1419);
+  border-radius: 6px 6px 3px 3px;
+  display: flex;
+  margin-bottom: 26px;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  position: relative;
+  box-shadow:
+    inset 2px 0 4px rgba(255,255,255,0.15),
+    inset -2px 0 4px rgba(0,0,0,0.6),
+    0 6px 12px rgba(0,0,0,0.8);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.book::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(255,215,130,0.25);
+}
+
+/* GOLD FINISHED BOOK */
+.book.finished {
+  background:
+    linear-gradient(180deg, #c9a44c, #8a6c2a);
+}
+.book.finished::after {
+  border-color: rgba(255,255,255,0.5);
+}
+
+/* BOOK TEXT */
+.book span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: 'Playfair Display', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-align: center;
+  padding: 6px;
+  color: #f7f2e7;
+}
+
+/* HOVER */
+.book:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 0 18px rgba(201,164,76,0.5),
+    0 10px 30px rgba(0,0,0,0.9);
+}
+
+/* DRAG STATES */
+.book.dragging {
+  opacity: 0.4;
+  transform: scale(1.05);
+}
+
+.shelf.drag-over {
+  box-shadow:
+    inset 0 0 0 2px rgba(201,164,76,0.6),
+    0 25px 40px rgba(0,0,0,0.8);
+}
+
+/* FOOTER NOTE */
+footer {
+  text-align: center;
+  font-style: italic;
+  opacity: 0.7;
+  margin-top: 60px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>The Library</h1>
+  <p>A sanctuary of bound memories</p>
+</header>
+
+<!-- TBR -->
+<section class="shelf-section">
+  <div class="shelf-title">TO BE READ</div>
+  <div class="shelf" data-shelf="tbr">
+    <div class="book" draggable="true"><span>Dune</span></div>
+    <div class="book" draggable="true"><span>Circe</span></div>
+    <div class="book" draggable="true"><span>The Odyssey</span></div>
+  </div>
+</section>
+
+<!-- CURRENT -->
+<section class="shelf-section">
+  <div class="shelf-title">CURRENTLY READING</div>
+  <div class="shelf" data-shelf="current">
+    <div class="book" draggable="true"><span>The Name of the Rose</span></div>
+    <div class="book" draggable="true"><span>Atomic Habits</span></div>
+  </div>
+</section>
+
+<!-- FINISHED -->
+<section class="shelf-section">
+  <div class="shelf-title">FINISHED</div>
+  <div class="shelf" data-shelf="finished">
+    <div class="book finished" draggable="true"><span>Pride & Prejudice</span></div>
+    <div class="book finished" draggable="true"><span>1984</span></div>
+  </div>
+</section>
+
+<footer>
+  Each book, a quiet witness to who you were
+</footer>
+
+<script>
+const books = document.querySelectorAll('.book');
+const shelves = document.querySelectorAll('.shelf');
+
+let draggedBook = null;
+
+books.forEach(book => {
+  book.addEventListener('dragstart', () => {
+    draggedBook = book;
+    book.classList.add('dragging');
+  });
+
+  book.addEventListener('dragend', () => {
+    draggedBook = null;
+    book.classList.remove('dragging');
+  });
+});
+
+shelves.forEach(shelf => {
+  shelf.addEventListener('dragover', e => {
+    e.preventDefault();
+    shelf.classList.add('drag-over');
+  });
+
+  shelf.addEventListener('dragleave', () => {
+    shelf.classList.remove('drag-over');
+  });
+
+  shelf.addEventListener('drop', () => {
+    shelf.classList.remove('drag-over');
+    if (!draggedBook) return;
+
+    shelf.appendChild(draggedBook);
+
+    // Update finished style
+    if (shelf.dataset.shelf === 'finished') {
+      draggedBook.classList.add('finished');
+    } else {
+      draggedBook.classList.remove('finished');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

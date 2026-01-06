@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Nook — Homepage</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Fonts: IM Fell English SC (Title), EB Garamond (Body), Kalam (Accents) -->
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 6. COLOR PALETTE & TEXTURES --- */
+        :root {
+            --bg-parchment: #C6A878;
+            --frame-parchment: #AE8C63;
+            --ink-text: #2B241D;
+            --highlight-sepia: #D8B67A;
+            --shadow-dark: #6A553F;
+            --gold-glow: rgba(255, 215, 0, 0.7);
+            --emblem-red: #8B0000;
+        }
+
+
+        /* Set the main background with grain/stain texture */
+        body {
+            background-color: var(--bg-parchment);
+            color: var(--ink-text);
+            font-family: 'EB Garamond', serif;
+            /* Enhanced grain texture for parchment look */
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(0, 0, 0, 0.08),
+                rgba(0, 0, 0, 0.08) 1px,
+                transparent 1px,
+                transparent 3px
+            ),
+            radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+
+        /* --- 7. FONT UPDATE --- */
+        .font-title { font-family: 'IM Fell English SC', serif; }
+        .font-accent { font-family: 'Kalam', cursive; }
+
+
+        /* --- 1. TOP NAVIGATION BAR (Torn Parchment Effect) --- */
+        .nav-parchment {
+            background-color: var(--frame-parchment);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        /* Custom CSS to simulate torn/aged edges */
+        .nav-parchment::before, .nav-parchment::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background-color: var(--bg-parchment);
+            z-index: 10;
+        }
+        .nav-parchment::before { top: -10px; }
+        .nav-parchment::after { bottom: -10px; }
+
+
+        /* Header link glow instead of blur/darken */
+        .nav-link:hover {
+            color: var(--ink-text);
+            text-shadow: 
+                0 0 6px rgba(255, 215, 0, 0.8),
+                0 0 12px rgba(255, 200, 50, 0.6),
+                0 0 20px rgba(255, 180, 0, 0.4);
+            cursor: pointer;
+        }
+
+
+
+        /* --- 2. HERO SECTION (Stamped Effect) --- */
+        .stamped-headline {
+            text-shadow: 2px 2px 0 var(--shadow-dark);
+            color: var(--ink-text);
+        }
+        /* UPDATED: Darken subtext for visibility */
+        .stamped-subtext {
+            color: var(--ink-text);
+            text-shadow: 0 0 1px var(--shadow-dark);
+            opacity: 0.9;
+        }
+
+
+        /* --- 3. MAIN MAP AREA (Parchment Frame & Hotspot Container) --- */
+        .map-frame {
+            border: 15px solid var(--frame-parchment);
+            box-shadow: 0 10px 20px var(--shadow-dark), inset 0 0 15px var(--shadow-dark);
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            outline: 5px solid var(--ink-text);
+            outline-offset: -5px;
+        }
+
+        /* ===== CIRCULAR HOTSPOT SYSTEM WITH GOLD HALO GLOW ===== */
+        .map-hotspot {
+            position: absolute;
+            cursor: pointer;
+            z-index: 30;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 230, 140, 0.15), rgba(255, 215, 0, 0.05), transparent);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Oval variant for Archive Tower */
+        .map-hotspot.oval {
+            border-radius: 40% 60%;
+        }
+
+
+        .map-hotspot:hover {
+            transform: scale(1.2);
+            box-shadow:
+                0 0 20px 5px rgba(255, 215, 0, 0.4),
+                0 0 40px 12px rgba(255, 200, 0, 0.25),
+                0 0 60px 20px rgba(255, 180, 0, 0.15),
+                inset 0 0 20px rgba(255, 240, 160, 0.3);
+            background: radial-gradient(circle at 30% 30%, rgba(255, 245, 200, 0.25), rgba(255, 230, 140, 0.15), rgba(255, 215, 0, 0.05));
+        }
+
+        .map-hotspot.oval:hover {
+            border-radius: 40% 60%;
+        }
+
+
+        /* Label visibility */
+        .map-hotspot .hover-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+
+        .map-hotspot:hover .hover-label {
+            opacity: 1;
+        }
+
+
+        /* LABEL STYLE */
+        /* LABEL STYLE */
+        .hover-label {
+            position: absolute;
+            bottom: -65px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 10px;
+            background-color: var(--highlight-sepia);
+            border: 2px solid var(--ink-text);
+            border-radius: 6px;
+            white-space: nowrap;
+            color: var(--ink-text);
+            font-family: 'EB Garamond', 'IM Fell English SC', serif;
+            font-size: 0.6rem;
+            box-shadow: 0 2px 4px var(--shadow-dark);
+            pointer-events: none;
+            z-index: 50;
+            max-width: 220px;
+            white-space: normal;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Top-only labels for specific buildings */
+    .hover-label-top {
+    top: -80px; /* position above the building */
+    bottom: auto; /* override default bottom positioning if any */
+    transform: translateX(-50%) translateY(-80px); /* position above */
+    white-space: nowrap;
+    max-width: 220px;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+
+
+        /* --- Custom Cursors (using cursor url fallback to pointer) --- */
+        .cursor-ticket { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">🎟️</text></svg>') 15 15, pointer; }
+        .cursor-quill { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">🖋️</text></svg>') 0 20, pointer; }
+        .cursor-vinyl { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">💿</text></svg>') 15 15, pointer; }
+        .cursor-mic { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">🎤</text></svg>') 15 15, pointer; }
+        .cursor-star { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">⭐</text></svg>') 15 15, pointer; }
+        .cursor-scroll { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">📜</text></svg>') 15 15, pointer; }
+
+
+        /* Transition Ink Swell Wipe */
+        .ink-swell {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--ink-text);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+            z-index: 100;
+            pointer-events: none;
+        }
+        .ink-swell.active {
+            transform: scale(4);
+        }
+
+        /* --- 5. MEDIA COUNTERS Hover Effect --- */
+        .counter-card {
+            background-color: var(--frame-parchment);
+            border: 2px solid var(--ink-text);
+            box-shadow: 4px 4px 0 var(--shadow-dark);
+            transition: all 0.2s ease-out;
+        }
+        .counter-card:hover {
+            transform: translateY(-4px) translateX(-4px);
+            box-shadow: 8px 8px 0 var(--shadow-dark);
+            cursor: default;
+        }
+        /* Specific image styling for counter icons */
+        .counter-icon {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 4px;
+        }
+
+
+        /* Message Box Styling */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--bg-parchment);
+            color: var(--ink-text);
+            border: 5px double var(--ink-text);
+            z-index: 200;
+            padding: 20px;
+            box-shadow: 10px 10px 0 var(--shadow-dark);
+            font-family: 'EB Garamond', serif;
+            max-width: 80%;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .message-box.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Message Box (replaces alert()) -->
+    <div id="message-box" class="message-box rounded-md">
+        <p id="message-content" class="text-lg"></p>
+        <button onclick="closeMessageBox()" class="mt-4 p-2 bg-white font-title border border-gray-800 hover:bg-gray-200">Close Scroll</button>
+    </div>
+
+
+    <!-- Transition Wipe Element -->
+    <div id="ink-swell" class="ink-swell"></div>
+
+
+    <div class="max-w-7xl mx-auto py-4 sm:px-6 lg:px-8">
+        <!-- 1. TOP NAVIGATION BAR (Rustic Parchment UI) -->
+        <nav class="nav-parchment w-full rounded-md shadow-lg mb-8 relative z-20">
+            <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+                <!-- Left Group: Logo, Title, Search -->
+                <div class="flex items-center space-x-6 w-full md:w-auto">
+                    <!-- Circle Logo - Red Emblem -->
+                    <div class="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center font-title text-xl nav-link text-white" 
+                         style="background-color: var(--emblem-red); border-color: var(--ink-text);" onclick="handleNavigation('/')">N</div>
+
+                    <!-- The Nook Title -->
+                    <span class="text-2xl font-bold font-title nav-link" onclick="handleNavigation('/')">The Nook</span>
+
+                    <!-- Search Bar -->
+                    <div class="hidden md:block flex-grow">
+                        <input type="text" placeholder="Seek something?" class="w-full max-w-xs px-3 py-1 bg-white/70 border-2 border-current rounded-full font-serif text-sm focus:outline-none focus:ring-2 focus:ring-current">
+                    </div>
+                </div>
+
+
+                <!-- Right Group: Nav Links, Login/Profile -->
+                <div class="flex items-center space-x-6 text-lg">
+                    <!-- Town Square -->
+                    <span class="nav-link hidden sm:block flex items-center space-x-1" onclick="handleNavigation('/')">
+                        <i class="fas fa-house-chimney"></i> <span>Town Square</span>
+                    </span>
+                    <!-- Discover -->
+                    <span class="nav-link flex items-center space-x-1" onclick="handleNavigation('/discover')">
+                        <i class="fas fa-binoculars"></i> <span>Discover</span>
+                    </span>
+                    <!-- Insights -->
+                    <span class="nav-link hidden lg:block flex items-center space-x-1" onclick="showMessageBox('Insights page is under construction.')">
+                        <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/icon-removebg-preview%20(1).png?raw=true" 
+                             alt="Insights Icon" class="w-5 h-5 rounded-full border border-current">
+                        <span>Insights</span>
+                    </span>
+                    <!-- Login / Signup / Profile Status -->
+                    <span id="auth-status" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Login / Signup
+                    </span>
+                </div>
+            </div>
+        </nav>
+
+
+        <main class="text-center">
+            <!-- 2. HERO SECTION — "WELCOME TO THE NOOK" -->
+            <div class="mb-8">
+                <h1 class="stamped-headline text-5xl sm:text-7xl font-title uppercase tracking-wider">
+                    WELCOME TO THE NOOK
+                </h1>
+                <p class="stamped-subtext text-xl italic font-serif mt-2">
+                    Where every path leads to wonder.
+                </p>
+            </div>
+
+
+            <!-- 3. MAIN MAP AREA (Interactive Map) -->
+            <div class="w-full relative max-w-4xl mx-auto">
+                <div class="map-frame rounded-md">
+                    <!-- MAP IMAGE SOURCE -->
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/finalmap.png?raw=true" alt="Sketched Fantasy Town Map" class="w-full h-auto block" id="map-image">
+
+
+                    <!-- CIRCULAR HOTSPOTS WITH GOLD HALO GLOW - REPOSITIONED -->
+
+                    <!-- 1. MOVIE THEATRE (Top Left - Bigger, moved left) -->
+                    <div id="hotspot-movie" class="map-hotspot cursor-ticket" style="top: 8%; left: 5%; width: 24%; height: 24%;" 
+                         data-path="/movies">
+                        <span class="hover-label">Wander Into the Grand Theatre — Where Your Films Awaken</span>
+                    </div>
+
+
+                    <!-- 2. LIBRARY (Top Right - unchanged) -->
+                    <div id="hotspot-library" class="map-hotspot cursor-quill" style="top: 12%; right: 10%; width: 20%; height: 20%;" 
+                         data-path="/books">
+                        <span class="hover-label">Enter the Everlight Library — Keeper of Your Tales & Tomes</span>
+                    </div>
+
+
+                    <!-- 3. HALL OF DISCOVERY (Center - unchanged) -->
+                    <div id="hotspot-discovery" class="map-hotspot cursor-star" style="top: 35%; left: 40%; width: 20%; height: 20%;" 
+                         data-path="/discover">
+                        <span class="hover-label">Hall of Discovery — Where Curiosities Gather & Insights Find You</span>
+                    </div>
+
+                    <!-- 4. AMPHITHEATRE (Lower Left - Bigger, moved left) -->
+                    <div id="hotspot-amphi" class="map-hotspot cursor-mic" style="bottom: 22%; left: 8%; width: 24%; height: 24%;" 
+                         data-path="/podcasts">
+                        <span class="hover-label">Step Into the Whispering Amphitheatre — Home of Voices, Stories & Podcasts</span>
+                    </div>
+
+                    <!-- 5. RECORD SHOP (Lower Center-Right - moved right and down) -->
+                    <div id="hotspot-record" class="map-hotspot cursor-vinyl" style="bottom: 12%; right: 20%; width: 20%; height: 20%;" 
+                         data-path="/music">
+                        <span class="hover-label">Stroll Into the Golden Record Shop — Store of Melodies & Moments</span>
+                    </div>
+
+
+                    <!-- 6. ARCHIVE TOWER (Lower Right - Oval shape, vertical orientation) -->
+                    <div id="hotspot-archive" class="map-hotspot oval cursor-scroll" style="bottom: 10%; right: 8%; width: 16%; height: 28%;" 
+                         data-path="/archive">
+                        <span class="hover-label">Archive Tower — Guardian of All You've Seen, Heard & Collected</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 5. MEDIA COUNTERS (Under the Map) -->
+            <div class="flex justify-center flex-wrap gap-6 mt-12">
+                <!-- Card 1: Films Watched -->
+                <div class="counter-card p-4 rounded-lg w-32 text-center">
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/film.png?raw=true" 
+                         alt="Films Icon" class="counter-icon mx-auto">
+                    <p class="font-title text-3xl font-bold mt-1">20</p>
+                    <p class="text-sm">Films Watched</p>
+                </div>
+                <!-- Card 2: Books Read -->
+                <div class="counter-card p-4 rounded-lg w-32 text-center">
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/book.png?raw=true" 
+                         alt="Books Icon" class="counter-icon mx-auto">
+                    <p class="font-title text-3xl font-bold mt-1">12</p>
+                    <p class="text-sm">Books Read</p>
+                </div>
+                <!-- Card 3: Songs Played -->
+                <div class="counter-card p-4 rounded-lg w-32 text-center">
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/songs.png?raw=true" 
+                         alt="Songs Icon" class="counter-icon mx-auto">
+                    <p class="font-title text-3xl font-bold mt-1">56</p>
+                    <p class="text-sm">Songs Played</p>
+                </div>
+                <!-- Card 4: Avg. Rating -->
+                <div class="counter-card p-4 rounded-lg w-32 text-center">
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/icon2-removebg-preview.png?raw=true" 
+                         alt="Rating Icon" class="counter-icon mx-auto">
+                    <p class="font-title text-3xl font-bold mt-1">4.3</p>
+                    <p class="text-sm">Avg. Rating</p>
+                </div>
+            </div>
+
+
+        </main>
+    </div>
+
+
+    <!-- Firebase SDK Imports and Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const randomNames = ["Elora", "Kael", "Lyra", "Jax", "Seraph", "Phoebe", "Corvus", "Anya"];
+        const getRandomName = () => randomNames[Math.floor(Math.random() * randomNames.length)];
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+
+        async function initializeFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    const authStatusElement = document.getElementById('auth-status');
+                    if (user) {
+                        const displayUserId = getRandomName();
+                        authStatusElement.innerHTML = `<i class="fas fa-user-circle"></i> Profile (${displayUserId})`;
+                    } else {
+                        authStatusElement.innerHTML = `<i class="fas fa-user-circle"></i> Login / Signup`;
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase Initialization or Authentication Error:", error);
+            }
+        }
+
+        window.showMessageBox = (message) => {
+            document.getElementById('message-content').innerText = message;
+            const box = document.getElementById('message-box');
+            box.classList.add('visible');
+            box.focus();
+        };
+
+        window.closeMessageBox = () => {
+            document.getElementById('message-box').classList.remove('visible');
+        };
+
+        window.handleNavigation = (path, event = { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 }) => {
+            console.log(`Attempting navigation to: ${path}`);
+            const swell = document.getElementById('ink-swell');
+
+            swell.style.left = `${event.clientX}px`;
+            swell.style.top = `${event.clientY}px`;
+
+            swell.classList.add('active');
+
+            setTimeout(() => {
+                if (path === '/movies') {
+                    window.location.href = 'box_office.html';
+                    return;
+                }
+
+                window.showMessageBox(`Mapped to: ${path}\n(This is where the new content would load.)`);
+
+                setTimeout(() => {
+                    swell.classList.remove('active');
+                    swell.style.left = `50%`;
+                    swell.style.top = `50%`;
+                }, 50); 
+            }, 600);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFirebase();
+        });
+
+    </script>
+    <!-- Font Awesome for Icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
