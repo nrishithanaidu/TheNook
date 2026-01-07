@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Nook Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- UNIFIED FONT IMPORT -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Crimson+Pro:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment: #fdfaf1;
+            --ink: #1b1412;
+            --gold: #8c6f38;
+            --blood: #7a2b2b;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background-color: #0d0908;
+            color: var(--ink);
+        }
+
+        .journal-container {
+            box-shadow: 0 60px 120px rgba(0,0,0,0.9);
+            border: 1px solid rgba(0,0,0,0.4);
+        }
+
+        .spine-gradient {
+            background: linear-gradient(to right, #140a06, #2d180d, #140a06);
+        }
+
+        .parchment-bg {
+            background-color: var(--parchment);
+            position: relative;
+        }
+
+        .parchment-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.35;
+            pointer-events: none;
+            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
+            mix-blend-mode: multiply;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(140, 111, 56, 0.2); border-radius: 10px; }
+
+        /* Input Animation */
+        .input-line {
+            height: 2px;
+            width: 0;
+            background-color: var(--ink);
+            transition: width 0.7s ease-in-out;
+        }
+        input:focus ~ .input-line {
+            width: 100%;
+        }
+
+        /* Ink Flood Button */
+        .btn-fill {
+            position: absolute;
+            inset: 0;
+            background-color: var(--ink);
+            transform: translateY(100%);
+            transition: transform 0.5s ease-out;
+        }
+        .btn-container:hover .btn-fill {
+            transform: translateY(0);
+        }
+        .btn-container:hover span {
+            color: var(--parchment);
+        }
+
+        .truncate-box {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        h1, h2, h3, h4, h5, .font-heading {
+            font-family: 'Playfair Display', serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-10 selection:bg-[#8c6f38]/30">
+
+    <!-- THE JOURNAL -->
+    <div class="journal-container relative w-full max-w-4xl flex rounded-lg overflow-hidden bg-[#fdfaf1]">
+        
+        <!-- BINDING SPINE -->
+        <div class="hidden md:flex w-16 spine-gradient border-r border-black/60 relative z-50 flex-col items-center py-12 gap-24 shadow-[10px_0_20px_rgba(0,0,0,0.6)]">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#d6b46a] to-[#4a3512] border border-black/60"></div>
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#d6b46a] to-[#4a3512] border border-black/60"></div>
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#d6b46a] to-[#4a3512] border border-black/60"></div>
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#d6b46a] to-[#4a3512] border border-black/60"></div>
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#d6b46a] to-[#4a3512] border border-black/60"></div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="flex-1 parchment-bg min-h-[750px] flex flex-col overflow-hidden">
+            <div class="relative z-10 p-6 md:p-12 lg:p-16 overflow-y-auto max-h-[95vh] custom-scrollbar">
+                
+                <!-- HEADER -->
+                <header class="flex flex-col md:flex-row items-center gap-8 mb-10 pb-8 border-b-2 border-black/5">
+                    <div class="relative flex-shrink-0">
+                        <div class="w-28 h-28 md:w-32 md:h-32 rounded-full border-[4px] border-[#8c6f38]/30 overflow-hidden shadow-2xl bg-[#cfc3ab]">
+                            <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nook" class="w-full h-full object-cover">
+                            <label class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+                                <span class="text-[10px] text-[#e6c68a] font-bold tracking-widest uppercase">Update</span>
+                                <input type="file" id="avatar-input" class="hidden" accept="image/*">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="text-center md:text-left min-w-0 flex-1">
+                        <h1 id="display-alias" class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-2 text-[#2d1b0e] truncate">Explorer</h1>
+                        <p class="text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] text-[#8c6f38] opacity-70">Registered Patron of The Nook</p>
+                    </div>
+                </header>
+
+                <!-- FORM -->
+                <form id="profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                    <div class="col-span-2 flex items-center gap-3 mb-2">
+                        <div class="w-3 h-3 rounded-full bg-[#7a2b2b] shadow-md"></div>
+                        <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Identity Records</h2>
+                        <div class="h-px flex-1 bg-black/5"></div>
+                    </div>
+
+                    <!-- INPUT FIELDS -->
+                    <div class="relative pt-6">
+                        <input type="text" id="fullName" required placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                        <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Full Name</label>
+                        <div class="input-line"></div>
+                    </div>
+
+                    <div class="relative pt-6">
+                        <input type="text" id="alias" required placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                        <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Display Name</label>
+                        <div class="input-line"></div>
+                    </div>
+
+                    <div class="relative pt-6">
+                        <input type="email" id="email" required placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                        <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Email Address</label>
+                        <div class="input-line"></div>
+                    </div>
+
+                    <div class="relative pt-6">
+                        <input type="tel" id="phone" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                        <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Phone Number</label>
+                        <div class="input-line"></div>
+                    </div>
+
+                    <!-- STATS GRID -->
+                    <div class="col-span-2 mt-4">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-3 h-3 rounded-full bg-[#7a2b2b] shadow-md"></div>
+                            <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Account Overview</h2>
+                            <div class="h-px flex-1 bg-black/5"></div>
+                        </div>
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white/40 border border-[#8c6f38]/10 rounded-md p-4 text-center min-h-[75px]">
+                                <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Role</div>
+                                <div class="font-bold text-sm truncate-box">Newcomer</div>
+                            </div>
+                            <div class="bg-white/40 border border-[#8c6f38]/10 rounded-md p-4 text-center min-h-[75px]">
+                                <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Rank</div>
+                                <div class="font-bold text-sm truncate-box">Scholar</div>
+                            </div>
+                            <div class="bg-white/40 border border-[#8c6f38]/10 rounded-md p-4 text-center min-h-[75px]">
+                                <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Journey</div>
+                                <div class="font-bold text-sm truncate-box">Active</div>
+                            </div>
+                            <div class="bg-white/40 border border-[#8c6f38]/10 rounded-md p-4 text-center min-h-[75px]">
+                                <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Records</div>
+                                <div class="font-bold text-sm truncate-box">12 Items</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTON -->
+                    <div class="col-span-2 flex flex-col items-center pt-10 pb-6">
+                        <button type="submit" class="btn-container relative group w-full md:w-64 py-5 border-2 border-[#2d1b0e] overflow-hidden transition-all active:scale-95">
+                            <div class="btn-fill"></div>
+                            <span class="relative z-10 text-[10px] font-black uppercase tracking-[0.6em] text-[#2d1b0e] transition-colors duration-500">SAVE RECORDS</span>
+                        </button>
+                        <p id="status-msg" class="mt-6 text-[10px] font-black uppercase tracking-[0.3em] hidden"></p>
+                    </div>
+                </form>
+
+                <footer class="mt-10 pt-8 border-t border-black/5 text-center opacity-30 italic text-[11px]">
+                    "Written records in The Nook are preserved for antiquity."
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM ELEMENTS
+        const form = document.getElementById('profile-form');
+        const displayAlias = document.getElementById('display-alias');
+        const statusMsg = document.getElementById('status-msg');
+        const avatarInput = document.getElementById('avatar-input');
+        const avatarPreview = document.getElementById('avatar-preview');
+
+        // LOAD DATA
+        window.onload = () => {
+            const savedData = JSON.parse(localStorage.getItem('nook_profile') || '{}');
+            if (savedData.fullName) document.getElementById('fullName').value = savedData.fullName;
+            if (savedData.alias) {
+                document.getElementById('alias').value = savedData.alias;
+                displayAlias.innerText = savedData.alias;
+            }
+            if (savedData.email) document.getElementById('email').value = savedData.email;
+            if (savedData.phone) document.getElementById('phone').value = savedData.phone;
+            if (savedData.avatar) avatarPreview.src = savedData.avatar;
+        };
+
+        // HANDLE AVATAR
+        avatarInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    avatarPreview.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // SAVE DATA
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            
+            const profile = {
+                fullName: document.getElementById('fullName').value,
+                alias: document.getElementById('alias').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                avatar: avatarPreview.src
+            };
+
+            localStorage.setItem('nook_profile', JSON.stringify(profile));
+            displayAlias.innerText = profile.alias;
+
+            // Success Message
+            statusMsg.innerText = "Records Archived Successfully";
+            statusMsg.className = "mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-green-700 block animate-pulse";
+            
+            setTimeout(() => {
+                statusMsg.classList.add('hidden');
+            }, 3000);
+        };
+    </script>
+</body>
+</html> 
