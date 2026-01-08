@@ -4,301 +4,659 @@
 <meta charset="UTF-8">
 <title>The Nook — Vinyl Library</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Crimson+Text&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --bg: #2a0f16;
-  --bg-soft: #3a151d;
+  --bg: #1a0a0d;
+  --bg-soft: #2d1118;
   --parchment: #f6f1e7;
   --gold: #e1c36a;
-  --wood: #6b4228;
-  --wood-dark: #3a2114;
-  --maroon: #7b1f2e;
-  --maroon-dark: #3a0f18;
+  --gold-dim: #b59b52;
+  --wood: #5a3822;
+  --wood-dark: #2a180e;
+  --accent: #8b2635;
+  /* Color matched maroon from your reference */
+  --maroon-panel: #4a131b; 
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
 
 body {
-  background: radial-gradient(circle at top, var(--bg-soft), #120608);
+  background: radial-gradient(circle at top, var(--bg-soft), #0a0405);
   color: var(--parchment);
   font-family: 'Crimson Text', serif;
-  padding: 80px;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* HEADER */
-header {
-  text-align: center;
-  margin-bottom: 100px;
-}
-header h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 3.4rem;
-  letter-spacing: 0.25em;
-}
-header p {
-  margin-top: 16px;
-  opacity: 0.75;
-  font-style: italic;
-}
-
-/* MAIN GRID */
-.room {
-  display: grid;
-  grid-template-columns: 1fr 460px 1fr;
-  gap: 80px;
-  align-items: start;
-}
-
-/* SECTION TITLES */
-.section-title {
-  text-align: center;
-  color: var(--gold);
-  font-family: 'Playfair Display', serif;
-  letter-spacing: 0.35em;
-  margin-bottom: 70px; /* BIG GAP */
-}
-
-/* SHELVES */
-.shelf {
-  background: linear-gradient(to bottom, #7a4b30, #3a2114);
-  height: 28px;
-  padding: 0 26px;
+/* --- HEADER --- */
+.action-bar {
+  background: rgba(10, 4, 5, 0.95);
+  padding: 15px 40px;
   display: flex;
-  gap: 26px;
-  align-items: flex-end;
-  border-radius: 5px;
-  margin-bottom: 90px; /* SPACE BETWEEN SHELVES */
-  box-shadow:
-    inset 0 -4px 6px rgba(0,0,0,0.7),
-    0 20px 35px rgba(0,0,0,0.9);
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--gold);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* VINYL */
+.action-bar h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--gold);
+  letter-spacing: 4px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.add-btn {
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 12px 28px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.add-btn:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(225, 195, 106, 0.4);
+}
+
+/* --- MODAL (NEW) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--maroon-panel);
+  width: 90%;
+  max-width: 450px;
+  padding: 30px;
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+
+.modal h2 {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold);
+  margin-top: 0;
+  text-align: center;
+  letter-spacing: 2px;
+  font-size: 1.4rem;
+  border-bottom: 1px solid var(--gold-dim);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.form-group { margin-bottom: 15px; }
+.form-group label { 
+  display: block; 
+  margin-bottom: 5px; 
+  color: var(--gold); 
+  font-size: 0.8rem; 
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.modal input[type="text"], 
+.modal textarea {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--gold-dim);
+  color: var(--parchment);
+  padding: 10px;
+  font-family: inherit;
+  border-radius: 2px;
+}
+
+.mood-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mood-row input { flex: 1; accent-color: var(--gold); }
+
+.stars {
+  display: flex;
+  gap: 8px;
+  font-size: 1.4rem;
+  color: #333;
+}
+.star { cursor: pointer; transition: color 0.2s; }
+.star.active { color: var(--gold); }
+
+.save-record-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--gold);
+  border: none;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  cursor: pointer;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+/* --- MAIN LAYOUT --- */
+.room-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  gap: 30px;
+  max-width: 1600px;
+  margin: 40px auto;
+  padding: 0 40px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold);
+  border-bottom: 1px solid var(--gold-dim);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* --- SHELVES & LIBRARY --- */
+.shelf-container {
+  background: rgba(0,0,0,0.2);
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.vinyl-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  min-height: 120px;
+  padding: 10px;
+  transition: background 0.3s;
+  border-radius: 4px;
+}
+
+.vinyl-row.drag-over {
+  background: rgba(225, 195, 106, 0.05);
+}
+
+.shelf-plank {
+  height: 12px;
+  background: linear-gradient(to bottom, var(--wood), var(--wood-dark));
+  box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+  border-radius: 2px;
+  margin-top: 5px;
+}
+
+/* --- VINYL OBJECT --- */
 .vinyl {
-  width: 110px;
-  height: 110px;
+  width: 80px;
+  height: 80px;
+  background: repeating-radial-gradient(circle, #222, #000 2px, #222 4px);
   border-radius: 50%;
-  background: radial-gradient(circle, #111, var(--maroon), var(--maroon-dark));
-  margin-bottom: 18px; /* sits ON shelf */
   cursor: grab;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow:
-    inset 0 0 0 6px #1a0a0f,
-    inset 0 0 0 14px #2b0f18,
-    0 12px 22px rgba(0,0,0,0.85);
+  box-shadow: -4px 4px 12px rgba(0,0,0,0.7);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  z-index: 10;
 }
 
-.vinyl span {
-  width: 44px;
-  height: 44px;
-  background: var(--gold);
+.vinyl:hover {
+  transform: translateY(-5px) rotate(5deg);
+}
+
+.vinyl:active { cursor: grabbing; }
+
+.label {
+  width: 32px;
+  height: 32px;
+  background: var(--parchment);
   border-radius: 50%;
-  color: #2b160d;
-  font-family: 'Playfair Display', serif;
-  font-size: 0.55rem;
+  font-size: 7px;
   text-align: center;
-  padding: 6px;
+  color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2px;
+  font-weight: bold;
+  pointer-events: none;
+  border: 1px solid var(--gold-dim);
+  overflow: hidden;
+  line-height: 1;
 }
 
-.vinyl.dragging {
-  opacity: 0.4;
+/* --- TURNTABLE CENTERPIECE --- */
+.player-station {
+  background: #1a1a1a;
+  border: 12px solid var(--wood-dark);
+  border-radius: 8px;
+  padding: 40px;
+  position: relative;
+  box-shadow: inset 0 0 50px #000, 0 20px 50px rgba(0,0,0,0.8);
 }
 
-/* PLAYER */
-.turntable {
-  background: linear-gradient(180deg, #4a2b18, #221208);
-  padding: 45px;
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 0 6px #1a0c06,
-    0 30px 50px rgba(0,0,0,0.95);
-  text-align: center;
+.platter-area {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
 }
 
 .platter {
-  width: 280px;
-  height: 280px;
+  width: 100%;
+  height: 100%;
+  background: #0a0a0a;
   border-radius: 50%;
-  background: #0f0508;
-  margin: 0 auto 35px;
-  position: relative;
-  border: 12px solid var(--wood);
+  border: 8px solid #222;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* SPINNING */
-.platter .vinyl {
-  width: 200px;
-  height: 200px;
-  margin-bottom: 0;
-  animation: spin 6s linear infinite;
-  cursor: default;
-}
-
-/* CONTROLS */
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 30px;
-}
-
-button {
-  background: var(--gold);
-  border: none;
-  padding: 12px 18px;
-  font-family: 'Playfair Display', serif;
-  letter-spacing: 0.15em;
-  cursor: pointer;
-}
-
-/* MOOD */
-.mood {
-  margin-top: 30px;
-}
-.mood label {
-  color: var(--gold);
-  letter-spacing: 0.25em;
-}
-input[type="range"] {
-  width: 70%;
-  margin-top: 12px;
-  accent-color: var(--gold);
-}
-
-/* STATS */
-.stats {
-  margin-top: 45px;
-  text-align: center;
-  font-style: italic;
-  opacity: 0.85;
-}
-
-/* DRAG FEEDBACK */
-.shelf.drag-over,
 .platter.drag-over {
-  box-shadow:
-    inset 0 0 0 2px var(--gold),
-    0 0 35px rgba(225,195,106,0.6);
+  border-color: var(--gold);
+  transform: scale(1.02);
 }
 
-@keyframes spin {
+.tonearm {
+  position: absolute;
+  top: 0;
+  right: -20px;
+  width: 100px;
+  height: 200px;
+  pointer-events: none;
+  transform-origin: 50% 20%;
+  transition: transform 0.8s ease-in-out;
+  z-index: 20;
+}
+
+.tonearm-base {
+  width: 40px;
+  height: 40px;
+  background: #444;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  right: 20px;
+}
+
+.tonearm-rod {
+  width: 6px;
+  height: 160px;
+  background: #888;
+  position: absolute;
+  top: 20px;
+  right: 37px;
+  border-radius: 3px;
+}
+
+/* Playing State */
+.is-playing .platter .vinyl {
+  width: 300px;
+  height: 300px;
+  animation: rotate 3s linear infinite;
+  box-shadow: 0 0 30px rgba(0,0,0,0.9);
+}
+
+.is-playing .tonearm {
+  transform: rotate(25deg);
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-footer {
-  text-align: center;
-  margin-top: 130px;
-  opacity: 0.6;
-  font-style: italic;
+/* --- STATS & SIDEBAR --- */
+.stats-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(225, 195, 106, 0.1);
+  padding: 20px;
+  border-radius: 4px;
 }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.stat-value { color: var(--gold); font-weight: bold; }
+
+.visualizer {
+  height: 40px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  margin-top: 20px;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.is-playing .visualizer { opacity: 1; }
+
+.bar {
+  flex: 1;
+  background: var(--gold);
+  height: 5%;
+  animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes bounce {
+  from { height: 10%; }
+  to { height: 100%; }
+}
+
+/* Reflective notes text */
+#track-info {
+  margin-top: 20px;
+  text-align: center;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+#track-notes {
+  font-size: 0.85rem;
+  color: var(--parchment);
+  opacity: 0.7;
+  font-style: italic;
+  margin-top: 5px;
+  max-width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 </style>
 </head>
-
 <body>
 
-<header>
+<div class="action-bar">
   <h1>THE NOOK</h1>
-  <p>A listening chamber for treasured sound</p>
-</header>
+  <button class="add-btn" id="addBtn">+ Add Record</button>
+</div>
 
-<div class="room">
-
-  <!-- LEFT -->
-  <div>
-    <div class="section-title">TO BE PLAYED</div>
-
-    <div class="shelf" data-zone="to-play">
-      <div class="vinyl" draggable="true"><span>Brass<br>Nocturne</span></div>
-      <div class="vinyl" draggable="true"><span>Parchment<br>Rhythms</span></div>
+<!-- ADD RECORD MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Catalog New Entry</h2>
+    
+    <div class="form-group">
+      <label>Album Name</label>
+      <input type="text" id="albumIn" placeholder="e.g. Rumours">
     </div>
 
-    <div class="shelf" data-zone="to-play">
-      <div class="vinyl" draggable="true"><span>Midnight<br>Soliloquy</span></div>
+    <div class="form-group">
+      <label>Artist Name</label>
+      <input type="text" id="artistIn" placeholder="e.g. Fleetwood Mac">
     </div>
 
-    <div class="shelf" data-zone="to-play"></div>
-    <div class="shelf" data-zone="to-play"></div>
-    <div class="shelf" data-zone="to-play"></div>
+    <div class="form-group">
+      <label>Mood Setting</label>
+      <div class="mood-row">
+        <span>🌑</span>
+        <input type="range" id="moodIn" min="0" max="100" value="50">
+        <span>☀️</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Rating</label>
+      <div class="stars" id="starContainer">
+        <span class="star" data-v="1">★</span>
+        <span class="star" data-v="2">★</span>
+        <span class="star" data-v="3">★</span>
+        <span class="star" data-v="4">★</span>
+        <span class="star" data-v="5">★</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Reflections</label>
+      <textarea id="notesIn" rows="3" placeholder="Notes on this pressing or experience..."></textarea>
+    </div>
+
+    <button class="save-record-btn" id="saveBtn">Add to Shelf</button>
+    <div style="text-align: center; margin-top: 15px;">
+      <span style="color: var(--parchment); cursor: pointer; opacity: 0.5; font-size: 0.8rem;" id="cancelBtn">Cancel</span>
+    </div>
+  </div>
+</div>
+
+<div class="room-layout">
+  
+  <!-- LEFT: COLLECTION -->
+  <div class="column">
+    <div class="section-title">
+      Your Collection
+      <span id="count-tag" style="color:var(--parchment); opacity: 0.6">3 Records</span>
+    </div>
+    
+    <div class="shelf-container">
+      <div class="vinyl-row" id="main-shelf" data-zone="shelf">
+        <div class="vinyl" draggable="true" data-meta='{"album":"Rumours","artist":"Fleetwood","notes":"Classic late night listen."}'><div class="label">Rumours<br>Fleetwood</div></div>
+        <div class="vinyl" draggable="true" data-meta='{"album":"Kind of Blue","artist":"Miles Davis","notes":"Perfect for rainy days."}'><div class="label">Kind of Blue<br>Miles Davis</div></div>
+        <div class="vinyl" draggable="true" data-meta='{"album":"Discovery","artist":"Daft Punk","notes":"Energy booster."}'><div class="label">Discovery<br>Daft Punk</div></div>
+      </div>
+      <div class="shelf-plank"></div>
+    </div>
+
+    <div class="stats-card">
+      <div class="section-title" style="border:none; margin-bottom:10px;">Statistics</div>
+      <div class="stat-row"><span>Total Spins</span> <span class="stat-value" id="total-spins">0</span></div>
+      <div class="stat-row"><span>Library Value</span> <span class="stat-value">$142.50</span></div>
+    </div>
   </div>
 
-  <!-- CENTER -->
-  <div class="turntable">
-    <div class="section-title">NOW SPINNING</div>
-    <div class="platter" data-zone="now-playing"></div>
+  <!-- CENTER: THE PLAYER -->
+  <div class="column">
+    <div class="player-station" id="player-station">
+      <div class="section-title" style="border:none; text-align: center; display: block;">Now Spinning</div>
+      
+      <div class="platter-area">
+        <div class="tonearm">
+          <div class="tonearm-base"></div>
+          <div class="tonearm-rod"></div>
+        </div>
+        <div class="platter" id="platter" data-zone="platter">
+          <div style="color: #333; font-style: italic; font-size: 0.8rem;">Drop Vinyl Here</div>
+        </div>
+      </div>
 
-    <div class="controls">
-      <button>◀</button>
-      <button>▶</button>
-      <button>LOG FINISHED</button>
-    </div>
-
-    <div class="mood">
-      <label>SESSION MOOD</label><br>
-      <input type="range" min="1" max="4" value="2">
-    </div>
-
-    <div class="stats">
-      Total Records Played: <strong>3</strong>
+      <div class="visualizer">
+        <div class="bar" style="animation-delay: 0.1s"></div>
+        <div class="bar" style="animation-delay: 0.3s"></div>
+        <div class="bar" style="animation-delay: 0.2s"></div>
+        <div class="bar" style="animation-delay: 0.4s"></div>
+        <div class="bar" style="animation-delay: 0.1s"></div>
+        <div class="bar" style="animation-delay: 0.5s"></div>
+      </div>
+      
+      <div id="track-info"></div>
+      <div id="track-notes"></div>
     </div>
   </div>
 
-  <!-- RIGHT -->
-  <div>
-    <div class="section-title">FINISHED</div>
-
-    <div class="shelf" data-zone="finished">
-      <div class="vinyl" draggable="true"><span>Smoky<br>Blue</span></div>
+  <!-- RIGHT: HISTORY -->
+  <div class="column">
+    <div class="section-title">History</div>
+    <div class="shelf-container">
+      <div class="vinyl-row" id="history-shelf" data-zone="shelf"></div>
+      <div class="shelf-plank"></div>
     </div>
 
-    <div class="shelf" data-zone="finished"></div>
-    <div class="shelf" data-zone="finished"></div>
-    <div class="shelf" data-zone="finished"></div>
-    <div class="shelf" data-zone="finished"></div>
+    <div class="stats-card" style="font-style: italic; font-size: 0.85rem; color: #888;">
+      "Music is the wine that fills the cup of silence."
+    </div>
   </div>
 
 </div>
 
-<footer>Every record leaves a trace</footer>
-
 <script>
-let dragged = null;
+let draggedElement = null;
+let spinCount = 0;
+let selectedRating = 0;
 
-document.querySelectorAll('.vinyl').forEach(v => {
-  v.addEventListener('dragstart', () => {
-    dragged = v;
-    v.classList.add('dragging');
-  });
-  v.addEventListener('dragend', () => {
-    dragged = null;
-    v.classList.remove('dragging');
-  });
+// Modal Elements
+const modal = document.getElementById('modalOverlay');
+const addBtn = document.getElementById('addBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const saveBtn = document.getElementById('saveBtn');
+const starContainer = document.getElementById('starContainer');
+
+// Open/Close Modal
+addBtn.onclick = () => modal.style.display = 'flex';
+cancelBtn.onclick = () => closeModal();
+
+function closeModal() {
+  modal.style.display = 'none';
+  document.getElementById('albumIn').value = '';
+  document.getElementById('artistIn').value = '';
+  document.getElementById('notesIn').value = '';
+  selectedRating = 0;
+  updateStars(0);
+}
+
+// Star logic
+starContainer.querySelectorAll('.star').forEach(star => {
+  star.onclick = () => {
+    selectedRating = star.dataset.v;
+    updateStars(selectedRating);
+  };
 });
 
-document.querySelectorAll('.shelf, .platter').forEach(zone => {
-  zone.addEventListener('dragover', e => {
+function updateStars(val) {
+  starContainer.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('active', s.dataset.v <= val);
+  });
+}
+
+function updateStats() {
+  const count = document.querySelectorAll('#main-shelf .vinyl').length;
+  document.getElementById('count-tag').innerText = `${count} Records`;
+}
+
+function makeDraggable(el) {
+  el.addEventListener('dragstart', (e) => {
+    draggedElement = el;
+    el.style.opacity = '0.4';
+  });
+
+  el.addEventListener('dragend', () => {
+    el.style.opacity = '1';
+    draggedElement = null;
+  });
+}
+
+// Initialize
+document.querySelectorAll('.vinyl').forEach(makeDraggable);
+updateStats();
+
+// Drop Zones
+document.querySelectorAll('[data-zone]').forEach(zone => {
+  zone.addEventListener('dragover', (e) => {
     e.preventDefault();
     zone.classList.add('drag-over');
   });
+
   zone.addEventListener('dragleave', () => {
     zone.classList.remove('drag-over');
   });
-  zone.addEventListener('drop', () => {
+
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
     zone.classList.remove('drag-over');
-    if (!dragged) return;
-    zone.appendChild(dragged);
+    if (!draggedElement) return;
+
+    const station = document.getElementById('player-station');
+
+    if (zone.id === 'platter') {
+      const existing = zone.querySelector('.vinyl');
+      if (existing) {
+        document.getElementById('history-shelf').appendChild(existing);
+      }
+
+      zone.innerHTML = ''; 
+      zone.appendChild(draggedElement);
+      station.classList.add('is-playing');
+      
+      // Update Info from Metadata
+      const meta = JSON.parse(draggedElement.dataset.meta || '{}');
+      document.getElementById('track-info').innerText = `${meta.album || ''} - ${meta.artist || ''}`;
+      document.getElementById('track-notes').innerText = meta.notes || '';
+      
+      spinCount++;
+      document.getElementById('total-spins').innerText = spinCount;
+    } else {
+      if (draggedElement.parentElement.id === 'platter') {
+        station.classList.remove('is-playing');
+        document.getElementById('track-info').innerText = '';
+        document.getElementById('track-notes').innerText = '';
+      }
+      zone.appendChild(draggedElement);
+    }
+    updateStats();
   });
 });
+
+// Save Logic
+saveBtn.onclick = () => {
+  const album = document.getElementById('albumIn').value;
+  const artist = document.getElementById('artistIn').value;
+  const mood = document.getElementById('moodIn').value;
+  const notes = document.getElementById('notesIn').value;
+
+  if (album && artist) {
+    const newVinyl = document.createElement('div');
+    newVinyl.className = 'vinyl';
+    newVinyl.draggable = true;
+    
+    // Store all details in a data attribute
+    const meta = { album, artist, mood, rating: selectedRating, notes };
+    newVinyl.dataset.meta = JSON.stringify(meta);
+    
+    newVinyl.innerHTML = `<div class="label">${album}<br>${artist}</div>`;
+    
+    makeDraggable(newVinyl);
+    document.getElementById('main-shelf').appendChild(newVinyl);
+    updateStats();
+    closeModal();
+  }
+};
 </script>
 
 </body>
