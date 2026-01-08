@@ -526,6 +526,34 @@ body {
 
 </div>
 
+async function loadRecords() {
+  const res = await fetch("http://127.0.0.1:5000/records");
+  const records = await res.json();
+
+  const shelf = document.getElementById("main-shelf");
+  shelf.innerHTML = "";
+
+  records.forEach(r => {
+    const vinyl = document.createElement("div");
+    vinyl.className = "vinyl";
+    vinyl.draggable = true;
+
+    vinyl.dataset.meta = JSON.stringify({
+      album: r.album,
+      artist: r.artist,
+      mood: r.mood,
+      notes: ""
+    });
+
+    vinyl.innerHTML = `<div class="label">${r.album}<br>${r.artist}</div>`;
+    makeDraggable(vinyl);
+    shelf.appendChild(vinyl);
+  });
+
+  updateStats();
+}
+
+
 <script>
 let draggedElement = null;
 let spinCount = 0;
@@ -657,6 +685,7 @@ saveBtn.onclick = () => {
     closeModal();
   }
 };
+loadRecords();
 </script>
 
 </body>
