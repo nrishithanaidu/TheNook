@@ -4,146 +4,49 @@
 <meta charset="UTF-8" />
 <title>The Nook — Grand Library</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Crimson+Text&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --bg: #f6f1e7;
-  --ink: #1c0f12;
-  --gold: #c9a44c;
-  --wood: #6b4228;
-  --wood-dark: #3b2316;
-  --book-red: #6b2b34;
-}
-
+:root { --bg: #f6f1e7; --ink: #1c0f12; --gold: #c9a44c; --wood: #6b4228; --wood-dark: #3b2316; --book-red: #6b2b34; --success: #28a745; --error: #dc3545; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background: radial-gradient(circle at top, #fffaf3, #e9e1d4);
-  font-family: 'Crimson Text', serif;
-  color: var(--ink);
-  padding: 40px;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 50px;
-}
-
-.logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  cursor: pointer;
-}
-
-nav button {
-  padding: 8px 14px;
-  background: var(--gold);
-  border: none;
-  cursor: pointer;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 80px;
-}
-
-header h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  letter-spacing: 0.15em;
-}
-
-.shelf-section {
-  margin-bottom: 120px;
-  padding: 40px 0;
-}
-
-.shelf-title {
-  text-align: center;
-  font-family: 'Playfair Display', serif;
-  letter-spacing: 0.3em;
-  margin-bottom: 35px;
-  color: var(--gold);
-}
-
-.shelf {
-  background: linear-gradient(to bottom, var(--wood), var(--wood-dark));
-  height: 30px;
-  display: flex;
-  gap: 16px;
-  padding: 0 18px;
-  align-items: flex-end;
-  border-radius: 4px;
-  box-shadow: 0 15px 25px rgba(0,0,0,0.4);
-}
-
-.book {
-  width: 54px;
-  height: 210px;
-  background: linear-gradient(180deg, #7a2e3a, #4b1820);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  margin-bottom: 28px;
-}
-
-.book span {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-family: 'Playfair Display', serif;
-  font-size: 0.9rem;
-  color: #f6f1e7;
-}
-
-.book.finished {
-  background: linear-gradient(180deg, #c9a44c, #8c6b2e);
-}
-
-.analytics {
-  margin-top: 80px;
-  text-align: center;
-  font-family: 'Playfair Display', serif;
-}
-
-.analytics span {
-  display: block;
-  margin-top: 10px;
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: #fffaf3;
-  padding: 30px;
-  width: 340px;
-  border-radius: 6px;
-}
-
-.modal-content input,
-.modal-content textarea {
-  width: 100%;
-  margin-bottom: 10px;
-}
+body { background: radial-gradient(circle at top, #fffaf3, #e9e1d4); font-family: 'Crimson Text', serif; color: var(--ink); padding: 40px; }
+nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; }
+.logo-group { display: flex; align-items: center; gap: 15px; }
+.logo { font-family: 'Playfair Display', serif; font-size: 2rem; cursor: pointer; }
+.status-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: bold; color: white; background: #999; }
+.status-online { background: var(--success); }
+.status-offline { background: var(--error); }
+nav button { padding: 8px 14px; background: var(--gold); border: none; cursor: pointer; color: white; border-radius: 4px; }
+header { text-align: center; margin-bottom: 80px; }
+header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spacing: 0.15em; }
+.shelf-section { margin-bottom: 120px; padding: 40px 0; }
+.shelf-title { text-align: center; font-family: 'Playfair Display', serif; letter-spacing: 0.3em; margin-bottom: 35px; color: var(--gold); }
+.shelf { background: linear-gradient(to bottom, var(--wood), var(--wood-dark)); height: 30px; display: flex; gap: 16px; padding: 0 18px; align-items: flex-end; border-radius: 4px; box-shadow: 0 15px 25px rgba(0,0,0,0.4); }
+.book { width: 54px; height: 210px; background: linear-gradient(180deg, #7a2e3a, #4b1820); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 28px; transition: transform 0.2s; }
+.book:hover { transform: translateY(-5px); }
+.book span { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Playfair Display', serif; font-size: 0.9rem; color: #f6f1e7; pointer-events: none; }
+.book.finished { background: linear-gradient(180deg, #c9a44c, #8c6b2e); }
+.analytics { text-align: center; margin-top: 40px; font-family: 'Playfair Display', serif; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: #fffaf3; padding: 30px; width: 400px; max-height: 90vh; overflow-y: auto; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-content label { display: block; font-size: 0.8rem; margin: 8px 0 2px; color: var(--wood); font-weight: bold; }
+.modal-content input, .modal-content textarea, .modal-content select { width: 100%; margin-bottom: 12px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; }
+.modal-content button { padding: 10px 15px; border: none; cursor: pointer; margin-right: 5px; border-radius: 4px; }
+.btn-primary { background: var(--wood); color: white; }
+.btn-secondary { background: #ccc; }
+.btn-danger { background: #a33; color: white; }
+.btn-edit { background: var(--gold); color: white; }
+.btn-fetch { background: var(--ink); color: white; margin-bottom: 15px; width: 100%; }
+.view-text { margin-bottom: 15px; font-size: 1.1rem; line-height: 1.4; color: var(--ink); }
+.hidden { display: none !important; }
 </style>
 </head>
-
 <body>
 
 <nav>
-  <div class="logo">The Nook</div>
+  <div class="logo-group">
+    <div class="logo" onclick="fetchBooks()">The Nook</div>
+    <div id="connectionStatus" class="status-badge">Checking...</div>
+  </div>
   <button onclick="openAdd()">+ Add Book</button>
 </nav>
 
@@ -168,81 +71,331 @@ header h1 {
 </section>
 
 <div class="analytics">
-  <span>Total Books: <b id="totalBooks">0</b></span>
+  <span>Total Books: <b id="totalBooks">0</b></span> | 
   <span>Finished Books: <b id="finishedBooks">0</b></span>
 </div>
 
+<!-- ADD MODAL -->
 <div class="modal" id="addModal">
   <div class="modal-content">
     <h3>Add Book</h3>
-    <input id="title" placeholder="Title">
+    <label>Magic Import</label>
+    <input id="importUrl" placeholder="Paste Goodreads/Amazon/Google URL">
+    <button class="btn-fetch" id="fetchBtn" onclick="autoFillDetails()">Auto-fill Details</button>
+    <hr style="margin-bottom:15px">
+    
+    <label>Title</label>
+    <input id="title" placeholder="Name of the Book (Required)">
+    <label>Author</label>
     <input id="author" placeholder="Author">
-    <textarea id="review" placeholder="Review"></textarea>
-    <button onclick="addBook()">Add</button>
-    <button onclick="closeAdd()">Cancel</button>
+    <label>Genre</label>
+    <input id="genre" placeholder="Genre">
+    
+    <label>Shelf Status</label>
+    <select id="status">
+      <option value="tbr">To Be Read</option>
+      <option value="current">Currently Reading</option>
+      <option value="finished">Finished</option>
+    </select>
+    
+    <label>Rating (0-5)</label>
+    <input type="number" id="rating" min="0" max="5" placeholder="Rating">
+    
+    <label>Moods</label>
+    <input id="moods" placeholder="Moods (comma separated)">
+    
+    <label>Start Date</label>
+    <input type="date" id="startDate">
+    
+    <label>Finish Date</label>
+    <input type="date" id="finishDate">
+    
+    <label>Review</label>
+    <textarea id="review" placeholder="Thoughts on the book..." rows="3"></textarea>
+    
+    <button class="btn-primary" onclick="addBook()">Add to Library</button>
+    <button class="btn-secondary" onclick="closeAdd()">Cancel</button>
+  </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="modal" id="detailsModal">
+  <div class="modal-content">
+    <h3 id="detHeader">Book Details</h3>
+    <input type="hidden" id="detId">
+    
+    <div id="viewMode">
+        <label>Title</label><p class="view-text" id="vTitle"></p>
+        <label>Author</label><p class="view-text" id="vAuthor"></p>
+        <label>Genre</label><p class="view-text" id="vGenre"></p>
+        <label>Status</label><p class="view-text" id="vStatus"></p>
+        <label>Rating</label><p class="view-text" id="vRating"></p>
+        <label>Moods</label><p class="view-text" id="vMoods"></p>
+        <label>Dates</label><p class="view-text"><span id="vStartDate"></span> — <span id="vFinishDate"></span></p>
+        <label>Review</label><p class="view-text" id="vReview"></p>
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <div><button class="btn-edit" onclick="setEditMode(true)">Edit</button><button class="btn-secondary" onclick="closeDetails()">Close</button></div>
+            <button class="btn-danger" onclick="deleteBook()">Delete</button>
+        </div>
+    </div>
+
+    <div id="editMode" class="hidden">
+        <label>Title</label><input id="detTitle">
+        <label>Author</label><input id="detAuthor">
+        <label>Genre</label><input id="detGenre">
+        <label>Status</label>
+        <select id="detStatus">
+            <option value="tbr">To Be Read</option>
+            <option value="current">Currently Reading</option>
+            <option value="finished">Finished</option>
+        </select>
+        <label>Rating (0-5)</label><input type="number" id="detRating" min="0" max="5">
+        <label>Moods</label><input id="detMoods">
+        <label>Start Date</label><input type="date" id="detStartDate">
+        <label>Finish Date</label><input type="date" id="detFinishDate">
+        <label>Review</label><textarea id="detReview" rows="3"></textarea>
+        <div style="margin-top: 10px;">
+            <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+            <button class="btn-secondary" onclick="setEditMode(false)">Cancel</button>
+        </div>
+    </div>
   </div>
 </div>
 
 <script>
-let books = [
-  { id: 1, title: 'The Hobbit', author: 'Tolkien', status: 'tbr', review: '' },
-  { id: 2, title: 'Mistborn', author: 'Sanderson', status: 'current', review: '' }
-];
-
+let books = [];
+const API_URL = "http://127.0.0.1:5000/api/books";
 let dragId = null;
 
-function render() {
-  ['tbr','current','finished'].forEach(id => document.getElementById(id).innerHTML = '');
+function updateStatus(isOnline) {
+  const el = document.getElementById('connectionStatus');
+  if (isOnline) { el.textContent = "Online"; el.className = "status-badge status-online"; }
+  else { el.textContent = "Offline"; el.className = "status-badge status-offline"; }
+}
 
+async function fetchBooks() {
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error("Server error");
+    books = await res.json();
+    updateStatus(true);
+    render();
+  } catch (err) { updateStatus(false); }
+}
+
+function render() {
+  ['tbr','current','finished'].forEach(id => {
+    const shelf = document.getElementById(id);
+    if (shelf) shelf.innerHTML = '';
+  });
   books.forEach(b => {
     const el = document.createElement('div');
     el.className = 'book' + (b.status === 'finished' ? ' finished' : '');
     el.draggable = true;
-
     el.addEventListener('dragstart', () => dragId = b.id);
+    el.addEventListener('click', () => openDetails(b.id));
     el.innerHTML = `<span>${b.title}</span>`;
-    document.getElementById(b.status).appendChild(el);
+    const shelf = document.getElementById(b.status);
+    if (shelf) shelf.appendChild(el);
   });
-
   document.getElementById('totalBooks').textContent = books.length;
-  document.getElementById('finishedBooks').textContent =
-    books.filter(b => b.status === 'finished').length;
+  document.getElementById('finishedBooks').textContent = books.filter(b => b.status === 'finished').length;
 }
 
+// Drag and Drop Logic
 document.querySelectorAll('.shelf-section').forEach(section => {
   section.addEventListener('dragover', e => e.preventDefault());
-  section.addEventListener('drop', () => {
+  section.addEventListener('drop', async () => {
     const zone = section.dataset.zone;
     const book = books.find(b => b.id === dragId);
-    if (book) {
+    if (book && book.status !== zone) {
+      const oldStatus = book.status;
       book.status = zone;
       render();
+      try {
+        await fetch(`${API_URL}/${book.id}`, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ status: zone })
+        });
+      } catch (e) { book.status = oldStatus; render(); }
     }
   });
 });
 
-function openAdd() {
-  document.getElementById('addModal').style.display = 'flex';
+function openAdd() { document.getElementById('addModal').style.display = 'flex'; }
+function closeAdd() { 
+    document.getElementById('addModal').style.display = 'none';
+    clearInputs('addModal');
 }
 
-function closeAdd() {
-  document.getElementById('addModal').style.display = 'none';
+// Helper to clear inputs in a modal
+function clearInputs(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    const inputs = modal.querySelectorAll('input, textarea');
+    inputs.forEach(input => input.value = '');
+    const selects = modal.querySelectorAll('select');
+    selects.forEach(select => select.selectedIndex = 0);
 }
 
-function addBook() {
-  books.push({
-    id: Date.now(),
-    title: title.value,
-    author: author.value,
-    review: review.value,
-    status: 'tbr'
-  });
-  closeAdd();
-  render();
+function openDetails(id) {
+  const b = books.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('detId').value = b.id;
+  document.getElementById('vTitle').textContent = b.title;
+  document.getElementById('vAuthor').textContent = b.author || 'N/A';
+  document.getElementById('vGenre').textContent = b.genre || 'N/A';
+  document.getElementById('vStatus').textContent = b.status === 'tbr' ? 'To Be Read' : b.status === 'current' ? 'Currently Reading' : 'Finished';
+  document.getElementById('vRating').textContent = '★'.repeat(b.rating || 0) + '☆'.repeat(5 - (b.rating || 0));
+  document.getElementById('vMoods').textContent = (b.moods || []).join(', ') || 'None';
+  document.getElementById('vStartDate').textContent = b.start_date || 'None';
+  document.getElementById('vFinishDate').textContent = b.finish_date || 'None';
+  document.getElementById('vReview').textContent = b.review || 'No review yet.';
+
+  document.getElementById('detTitle').value = b.title;
+  document.getElementById('detAuthor').value = b.author || '';
+  document.getElementById('detGenre').value = b.genre || '';
+  document.getElementById('detStatus').value = b.status;
+  document.getElementById('detRating').value = b.rating || 0;
+  document.getElementById('detMoods').value = (b.moods || []).join(', ');
+  document.getElementById('detStartDate').value = b.start_date || '';
+  document.getElementById('detFinishDate').value = b.finish_date || '';
+  document.getElementById('detReview').value = b.review || '';
+
+  setEditMode(false);
+  document.getElementById('detailsModal').style.display = 'flex';
 }
 
-render();
+function setEditMode(isEdit) {
+    document.getElementById('viewMode').classList.toggle('hidden', isEdit);
+    document.getElementById('editMode').classList.toggle('hidden', !isEdit);
+    document.getElementById('detHeader').textContent = isEdit ? "Edit Book" : "Book Details";
+}
+
+function closeDetails() { document.getElementById('detailsModal').style.display = 'none'; }
+
+async function autoFillDetails() {
+  const url = document.getElementById('importUrl').value.trim();
+  if (!url) return alert("Paste a URL first");
+  const btn = document.getElementById('fetchBtn');
+  btn.textContent = "Magic is working...";
+  btn.disabled = true;
+
+  try {
+    let query = "";
+    // Check for 10 or 13 digit numbers which are likely ISBNs
+    const isbnMatch = url.match(/\b\d{10,13}\b/);
+    if (isbnMatch) {
+      query = `isbn:${isbnMatch[0]}`;
+    } else {
+      // Extract keywords from URL path
+      query = url.split('/').pop().split(/[?#]/)[0].replace(/[_\-\+]/g, ' ').trim();
+    }
+
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=1`);
+    const data = await res.json();
+    
+    if (data.items && data.items.length > 0) {
+      const info = data.items[0].volumeInfo;
+      document.getElementById('title').value = info.title || '';
+      document.getElementById('author').value = info.authors ? info.authors.join(', ') : '';
+      document.getElementById('genre').value = info.categories ? info.categories.join(', ') : '';
+      btn.textContent = "Book Found!";
+      setTimeout(() => { btn.textContent = "Auto-fill Details"; btn.disabled = false; }, 2000);
+    } else { 
+        alert("We couldn't find that exact book. Please try another link or enter details manually."); 
+        btn.textContent = "Auto-fill Details";
+        btn.disabled = false;
+    }
+  } catch (e) { 
+      alert("Error connecting to the book service."); 
+      btn.textContent = "Auto-fill Details";
+      btn.disabled = false;
+  }
+}
+
+async function addBook() {
+  const title = document.getElementById('title').value.trim();
+  if (!title) return alert("Title is required to save a book.");
+
+  const payload = {
+    title: title,
+    author: document.getElementById('author').value,
+    genre: document.getElementById('genre').value,
+    status: document.getElementById('status').value,
+    rating: document.getElementById('rating').value,
+    moods: document.getElementById('moods').value.split(',').map(s => s.trim()).filter(s => s),
+    start_date: document.getElementById('startDate').value,
+    finish_date: document.getElementById('finishDate').value,
+    review: document.getElementById('review').value
+  };
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+        const data = await res.json();
+        alert(data.message || "Excellent! The book has been added to your collection.");
+        closeAdd();
+        fetchBooks();
+    } else {
+        const err = await res.json();
+        alert(`Failed to add book: ${err.error}`);
+    }
+  } catch (e) { alert("Could not reach backend server. Is it running?"); }
+}
+
+async function saveEdit() {
+  const id = document.getElementById('detId').value;
+  const payload = {
+    title: document.getElementById('detTitle').value,
+    author: document.getElementById('detAuthor').value,
+    genre: document.getElementById('detGenre').value,
+    status: document.getElementById('detStatus').value,
+    rating: document.getElementById('detRating').value,
+    moods: document.getElementById('detMoods').value.split(',').map(s => s.trim()).filter(s => s),
+    start_date: document.getElementById('detStartDate').value,
+    finish_date: document.getElementById('detFinishDate').value,
+    review: document.getElementById('detReview').value
+  };
+  try {
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+        const data = await res.json();
+        alert(data.message || "Your changes have been saved to the library.");
+        closeDetails();
+        fetchBooks();
+    } else {
+        alert("There was an error saving your changes.");
+    }
+  } catch (e) { alert("Server connection lost."); }
+}
+
+async function deleteBook() {
+  const id = document.getElementById('detId').value;
+  if (!confirm("Are you sure you want to remove this book from your library forever?")) return;
+  try {
+    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+        const data = await res.json();
+        alert(data.message || "The book has been removed.");
+        closeDetails();
+        fetchBooks();
+    } else {
+        alert("The book could not be deleted.");
+    }
+  } catch (e) { alert("Server connection error."); }
+}
+
+fetchBooks();
 </script>
-
 </body>
 </html>
