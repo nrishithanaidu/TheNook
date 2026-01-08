@@ -548,7 +548,7 @@
      */
     async function loadRecords() {
         try {
-            const res = await fetch(`${API_BASE}/records`);
+            const res = await fetch("http://127.0.0.1:5000/records");
             if (!res.ok) throw new Error("Backend unreachable");
             const records = await res.json();
             renderRecords(records);
@@ -701,6 +701,7 @@
             }
         }
     };
+    loadRecords();
 </script>
 
 </body>
