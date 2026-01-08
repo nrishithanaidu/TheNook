@@ -5,7 +5,6 @@
 <title>The Nook — Grand Library</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Crimson+Text&display=swap" rel="stylesheet">
 
 <style>
@@ -18,7 +17,6 @@
   --book-red: #6b2b34;
 }
 
-/* RESET */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -28,7 +26,6 @@ body {
   padding: 40px;
 }
 
-/* NAV */
 nav {
   display: flex;
   justify-content: space-between;
@@ -49,7 +46,6 @@ nav button {
   cursor: pointer;
 }
 
-/* HEADER */
 header {
   text-align: center;
   margin-bottom: 80px;
@@ -61,9 +57,9 @@ header h1 {
   letter-spacing: 0.15em;
 }
 
-/* SECTIONS */
 .shelf-section {
-  margin-bottom: 90px;
+  margin-bottom: 120px;
+  padding: 40px 0;
 }
 
 .shelf-title {
@@ -74,7 +70,6 @@ header h1 {
   color: var(--gold);
 }
 
-/* SHELF */
 .shelf {
   background: linear-gradient(to bottom, var(--wood), var(--wood-dark));
   height: 30px;
@@ -86,7 +81,6 @@ header h1 {
   box-shadow: 0 15px 25px rgba(0,0,0,0.4);
 }
 
-/* BOOK */
 .book {
   width: 54px;
   height: 210px;
@@ -97,7 +91,6 @@ header h1 {
   justify-content: center;
   cursor: grab;
   margin-bottom: 28px;
-  transition: transform 0.3s;
 }
 
 .book span {
@@ -108,15 +101,21 @@ header h1 {
   color: #f6f1e7;
 }
 
-.book:hover {
-  transform: translateY(-8px);
-}
-
 .book.finished {
   background: linear-gradient(180deg, #c9a44c, #8c6b2e);
 }
 
-/* MODALS */
+.analytics {
+  margin-top: 80px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+}
+
+.analytics span {
+  display: block;
+  margin-top: 10px;
+}
+
 .modal {
   display: none;
   position: fixed;
@@ -138,25 +137,13 @@ header h1 {
   width: 100%;
   margin-bottom: 10px;
 }
-
-/* ANALYTICS */
-.analytics {
-  margin-top: 80px;
-  text-align: center;
-  font-family: 'Playfair Display', serif;
-}
-
-.analytics span {
-  display: block;
-  margin-top: 10px;
-}
 </style>
 </head>
 
 <body>
 
 <nav>
-  <div class="logo" onclick="location.href='index.html'">The Nook</div>
+  <div class="logo">The Nook</div>
   <button onclick="openAdd()">+ Add Book</button>
 </nav>
 
@@ -165,17 +152,17 @@ header h1 {
   <p>A sanctuary of bound memories</p>
 </header>
 
-<section class="shelf-section">
+<section class="shelf-section" data-zone="tbr">
   <div class="shelf-title">TO BE READ</div>
   <div class="shelf" id="tbr"></div>
 </section>
 
-<section class="shelf-section">
+<section class="shelf-section" data-zone="current">
   <div class="shelf-title">CURRENTLY READING</div>
   <div class="shelf" id="current"></div>
 </section>
 
-<section class="shelf-section">
+<section class="shelf-section" data-zone="finished">
   <div class="shelf-title">FINISHED</div>
   <div class="shelf" id="finished"></div>
 </section>
@@ -185,34 +172,23 @@ header h1 {
   <span>Finished Books: <b id="finishedBooks">0</b></span>
 </div>
 
-<!-- ADD BOOK MODAL -->
 <div class="modal" id="addModal">
   <div class="modal-content">
     <h3>Add Book</h3>
     <input id="title" placeholder="Title">
     <input id="author" placeholder="Author">
-    <input id="moods" placeholder="Moods (comma separated)">
-    <input type="number" id="rating" min="1" max="5" placeholder="Rating (1-5)">
     <textarea id="review" placeholder="Review"></textarea>
     <button onclick="addBook()">Add</button>
     <button onclick="closeAdd()">Cancel</button>
   </div>
 </div>
 
-<!-- DETAILS MODAL -->
-<div class="modal" id="detailsModal">
-  <div class="modal-content">
-    <h3 id="dTitle"></h3>
-    <p><b>Author:</b> <span id="dAuthor"></span></p>
-    <p><b>Moods:</b> <span id="dMoods"></span></p>
-    <p><b>Rating:</b> <span id="dRating"></span></p>
-    <p id="dReview"></p>
-    <button onclick="closeDetails()">Close</button>
-  </div>
-</div>
-
 <script>
-let books = [];
+let books = [
+  { id: 1, title: 'The Hobbit', author: 'Tolkien', status: 'tbr', review: '' },
+  { id: 2, title: 'Mistborn', author: 'Sanderson', status: 'current', review: '' }
+];
+
 let dragId = null;
 
 function render() {
@@ -222,8 +198,8 @@ function render() {
     const el = document.createElement('div');
     el.className = 'book' + (b.status === 'finished' ? ' finished' : '');
     el.draggable = true;
-    el.ondragstart = e => dragId = b.id;
-    el.onclick = () => showDetails(b.id);
+
+    el.addEventListener('dragstart', () => dragId = b.id);
     el.innerHTML = `<span>${b.title}</span>`;
     document.getElementById(b.status).appendChild(el);
   });
@@ -233,19 +209,22 @@ function render() {
     books.filter(b => b.status === 'finished').length;
 }
 
-['tbr','current','finished'].forEach(zone => {
-  const el = document.getElementById(zone);
-  el.ondragover = e => e.preventDefault();
-  el.ondrop = () => {
+document.querySelectorAll('.shelf-section').forEach(section => {
+  section.addEventListener('dragover', e => e.preventDefault());
+  section.addEventListener('drop', () => {
+    const zone = section.dataset.zone;
     const book = books.find(b => b.id === dragId);
-    book.status = zone;
-    render();
-  };
+    if (book) {
+      book.status = zone;
+      render();
+    }
+  });
 });
 
 function openAdd() {
   document.getElementById('addModal').style.display = 'flex';
 }
+
 function closeAdd() {
   document.getElementById('addModal').style.display = 'none';
 }
@@ -255,8 +234,6 @@ function addBook() {
     id: Date.now(),
     title: title.value,
     author: author.value,
-    moods: moods.value.split(','),
-    rating: rating.value,
     review: review.value,
     status: 'tbr'
   });
@@ -264,19 +241,7 @@ function addBook() {
   render();
 }
 
-function showDetails(id) {
-  const b = books.find(x => x.id === id);
-  dTitle.textContent = b.title;
-  dAuthor.textContent = b.author;
-  dMoods.textContent = b.moods.join(', ');
-  dRating.textContent = '★'.repeat(b.rating);
-  dReview.textContent = b.review;
-  document.getElementById('detailsModal').style.display = 'flex';
-}
-
-function closeDetails() {
-  document.getElementById('detailsModal').style.display = 'none';
-}
+render();
 </script>
 
 </body>
