@@ -5,10 +5,13 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import declarative_base, sessionmaker
 import urllib.parse
 import uuid
+#from chatbot import chatbot_bp
 from datetime import datetime
 import traceback
 
 app = Flask(__name__)
+#app.register_blueprint(chatbot_bp)
+
 
 # -------------------------
 # 🛠️ CORS CONFIGURATION
