@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Nook — Homepage</title>
+    <title>The Nook – Homepage</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Google Fonts: IM Fell English SC (Title), EB Garamond (Body), Kalam (Accents) -->
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- 6. COLOR PALETTE & TEXTURES --- */
+        /* --- COLOR PALETTE & TEXTURES --- */
         :root {
             --bg-parchment: #C6A878;
             --frame-parchment: #AE8C63;
@@ -21,13 +21,10 @@
             --emblem-red: #8B0000;
         }
 
-
-        /* Set the main background with grain/stain texture */
         body {
             background-color: var(--bg-parchment);
             color: var(--ink-text);
             font-family: 'EB Garamond', serif;
-            /* Enhanced grain texture for parchment look */
             background-image: repeating-linear-gradient(
                 45deg,
                 rgba(0, 0, 0, 0.08),
@@ -39,13 +36,10 @@
             min-height: 100vh;
         }
 
-
-        /* --- 7. FONT UPDATE --- */
         .font-title { font-family: 'IM Fell English SC', serif; }
         .font-accent { font-family: 'Kalam', cursive; }
 
-
-        /* --- 1. TOP NAVIGATION BAR (Torn Parchment Effect) --- */
+        /* --- TOP NAVIGATION BAR --- */
         .nav-parchment {
             background-color: var(--frame-parchment);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -53,7 +47,6 @@
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
-        /* Custom CSS to simulate torn/aged edges */
         .nav-parchment::before, .nav-parchment::after {
             content: '';
             position: absolute;
@@ -66,33 +59,26 @@
         .nav-parchment::before { top: -10px; }
         .nav-parchment::after { bottom: -10px; }
 
-
-        /* Header link glow instead of blur/darken */
         .nav-link:hover {
             color: var(--ink-text);
             text-shadow: 
                 0 0 6px rgba(255, 215, 0, 0.8),
-                0 0 12px rgba(255, 200, 50, 0.6),
-                0 0 20px rgba(255, 180, 0, 0.4);
+                0 0 12px rgba(255, 200, 50, 0.6);
             cursor: pointer;
         }
 
-
-
-        /* --- 2. HERO SECTION (Stamped Effect) --- */
+        /* --- HERO SECTION --- */
         .stamped-headline {
             text-shadow: 2px 2px 0 var(--shadow-dark);
             color: var(--ink-text);
         }
-        /* UPDATED: Darken subtext for visibility */
         .stamped-subtext {
             color: var(--ink-text);
             text-shadow: 0 0 1px var(--shadow-dark);
             opacity: 0.9;
         }
 
-
-        /* --- 3. MAIN MAP AREA (Parchment Frame & Hotspot Container) --- */
+        /* --- MAIN MAP AREA --- */
         .map-frame {
             border: 15px solid var(--frame-parchment);
             box-shadow: 0 10px 20px var(--shadow-dark), inset 0 0 15px var(--shadow-dark);
@@ -103,7 +89,6 @@
             outline-offset: -5px;
         }
 
-        /* ===== CIRCULAR HOTSPOT SYSTEM WITH GOLD HALO GLOW ===== */
         .map-hotspot {
             position: absolute;
             cursor: pointer;
@@ -116,41 +101,16 @@
             justify-content: center;
         }
 
-        /* Oval variant for Archive Tower */
-        .map-hotspot.oval {
-            border-radius: 40% 60%;
-        }
-
+        .map-hotspot.oval { border-radius: 40% 60%; }
 
         .map-hotspot:hover {
             transform: scale(1.2);
             box-shadow:
                 0 0 20px 5px rgba(255, 215, 0, 0.4),
-                0 0 40px 12px rgba(255, 200, 0, 0.25),
-                0 0 60px 20px rgba(255, 180, 0, 0.15),
-                inset 0 0 20px rgba(255, 240, 160, 0.3);
-            background: radial-gradient(circle at 30% 30%, rgba(255, 245, 200, 0.25), rgba(255, 230, 140, 0.15), rgba(255, 215, 0, 0.05));
+                0 0 40px 12px rgba(255, 200, 0, 0.25);
+            background: radial-gradient(circle at 30% 30%, rgba(255, 245, 200, 0.25), rgba(255, 230, 140, 0.15));
         }
 
-        .map-hotspot.oval:hover {
-            border-radius: 40% 60%;
-        }
-
-
-        /* Label visibility */
-        .map-hotspot .hover-label {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-
-        .map-hotspot:hover .hover-label {
-            opacity: 1;
-        }
-
-
-        /* LABEL STYLE */
-        /* LABEL STYLE */
         .hover-label {
             position: absolute;
             bottom: -65px;
@@ -160,49 +120,31 @@
             background-color: var(--highlight-sepia);
             border: 2px solid var(--ink-text);
             border-radius: 6px;
-            white-space: nowrap;
             color: var(--ink-text);
-            font-family: 'EB Garamond', 'IM Fell English SC', serif;
             font-size: 0.6rem;
             box-shadow: 0 2px 4px var(--shadow-dark);
             pointer-events: none;
             z-index: 50;
             max-width: 220px;
-            white-space: normal;
             text-align: center;
-            line-height: 1.2;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        /* Top-only labels for specific buildings */
-    .hover-label-top {
-    top: -80px; /* position above the building */
-    bottom: auto; /* override default bottom positioning if any */
-    transform: translateX(-50%) translateY(-80px); /* position above */
-    white-space: nowrap;
-    max-width: 220px;
-    font-family: 'EB Garamond', serif;
-    font-size: 0.75rem;
-    line-height: 1.2;
-}
+        .map-hotspot:hover .hover-label { opacity: 1; }
 
+        /* --- CUSTOM CURSORS --- */
+        .cursor-ticket { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="fill:black;font-size:24px;"><text y="50%">🎟️</text></svg>') 15 15, pointer; }
+        .cursor-quill { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="fill:black;font-size:24px;"><text y="50%">🖋️</text></svg>') 0 20, pointer; }
+        .cursor-vinyl { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="fill:black;font-size:24px;"><text y="50%">💿</text></svg>') 15 15, pointer; }
+        .cursor-mic { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="fill:black;font-size:24px;"><text y="50%">🎤</text></svg>') 15 15, pointer; }
+        .cursor-star { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="fill:black;font-size:24px;"><text y="50%">⭐</text></svg>') 15 15, pointer; }
+        .cursor-scroll { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="fill:black;font-size:24px;"><text y="50%">📜</text></svg>') 15 15, pointer; }
 
-
-        /* --- Custom Cursors (using cursor url fallback to pointer) --- */
-        .cursor-ticket { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">🎟️</text></svg>') 15 15, pointer; }
-        .cursor-quill { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">🖋️</text></svg>') 0 20, pointer; }
-        .cursor-vinyl { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">💿</text></svg>') 15 15, pointer; }
-        .cursor-mic { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">🎤</text></svg>') 15 15, pointer; }
-        .cursor-star { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">⭐</text></svg>') 15 15, pointer; }
-        .cursor-scroll { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewport="0 0 100 100" style="fill:black;font-size:24px;"><text y="50%">📜</text></svg>') 15 15, pointer; }
-
-
-        /* Transition Ink Swell Wipe */
+        /* --- TRANSITION --- */
         .ink-swell {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--ink-text);
             border-radius: 50%;
             transform: scale(0);
@@ -210,11 +152,9 @@
             z-index: 100;
             pointer-events: none;
         }
-        .ink-swell.active {
-            transform: scale(4);
-        }
+        .ink-swell.active { transform: scale(4); }
 
-        /* --- 5. MEDIA COUNTERS Hover Effect --- */
+        /* --- MEDIA COUNTERS --- */
         .counter-card {
             background-color: var(--frame-parchment);
             border: 2px solid var(--ink-text);
@@ -224,22 +164,80 @@
         .counter-card:hover {
             transform: translateY(-4px) translateX(-4px);
             box-shadow: 8px 8px 0 var(--shadow-dark);
-            cursor: default;
         }
-        /* Specific image styling for counter icons */
         .counter-icon {
             height: 36px;
             width: auto;
             object-fit: contain;
             margin-bottom: 4px;
         }
+        .counter-icon-sketch {
+            height: 36px;
+            width: auto;
+            margin-bottom: 4px;
+            filter: contrast(1.1) sepia(0.2) drop-shadow(1px 1px 0px rgba(0,0,0,0.1));
+            color: var(--ink-text);
+            opacity: 0.9;
+        }
 
+        /* --- ABOUT SECTION --- */
+        .about-section {
+            background-color: var(--frame-parchment);
+            border: 3px solid var(--ink-text);
+            box-shadow: 6px 6px 0 var(--shadow-dark);
+            position: relative;
+        }
+        .about-section::before {
+            content: '✦';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--bg-parchment);
+            padding: 0 10px;
+            font-size: 1.5rem;
+            color: var(--emblem-red);
+        }
 
-        /* Message Box Styling */
+        /* --- FOOTER --- */
+        .footer-parchment {
+            background-color: var(--frame-parchment);
+            border-top: 3px solid var(--ink-text);
+            position: relative;
+            margin-top: 4rem;
+        }
+        .footer-parchment::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background-color: var(--bg-parchment);
+        }
+
+        /* --- QUICK STATS RIBBON --- */
+        .stats-ribbon {
+            background: linear-gradient(135deg, var(--frame-parchment) 0%, var(--shadow-dark) 100%);
+            border: 2px solid var(--ink-text);
+            border-left: none;
+            border-right: none;
+            position: relative;
+        }
+        .stats-ribbon::before, .stats-ribbon::after {
+            content: '◆';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--emblem-red);
+            font-size: 1.2rem;
+        }
+        .stats-ribbon::before { left: 1rem; }
+        .stats-ribbon::after { right: 1rem; }
+
         .message-box {
             position: fixed;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background-color: var(--bg-parchment);
             color: var(--ink-text);
@@ -247,77 +245,69 @@
             z-index: 200;
             padding: 20px;
             box-shadow: 10px 10px 0 var(--shadow-dark);
-            font-family: 'EB Garamond', serif;
             max-width: 80%;
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.3s, visibility 0.3s;
         }
-        .message-box.visible {
-            visibility: visible;
-            opacity: 1;
+        .message-box.visible { visibility: visible; opacity: 1; }
+        .building-link { display: contents; }
+
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        @media (max-width: 768px) {
+            .hover-label {
+                font-size: 0.5rem;
+                bottom: -50px;
+                max-width: 150px;
+            }
+            .stamped-headline {
+                font-size: 2.5rem;
+            }
+            .stats-ribbon {
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Message Box (replaces alert()) -->
+    <!-- Message Box -->
     <div id="message-box" class="message-box rounded-md">
         <p id="message-content" class="text-lg"></p>
         <button onclick="closeMessageBox()" class="mt-4 p-2 bg-white font-title border border-gray-800 hover:bg-gray-200">Close Scroll</button>
     </div>
 
-
-    <!-- Transition Wipe Element -->
+    <!-- Transition Wipe -->
     <div id="ink-swell" class="ink-swell"></div>
 
-
     <div class="max-w-7xl mx-auto py-4 sm:px-6 lg:px-8">
-        <!-- 1. TOP NAVIGATION BAR (Rustic Parchment UI) -->
+        <!-- TOP NAVIGATION BAR -->
         <nav class="nav-parchment w-full rounded-md shadow-lg mb-8 relative z-20">
             <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8">
-                <!-- Left Group: Logo, Title, Search -->
-                <div class="flex items-center space-x-6 w-full md:w-auto">
-                    <!-- Circle Logo - Red Emblem -->
+                <div class="flex items-center space-x-6">
                     <div class="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center font-title text-xl nav-link text-white" 
                          style="background-color: var(--emblem-red); border-color: var(--ink-text);" onclick="handleNavigation('/')">N</div>
-
-                    <!-- The Nook Title -->
                     <span class="text-2xl font-bold font-title nav-link" onclick="handleNavigation('/')">The Nook</span>
-
-                    <!-- Search Bar -->
-                    <div class="hidden md:block flex-grow">
-                        <input type="text" placeholder="Seek something?" class="w-full max-w-xs px-3 py-1 bg-white/70 border-2 border-current rounded-full font-serif text-sm focus:outline-none focus:ring-2 focus:ring-current">
+                    <div class="hidden md:block">
+                        <input type="text" placeholder="Seek something?" class="w-48 px-3 py-1 bg-white/70 border-2 border-current rounded-full font-serif text-sm focus:outline-none">
                     </div>
                 </div>
 
-
-                <!-- Right Group: Nav Links, Login/Profile -->
-                <div class="flex items-center space-x-6 text-lg">
-                    <!-- Town Square -->
-                    <span class="nav-link hidden sm:block flex items-center space-x-1" onclick="handleNavigation('/')">
-                        <i class="fas fa-house-chimney"></i> <span>Town Square</span>
-                    </span>
-                    <!-- Discover -->
-                    <span class="nav-link flex items-center space-x-1" onclick="handleNavigation('/discover')">
-                        <i class="fas fa-binoculars"></i> <span>Discover</span>
-                    </span>
-                    <!-- Insights -->
-                    <span class="nav-link hidden lg:block flex items-center space-x-1" onclick="showMessageBox('Insights page is under construction.')">
+                <div class="flex items-center space-x-8 text-lg font-title">
+                    <span class="nav-link flex items-center space-x-2" onclick="showMessageBox('Insights page is under construction.')">
                         <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/icon-removebg-preview%20(1).png?raw=true" 
-                             alt="Insights Icon" class="w-5 h-5 rounded-full border border-current">
+                             alt="Insights Icon" class="w-6 h-6 rounded-full border border-current">
                         <span>Insights</span>
                     </span>
-                    <!-- Login / Signup / Profile Status -->
-                    <span id="auth-status" class="nav-link">
-                        <i class="fas fa-user-circle"></i> Login / Signup
+                    <span id="auth-status" class="nav-link flex items-center space-x-2" onclick="window.location.href='login.html'">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                        <span>Login / Signup</span>
                     </span>
                 </div>
             </div>
         </nav>
 
-
         <main class="text-center">
-            <!-- 2. HERO SECTION — "WELCOME TO THE NOOK" -->
+            <!-- HERO SECTION -->
             <div class="mb-8">
                 <h1 class="stamped-headline text-5xl sm:text-7xl font-title uppercase tracking-wider">
                     WELCOME TO THE NOOK
@@ -327,144 +317,174 @@
                 </p>
             </div>
 
+            <!-- QUICK STATS RIBBON -->
+            <div class="stats-ribbon py-3 mb-8 text-center">
+                <p id="ribbon-text" class="text-sm sm:text-base font-accent text-white">
+                    <span id="total-discoveries" class="font-bold">--</span> total discoveries • Last visit: <span id="last-visit" class="italic">--</span> • Currently exploring: <span id="current-exploring" class="font-bold">--</span>
+                </p>
+            </div>
 
-            <!-- 3. MAIN MAP AREA (Interactive Map) -->
+            <!-- MAIN MAP AREA -->
             <div class="w-full relative max-w-4xl mx-auto">
                 <div class="map-frame rounded-md">
-                    <!-- MAP IMAGE SOURCE -->
-                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/finalmap.png?raw=true" alt="Sketched Fantasy Town Map" class="w-full h-auto block" id="map-image">
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/finalmap.png?raw=true" alt="Town Map" class="w-full h-auto block" id="map-image">
 
+                    <a href="cinema.html" class="building-link">
+                        <div id="hotspot-movie" class="map-hotspot cursor-ticket" style="top: 8%; left: 5%; width: 24%; height: 24%;">
+                            <span class="hover-label">Wander Into the Grand Theatre – Where Your Films Awaken</span>
+                        </div>
+                    </a>
 
-                    <!-- CIRCULAR HOTSPOTS WITH GOLD HALO GLOW - REPOSITIONED -->
+                    <a href="library.html" class="building-link">
+                        <div id="hotspot-library" class="map-hotspot cursor-quill" style="top: 12%; right: 10%; width: 20%; height: 20%;">
+                            <span class="hover-label">Enter the Everlight Library – Keeper of Your Tales & Tomes</span>
+                        </div>
+                    </a>
 
-                    <!-- 1. MOVIE THEATRE (Top Left - Bigger, moved left) -->
-                    <div id="hotspot-movie" class="map-hotspot cursor-ticket" style="top: 8%; left: 5%; width: 24%; height: 24%;" 
-                         data-path="/movies">
-                        <span class="hover-label">Wander Into the Grand Theatre — Where Your Films Awaken</span>
+                    <div id="hotspot-discovery" class="map-hotspot cursor-star" style="top: 35%; left: 40%; width: 20%; height: 20%;">
+                        <span class="hover-label">Hall of Discovery – Where Curiosities Gather & Insights Find You</span>
                     </div>
 
+                    <a href="amphi.html" class="building-link">
+                        <div id="hotspot-amphi" class="map-hotspot cursor-mic" style="bottom: 22%; left: 8%; width: 24%; height: 24%;">
+                            <span class="hover-label">Step Into the Whispering Amphitheatre – Home of Voices, Stories & Podcasts</span>
+                        </div>
+                    </a>
 
-                    <!-- 2. LIBRARY (Top Right - unchanged) -->
-                    <div id="hotspot-library" class="map-hotspot cursor-quill" style="top: 12%; right: 10%; width: 20%; height: 20%;" 
-                         data-path="/books">
-                        <span class="hover-label">Enter the Everlight Library — Keeper of Your Tales & Tomes</span>
-                    </div>
-
-
-                    <!-- 3. HALL OF DISCOVERY (Center - unchanged) -->
-                    <div id="hotspot-discovery" class="map-hotspot cursor-star" style="top: 35%; left: 40%; width: 20%; height: 20%;" 
-                         data-path="/discover">
-                        <span class="hover-label">Hall of Discovery — Where Curiosities Gather & Insights Find You</span>
-                    </div>
-
-                    <!-- 4. AMPHITHEATRE (Lower Left - Bigger, moved left) -->
-                    <div id="hotspot-amphi" class="map-hotspot cursor-mic" style="bottom: 22%; left: 8%; width: 24%; height: 24%;" 
-                         data-path="/podcasts">
-                        <span class="hover-label">Step Into the Whispering Amphitheatre — Home of Voices, Stories & Podcasts</span>
-                    </div>
-
-                    <!-- 5. RECORD SHOP (Lower Center-Right - moved right and down) -->
-                    <div id="hotspot-record" class="map-hotspot cursor-vinyl" style="bottom: 12%; right: 20%; width: 20%; height: 20%;" 
-                         data-path="/music">
-                        <span class="hover-label">Stroll Into the Golden Record Shop — Store of Melodies & Moments</span>
-                    </div>
-
-
-                    <!-- 6. ARCHIVE TOWER (Lower Right - Oval shape, vertical orientation) -->
-                    <div id="hotspot-archive" class="map-hotspot oval cursor-scroll" style="bottom: 10%; right: 8%; width: 16%; height: 28%;" 
-                         data-path="/archive">
-                        <span class="hover-label">Archive Tower — Guardian of All You've Seen, Heard & Collected</span>
-                    </div>
+                    <a href="record1.html" class="building-link">
+                        <div id="hotspot-record" class="map-hotspot cursor-vinyl" style="bottom: 12%; right: 20%; width: 20%; height: 20%;">
+                            <span class="hover-label">Stroll Into the Golden Record Shop – Store of Melodies & Moments</span>
+                        </div>
+                    </a>
                 </div>
             </div>
 
-
-            <!-- 5. MEDIA COUNTERS (Under the Map) -->
+            <!-- MEDIA COUNTERS -->
             <div class="flex justify-center flex-wrap gap-6 mt-12">
-                <!-- Card 1: Films Watched -->
                 <div class="counter-card p-4 rounded-lg w-32 text-center">
-                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/film.png?raw=true" 
-                         alt="Films Icon" class="counter-icon mx-auto">
-                    <p class="font-title text-3xl font-bold mt-1">20</p>
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/film.png?raw=true" alt="Films" class="counter-icon mx-auto">
+                    <p id="count-movies" class="font-title text-3xl font-bold mt-1">--</p>
                     <p class="text-sm">Films Watched</p>
                 </div>
-                <!-- Card 2: Books Read -->
                 <div class="counter-card p-4 rounded-lg w-32 text-center">
-                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/book.png?raw=true" 
-                         alt="Books Icon" class="counter-icon mx-auto">
-                    <p class="font-title text-3xl font-bold mt-1">12</p>
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/book.png?raw=true" alt="Books" class="counter-icon mx-auto">
+                    <p id="count-books" class="font-title text-3xl font-bold mt-1">--</p>
                     <p class="text-sm">Books Read</p>
                 </div>
-                <!-- Card 3: Songs Played -->
                 <div class="counter-card p-4 rounded-lg w-32 text-center">
-                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/songs.png?raw=true" 
-                         alt="Songs Icon" class="counter-icon mx-auto">
-                    <p class="font-title text-3xl font-bold mt-1">56</p>
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/songs.png?raw=true" alt="Songs" class="counter-icon mx-auto">
+                    <p id="count-songs" class="font-title text-3xl font-bold mt-1">--</p>
                     <p class="text-sm">Songs Played</p>
                 </div>
-                <!-- Card 4: Avg. Rating -->
                 <div class="counter-card p-4 rounded-lg w-32 text-center">
-                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/icon2-removebg-preview.png?raw=true" 
-                         alt="Rating Icon" class="counter-icon mx-auto">
-                    <p class="font-title text-3xl font-bold mt-1">4.3</p>
+                    <svg class="counter-icon-sketch mx-auto" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M40 30c0-6 5-11 10-11s10 5 10 11v18c0 6-5 11-10 11s-10-5-10-11V30z" />
+                        <path d="M30 48c0 10 9 20 20 20s20-10 20-20" />
+                        <path d="M50 68v14M35 82h30" />
+                        <path d="M44 35h12M44 42h12" stroke-width="2" opacity="0.7"/>
+                    </svg>
+                    <p id="count-podcasts" class="font-title text-3xl font-bold mt-1">--</p>
+                    <p class="text-sm">Podcasts</p>
+                </div>
+                <div class="counter-card p-4 rounded-lg w-32 text-center">
+                    <img src="https://github.com/nrishithanaidu/TheNook/blob/main/TheNook/images/icon2-removebg-preview.png?raw=true" alt="Rating" class="counter-icon mx-auto">
+                    <p id="avg-rating" class="font-title text-3xl font-bold mt-1">--</p>
                     <p class="text-sm">Avg. Rating</p>
                 </div>
             </div>
 
+            <!-- ABOUT THE NOOK SECTION -->
+            <div class="about-section rounded-lg p-8 mt-16 max-w-3xl mx-auto text-left">
+                <h2 class="font-title text-3xl text-center mb-4">About The Nook</h2>
+                <p class="text-lg leading-relaxed mb-4">
+                    The Nook is your personal sanctuary for all the stories, melodies, and moments that shape your cultural journey. Each building on this map represents a different facet of your media experience—from the films that moved you to the songs that stayed with you.
+                </p>
+                <p class="text-lg leading-relaxed">
+                    Wander through the Grand Theatre to revisit your cinematic memories, lose yourself in the Everlight Library's literary treasures, or discover new sonic landscapes at the Golden Record Shop. This is more than a tracker—it's a living chronicle of your curiosities.
+                </p>
+            </div>
 
+            <!-- RECENT ACTIVITY SECTION -->
+            <div class="mt-12 max-w-3xl mx-auto">
+                <h2 class="font-title text-3xl mb-6">Recent Wanderings</h2>
+                <div id="activity-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-16">
+                    <div class="col-span-full italic opacity-50">Loading activity...</div>
+                </div>
+            </div>
         </main>
+
+        <!-- FOOTER -->
+        <footer class="footer-parchment py-8 px-4 mt-16">
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                    <div>
+                        <h3 class="font-title text-xl mb-3">The Nook</h3>
+                        <p class="text-sm leading-relaxed">Your personal archive of cultural discoveries.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
+    <script>
+        const API_BASE = 'http://127.0.0.1:5001/api/home';
 
-    <!-- Firebase SDK Imports and Logic -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const randomNames = ["Elora", "Kael", "Lyra", "Jax", "Seraph", "Phoebe", "Corvus", "Anya"];
-        const getRandomName = () => randomNames[Math.floor(Math.random() * randomNames.length)];
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db;
-        let auth;
-
-        async function initializeFirebase() {
+        // 1. Load Media Summary (Counts)
+        async function loadSummary() {
             try {
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, (user) => {
-                    const authStatusElement = document.getElementById('auth-status');
-                    if (user) {
-                        const displayUserId = getRandomName();
-                        authStatusElement.innerHTML = `<i class="fas fa-user-circle"></i> Profile (${displayUserId})`;
-                    } else {
-                        authStatusElement.innerHTML = `<i class="fas fa-user-circle"></i> Login / Signup`;
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase Initialization or Authentication Error:", error);
-            }
+                const response = await fetch(`${API_BASE}/summary`);
+                const data = await response.json();
+                
+                document.getElementById('total-discoveries').innerText = data.total_discoveries;
+                document.getElementById('count-movies').innerText = data.counts.movies;
+                document.getElementById('count-books').innerText = data.counts.books;
+                document.getElementById('count-songs').innerText = data.counts.songs;
+                document.getElementById('count-podcasts').innerText = data.counts.podcasts;
+                document.getElementById('avg-rating').innerText = data.average_rating;
+            } catch (e) { console.error("Summary fetch failed", e); }
         }
 
+        // 2. Load Status Ribbon
+        async function loadStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                const data = await response.json();
+                document.getElementById('last-visit').innerText = data.last_visit;
+                document.getElementById('current-exploring').innerText = data.currently_exploring;
+            } catch (e) { console.error("Status fetch failed", e); }
+        }
+
+        // 3. Load Recent Activity Wanderings
+        async function loadRecent() {
+            try {
+                const response = await fetch(`${API_BASE}/recent`);
+                const activities = await response.json();
+                const container = document.getElementById('activity-grid');
+                container.innerHTML = '';
+                
+                if (activities.length === 0) {
+                    container.innerHTML = '<div class="col-span-full italic opacity-50">No recent wanderings found.</div>';
+                    return;
+                }
+
+                activities.forEach(act => {
+                    const icon = act.type === 'movie' ? '🎬' : act.type === 'book' ? '📖' : '🎵';
+                    const card = `
+                        <div class="counter-card p-4 rounded-lg text-left">
+                            <p class="text-xs text-gray-600 mb-1">${act.time}</p>
+                            <p class="font-bold">${icon} ${act.title}</p>
+                            <p class="text-sm italic">${act.detail}</p>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            } catch (e) { console.error("Recent fetch failed", e); }
+        }
+
+        // UI Helpers
         window.showMessageBox = (message) => {
             document.getElementById('message-content').innerText = message;
-            const box = document.getElementById('message-box');
-            box.classList.add('visible');
-            box.focus();
+            document.getElementById('message-box').classList.add('visible');
         };
 
         window.closeMessageBox = () => {
@@ -472,36 +492,23 @@
         };
 
         window.handleNavigation = (path, event = { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 }) => {
-            console.log(`Attempting navigation to: ${path}`);
             const swell = document.getElementById('ink-swell');
-
             swell.style.left = `${event.clientX}px`;
             swell.style.top = `${event.clientY}px`;
-
             swell.classList.add('active');
 
             setTimeout(() => {
-                if (path === '/movies') {
-                    window.location.href = 'box_office.html';
-                    return;
-                }
-
-                window.showMessageBox(`Mapped to: ${path}\n(This is where the new content would load.)`);
-
-                setTimeout(() => {
-                    swell.classList.remove('active');
-                    swell.style.left = `50%`;
-                    swell.style.top = `50%`;
-                }, 50); 
+                window.showMessageBox(`Mapped to: ${path}`);
+                setTimeout(() => { swell.classList.remove('active'); }, 100);
             }, 600);
         };
 
+        // Initialize Data on Page Load
         document.addEventListener('DOMContentLoaded', () => {
-            initializeFirebase();
+            loadSummary();
+            loadStatus();
+            loadRecent();
         });
-
     </script>
-    <!-- Font Awesome for Icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
