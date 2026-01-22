@@ -1,208 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>The Nook — Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>The Nook — Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Homepage Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-parchment: #C6A878;
+            --frame-parchment: #AE8C63;
+            --ink-text: #2B241D;
+            --highlight-sepia: #D8B67A;
+            --shadow-dark: #6A553F;
+            --gold-glow: rgba(255, 215, 0, 0.7);
+            --emblem-red: #8B0000;
+        }
 
-<style>
-/* ---------------- GLOBAL ---------------- */
-body {
-    margin: 0;
-    height: 100vh;
-    font-family: "EB Garamond", serif;
-    background: url('map_background.png') center/cover no-repeat fixed;
-    overflow: hidden;
-    color: #f8e9d9;
-}
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "EB Garamond", serif;
+            background-color: var(--bg-parchment);
+            color: var(--ink-text);
+            /* Matching Homepage Texture */
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(0, 0, 0, 0.08),
+                rgba(0, 0, 0, 0.08) 1px,
+                transparent 1px,
+                transparent 3px
+            ),
+            radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
 
-/* ---------------- ENTER SCREEN ---------------- */
+        .font-title { font-family: 'IM Fell English SC', serif; }
+        .font-accent { font-family: 'Kalam', cursive; }
 
-#enter-screen {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 20;
-}
+        /* --- TOP NAVIGATION BAR --- */
+        .nav-parchment {
+            background-color: var(--frame-parchment);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        .nav-parchment::before, .nav-parchment::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background-color: var(--bg-parchment);
+            z-index: 10;
+        }
+        .nav-parchment::before { top: -10px; }
+        .nav-parchment::after { bottom: -10px; }
 
-.enter-scroll {
-    width: 70%;
-    max-width: 600px;
-    padding: 60px;
-    background: url('parchment_texture.jpg') center/cover;
-    border: 4px solid #5b3a1a;
-    border-radius: 12px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.7);
-    text-align: center;
-    animation: scrollDrop 1s ease;
-}
+        .nav-link:hover {
+            color: var(--ink-text);
+            text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+            cursor: pointer;
+        }
 
-@keyframes scrollDrop {
-    from { transform: translateY(-200px) scale(0.8); opacity: 0; }
-    to   { transform: translateY(0) scale(1); opacity: 1; }
-}
+        /* ---------------- AUTH PANEL ---------------- */
+        .panel {
+            width: 90%;
+            max-width: 420px;
+            padding: 40px;
+            background-color: var(--frame-parchment);
+            border: 3px solid var(--ink-text);
+            box-shadow: 12px 12px 0 var(--shadow-dark);
+            position: relative;
+            margin: 2rem auto;
+        }
 
-.enter-btn {
-    padding: 14px 40px;
-    font-size: 26px;
-    color: #fff5d0;
-    background: #7c1118;
-    border: 3px solid gold;
-    border-radius: 40px;
-    cursor: pointer;
-    font-family: "Cinzel", serif;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    box-shadow: 0 0 20px rgba(255,200,87,0.5);
-    transition: 0.3s;
-}
+        /* Branding Stamp from Homepage */
+        .panel::before {
+            content: 'N';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 50px;
+            height: 50px;
+            background: var(--emblem-red);
+            color: white;
+            font-family: 'IM Fell English SC', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 2px solid var(--ink-text);
+            transform: rotate(15deg);
+            box-shadow: 3px 3px 0 var(--shadow-dark);
+            z-index: 10;
+        }
 
-.enter-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 35px gold;
-}
+        .panel h2 {
+            font-family: 'IM Fell English SC', serif;
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--ink-text);
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            border-bottom: 2px solid rgba(43, 36, 29, 0.2);
+            padding-bottom: 10px;
+        }
 
-/* ----------- SCROLL OPEN TRANSITION ----------- */
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0 16px;
+            border: 2px solid var(--ink-text);
+            background: rgba(255, 255, 255, 0.25);
+            color: var(--ink-text);
+            font-size: 16px;
+            font-family: 'EB Garamond', serif;
+            outline: none;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
 
-#enter-screen.hide {
-    animation: fadeOut 1s forwards;
-}
+        .input-field:focus {
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
 
-@keyframes fadeOut {
-    to { opacity: 0; pointer-events: none; }
-}
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--emblem-red);
+            border: 2px solid var(--ink-text);
+            color: white;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--ink-text);
+            transition: all 0.1s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-/* ---------------- LOGIN BOX ---------------- */
+        .btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--ink-text);
+            background: #6a0000;
+        }
 
-.auth-box {
-    display: none;
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--ink-text);
+            cursor: pointer;
+            font-family: 'EB Garamond', serif;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .link:hover { text-decoration: underline; color: var(--emblem-red); }
 
-.panel {
-    width: 90%;
-    max-width: 430px;
-    padding: 40px;
-    background: url('parchment_texture.jpg') center/cover;
-    border-radius: 14px;
-    border: 3px solid #d4b077;
-    box-shadow: 0 0 30px rgba(0,0,0,0.8);
-    animation: fadeIn 1.2s ease;
-}
+        /* Transition Ink Swell */
+        .ink-swell {
+            position: fixed;
+            top: 50%; left: 50%; width: 100vw; height: 100vw;
+            background: var(--ink-text);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 1000;
+            pointer-events: none;
+            transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+        }
+        .ink-swell.active { transform: translate(-50%, -50%) scale(3); }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(40px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+        .auth-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-.panel h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-family: "Cinzel", serif;
-    color: gold;
-}
-
-.input-field {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0 16px;
-    border-radius: 10px;
-    border: 2px solid #bfa068;
-    background: rgba(0,0,0,0.3);
-    color: #fff3d9;
-    font-size: 16px;
-}
-
-.btn {
-    width: 100%;
-    padding: 12px;
-    background: #7c1118;
-    border: 2px solid gold;
-    border-radius: 10px;
-    color: #fff5d0;
-    font-size: 18px;
-    cursor: pointer;
-    font-family: "Cinzel", serif;
-    transition: 0.3s;
-}
-
-.btn:hover {
-    transform: scale(1.05);
-}
-
-.link {
-    text-align: center;
-    margin-top: 16px;
-    color: gold;
-    cursor: pointer;
-}
-.link:hover { text-decoration: underline; }
-</style>
+        .message-box {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--bg-parchment);
+            color: var(--ink-text);
+            border: 5px double var(--ink-text);
+            z-index: 200;
+            padding: 20px;
+            box-shadow: 10px 10px 0 var(--shadow-dark);
+            max-width: 80%;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .message-box.visible { visibility: visible; opacity: 1; }
+    </style>
 </head>
 
 <body>
 
-<!-- ENTER SCREEN -->
-<div id="enter-screen">
-    <div class="enter-scroll">
-        <h2 style="font-family:Cinzel; font-size:28px; color:#5b1a16;">Welcome to The Nook</h2>
-        <p style="margin-top:10px; font-size:18px;">A world of stories awaits...</p>
-        <button class="enter-btn" onclick="openLogin()">ENTER</button>
+    <div id="ink-swell" class="ink-swell"></div>
+
+    <div id="message-box" class="message-box rounded-md">
+        <p id="message-content" class="text-lg"></p>
+        <button onclick="closeMessageBox()" class="mt-4 p-2 bg-white font-title border border-gray-800 hover:bg-gray-200">Close Scroll</button>
     </div>
-</div>
 
-<!-- LOGIN -->
-<div class="auth-box" id="login-box" style="display:none;">
-    <div class="panel">
-        <h2>Login</h2>
-        <input class="input-field" id="email" placeholder="Email">
-        <input class="input-field" id="password" type="password" placeholder="Password">
-        <div class="link" style="margin-bottom:10px;">Forgot password?</div>
-        <button class="btn">Login</button>
-        <div class="link" onclick="showSignup()">Don't have an account? Sign Up</div>
+    <!-- NAVBAR ADDED FOR CONSISTENCY -->
+    <nav class="nav-parchment w-full shadow-lg relative z-20">
+        <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center space-x-6">
+                <!-- Circle Logo -->
+                <div class="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center font-title text-xl nav-link text-white" 
+                     style="background-color: var(--emblem-red); border-color: var(--ink-text);" 
+                     onclick="handleNavigation('/')">N</div>
+                <!-- Title -->
+                <span class="text-2xl font-bold font-title nav-link" onclick="handleNavigation('/')">The Nook</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <!-- LOGIN BOX -->
+        <div class="panel" id="login-box">
+            <h2 class="font-title">Login</h2>
+            
+            <input class="input-field" id="login-email" placeholder="Email">
+            <input class="input-field" id="login-password" type="password" placeholder="Password">
+            
+            <div class="link text-sm mb-4 text-right" style="margin-top: -10px;" onclick="showMessageBox('The archive keeper is currently searching for the password recovery scrolls.')">Forgot password?</div>
+            
+            <button class="btn" onclick="handleAuth('login')">Login</button>
+            <div class="link" onclick="showSignup()">Don't have an account? Sign Up</div>
+        </div>
+
+        <!-- SIGNUP BOX -->
+        <div class="panel" id="signup-box" style="display:none;">
+            <h2 class="font-title">Create Account</h2>
+            
+            <input class="input-field" id="reg-name" placeholder="Full Name">
+            <input class="input-field" id="reg-email" placeholder="Email">
+            <input class="input-field" id="reg-password" type="password" placeholder="Password">
+            <input class="input-field" id="reg-confirm" type="password" placeholder="Confirm Password">
+            
+            <button class="btn" onclick="handleAuth('register')">Create Account</button>
+            <div class="link" onclick="showLogin()">Already have an account? Login</div>
+        </div>
     </div>
-</div>
 
-<!-- SIGNUP -->
-<div class="auth-box" id="signup-box" style="display:none;">
-    <div class="panel">
-        <h2>Create Account</h2>
-        <input class="input-field" placeholder="Full Name">
-        <input class="input-field" placeholder="Email">
-        <input class="input-field" type="password" placeholder="Password">
-        <input class="input-field" type="password" placeholder="Confirm Password">
-        <button class="btn">Create Account</button>
-        <div class="link" onclick="showLogin()">Already have an account? Login</div>
-    </div>
-</div>
+    <script>
+        window.showMessageBox = (message) => {
+            document.getElementById('message-content').innerText = message;
+            document.getElementById('message-box').classList.add('visible');
+        };
 
-<script>
-function openLogin() {
-    document.getElementById("enter-screen").classList.add("hide");
-    setTimeout(() => {
-        document.getElementById("login-box").style.display = "flex";
-    }, 900);
-}
+        window.closeMessageBox = () => {
+            document.getElementById('message-box').classList.remove('visible');
+        };
 
-function showSignup() {
-    document.getElementById("login-box").style.display = "none";
-    document.getElementById("signup-box").style.display = "flex";
-}
+        function showSignup() {
+            document.getElementById("login-box").style.display = "none";
+            document.getElementById("signup-box").style.display = "block";
+            window.scrollTo(0, 0); 
+        }
 
-function showLogin() {
-    document.getElementById("signup-box").style.display = "none";
-    document.getElementById("login-box").style.display = "flex";
-}
-</script>
+        function showLogin() {
+            document.getElementById("signup-box").style.display = "none";
+            document.getElementById("login-box").style.display = "block";
+            window.scrollTo(0, 0); 
+        }
+
+        window.handleNavigation = (path, event = { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 }) => {
+            const swell = document.getElementById('ink-swell');
+            swell.style.left = `${event.clientX}px`;
+            swell.style.top = `${event.clientY}px`;
+            swell.classList.add('active');
+
+            setTimeout(() => {
+                if (path === '/') {
+                    window.location.href = 'nook_homepage_final.html';
+                } else {
+                    window.showMessageBox(`Mapped to: ${path}`);
+                    setTimeout(() => { swell.classList.remove('active'); }, 100);
+                }
+            }, 600);
+        };
+
+        async function handleAuth(type) {
+            const swell = document.getElementById('ink-swell');
+            swell.classList.add('active');
+            
+            console.log(`Processing ${type}...`);
+            
+            // Redirecting to the main town map after animation
+            setTimeout(() => {
+                window.location.href = 'nook_homepage_final.html';
+            }, 850);
+        }
+    </script>
 
 </body>
 </html>

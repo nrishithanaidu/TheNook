@@ -3,514 +3,403 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>The Nook — Amphitheatre</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-
+<title>The Nook — The Hi-Fi Lounge</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Text:ital,wght@0,400;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 <style>
 :root {
-  --velvet: #3a0f17;
-  --velvet-deep: #1a060a;
-  --gold: #d6b46a;
-  --gold-muted: #b89a5a;
-  --brass-dark: #8c6f38;
-  --stone: #e9e4da;
-  --ink: #1b1412;
+  --wood-dark: #1a0f0a; --neon-red: #ff3131; --cream: #f4ece1;
+  --bakelite: #121212; --brass: #b89a5a; --error: #8b0000; --ink: #1b1412;
 }
-
-/* RESET */
 * { box-sizing: border-box; }
 body {
-  margin: 0;
-  font-family: 'Crimson Text', serif;
-  background: radial-gradient(circle at top, #2b0c12, #090405);
-  color: var(--stone);
-  overflow-x: hidden;
-  min-height: 100vh;
+  margin: 0; font-family: 'Crimson Text', serif;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), repeating-linear-gradient(90deg, var(--wood-dark) 0px, var(--wood-dark) 100px, #25160e 101px, #25160e 200px);
+  color: var(--cream); overflow-x: hidden; min-height: 100vh;
 }
+.curtain-wrapper { position: fixed; inset: 0; z-index: 1000; pointer-events: none; display: flex; }
+.curtain-panel { flex: 1; height: 100vh; background: linear-gradient(90deg, #0a0505, #2b0c12, #1a060a); transition: transform 3.5s; z-index: 1001; border-right: 4px solid var(--brass); }
+body.loaded .left-panel { transform: translateX(-100%); } body.loaded .right-panel { transform: translateX(100%); }
 
-/* ---------- IMPROVED OPAQUE FABRIC CURTAINS ---------- */
-.curtain-wrapper {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  pointer-events: none;
-  display: flex;
-  overflow: hidden;
-}
+header { text-align: center; padding: 100px 20px 20px; }
+.on-air-sign { display: inline-block; padding: 10px 30px; background: #222; color: #444; font-family: 'Bebas Neue'; font-size: 2rem; letter-spacing: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); transition: 0.3s; }
+body.streaming .on-air-sign { background: #400; color: var(--neon-red); box-shadow: 0 0 20px var(--neon-red); }
 
-.curtain-panel {
-  flex: 1;
-  height: 100vh;
-  /* Higher opacity velvet gradient */
-  background: linear-gradient(90deg, #150406 0%, #4a111a 20%, #3a0f17 50%, #4a111a 80%, #150406 100%);
-  box-shadow: inset 0 0 100px rgba(0,0,0,0.95);
-  position: relative;
-  transition: transform 3s cubic-bezier(0.4, 0, 0.2, 1), 
-              opacity 2.8s ease-in-out,
-              filter 2.5s ease;
-  z-index: 101;
-  opacity: 1; /* Start fully opaque */
-}
+.section { margin: 60px auto; max-width: 1200px; padding: 0 20px; }
+.section-title { font-family: 'Bebas Neue'; font-size: 2.2rem; color: var(--brass); border-bottom: 2px solid var(--brass); margin-bottom: 40px; display: flex; align-items: center; gap: 15px; }
 
-/* Fabric texture lines */
-.curtain-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(90deg, 
-    rgba(0,0,0,0.4) 0%, 
-    transparent 1.5%, 
-    rgba(255,255,255,0.03) 3%, 
-    transparent 4.5%);
+.now-playing-hero { background: var(--bakelite); border: 15px solid #000; outline: 2px solid var(--brass); padding: 40px; display: flex; gap: 40px; margin-bottom: 80px; box-shadow: 0 40px 80px rgba(0,0,0,0.9); cursor: pointer; transition: 0.3s; }
+.reel-visual { 
+    width: 180px; height: 180px; 
+    background: #333; 
+    border-radius: 50%; 
+    border: 8px solid #111; 
+    display: flex; align-items: center; justify-content: center; 
+    position: relative; 
+    background-size: cover; 
+    background-position: center; 
 }
+.reel-visual::after { content: ""; width: 30px; height: 30px; background: var(--bakelite); border: 3px solid var(--brass); border-radius: 50%; }
+body.streaming .reel-visual { animation: rotateReel 4s linear infinite; }
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-.curtain-panel::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
-  box-shadow: 0 -5px 20px rgba(214,180,106,0.4);
-}
+.hero-info { flex: 1; }
+.hero-info h4 { font-family: 'Special Elite'; color: var(--brass); margin: 0; font-size: 0.9rem; letter-spacing: 2px; }
+.hero-info h2 { font-family: 'Bebas Neue'; margin: 5px 0; font-size: 3rem; color: var(--cream); letter-spacing: 2px; line-height: 1; }
+.hero-info p { font-family: 'Crimson Text'; font-style: italic; opacity: 0.8; margin: 10px 0; font-size: 1.2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
 
-.left-panel { transform-origin: left center; border-right: 3px solid var(--gold); }
-.right-panel { transform-origin: right center; border-left: 3px solid var(--gold); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+.reel-box { background: #2a2a2a; border: 1px solid #000; box-shadow: 10px 10px 0px rgba(0,0,0,0.5); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; }
+.reel-box:hover { transform: translate(-5px, -5px); box-shadow: 15px 15px 0px rgba(0,0,0,0.6); }
+.reel-label { background: #eee; margin: 15px; padding: 20px; color: #222; font-family: 'Special Elite'; border-left: 5px solid var(--error); flex-grow: 1; }
+.box-bottom { background: var(--bakelite); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
 
-/* Dramatic Opening State: Still somewhat visible but bunched to sides */
-body.loaded .left-panel { 
-  transform: scaleX(0.12) translateX(-70%) skewY(1deg); 
-  opacity: 0.9; /* Remains visible at the edges */
-  filter: brightness(0.4);
-}
-body.loaded .right-panel { 
-  transform: scaleX(0.12) translateX(70%) skewY(-1deg); 
-  opacity: 0.9;
-  filter: brightness(0.4);
-}
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(15px); }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--cream); color: var(--ink); width: 95%; max-width: 600px; padding: 40px; border: 15px solid var(--bakelite); outline: 3px solid var(--brass); max-height: 90vh; overflow-y: auto; position: relative; background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png'); }
+.modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 32px; cursor: pointer; font-family: 'Bebas Neue'; color: var(--ink); }
 
-/* ---------- HEADER ---------- */
-header { text-align: center; padding: 120px 20px 40px; }
-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 5vw, 64px); margin: 0; color: var(--stone); text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-header p { opacity: .6; letter-spacing: .3em; text-transform: uppercase; font-size: 12px; margin-top: 10px; }
+.modal label { color: var(--ink); font-weight: bold; }
+.modal input, .modal select, .modal textarea { color: #000; background: rgba(0,0,0,0.05); width: 100%; padding: 10px; border: 2px solid #000; font-family: 'Special Elite'; }
 
-/* ---------- STAGE ---------- */
-.stage {
-  position: relative;
-  max-width: 850px;
-  margin: auto;
-  background: linear-gradient(180deg, #5a1823, #22070c);
-  border-radius: 80px 80px 40px 40px;
-  padding: 70px 40px;
-  box-shadow: 0 50px 100px rgba(0,0,0,0.9);
-  text-align: center;
-  border: 1px solid rgba(214,180,106,0.15);
-}
-.stage::before {
-  content: ""; position: absolute; inset: 0;
-  background: radial-gradient(circle at 50% 10%, rgba(214,180,106,.25), transparent 75%);
-  pointer-events: none;
-}
+.track-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #ddd; cursor: pointer; background: rgba(0,0,0,0.02); color: var(--ink); align-items: center; }
+.track-item:hover { background: rgba(0,0,0,0.08); }
+.track-details-sub { background: #eee; padding: 15px; border-left: 5px solid var(--brass); display: none; margin: 5px 0; color: var(--ink); }
+.track-details-sub.active { display: block; }
 
-.badge {
-  display: inline-block;
-  padding: 8px 18px;
-  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
-  color: #1a1102;
-  font-size: 11px;
-  font-weight: bold;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
+.btn { background: var(--brass); color: #000; font-family: 'Bebas Neue'; font-size: 1.2rem; padding: 10px 20px; border: none; cursor: pointer; letter-spacing: 1px; box-shadow: 3px 3px 0px #000; font-weight: bold; }
+.btn:hover { filter: brightness(1.1); transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; }
+.btn.danger { background: var(--error); color: #fff; }
+.btn.secondary { background: #444; color: #fff; box-shadow: 3px 3px 0px #000; }
 
-/* ---------- PROGRESS ARC ---------- */
-.progress-arc {
-  margin: 30px auto 10px;
-  width: 260px;
-  position: relative;
-}
-.progress-arc svg { width: 100%; filter: drop-shadow(0 0 5px rgba(214,180,106,0.2)); }
-.progress-label {
-  font-size: 13px;
-  font-family: 'Playfair Display';
-  letter-spacing: .1em;
-  color: var(--gold);
-  margin-top: -12px;
-}
+.search-results { background: rgba(0,0,0,0.05); border: 1px solid #000; margin-top: 10px; max-height: 150px; overflow-y: auto; }
+.search-item { display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.1); font-family: 'Special Elite'; font-size: 12px; color: var(--ink); }
+.hidden { display: none !important; }
 
-/* ---------- BUTTONS ---------- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  background: linear-gradient(180deg, var(--gold), var(--brass-dark));
-  color: #1a1102;
-  border-radius: 999px;
-  border: none;
-  font-family: 'Playfair Display';
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-}
-.btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-.btn:active { transform: translateY(1px) scale(0.98); }
+.live-indicator { color: var(--neon-red); font-family: 'Bebas Neue'; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 5px; }
+.blink { animation: blinker 1.5s linear infinite; }
+@keyframes blinker { 50% { opacity: 0; } }
 
-.btn.secondary {
-  background: transparent;
-  border: 1px solid var(--gold-muted);
-  color: var(--stone);
-  box-shadow: none;
-}
-.btn.delete {
-  background: #5c1414;
-  color: #ffcccc;
-  font-size: 11px;
-  padding: 6px 14px;
-  margin-top: 15px;
-}
+.status-badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; font-weight: bold; background: #444; color: #aaa; margin-left: 10px; }
+.status-online { color: #50ff50; text-shadow: 0 0 5px #50ff50; }
 
-/* ---------- FORM ---------- */
-.add-form {
-  max-width: 850px;
-  margin: 50px auto;
-  background: rgba(255,255,255,0.03);
-  padding: 30px;
-  border-radius: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-  border: 1px solid rgba(214,180,106,0.1);
-  backdrop-filter: blur(10px);
-}
-.add-form input, .add-form select {
-  padding: 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(214,180,106,0.3);
-  background: rgba(0,0,0,0.4);
-  color: var(--stone);
-  min-width: 180px;
-}
-
-/* ---------- GRID ---------- */
-.section { margin: 80px auto; max-width: 1150px; padding: 0 20px; }
-.section h3 { text-align: center; letter-spacing: .4em; text-transform: uppercase; font-size: 14px; margin-bottom: 40px; color: var(--gold-muted); }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-}
-
-.card {
-  background: #f4f0e6;
-  color: var(--ink);
-  border-radius: 20px;
-  padding: 28px;
-  position: relative;
-  transition: all 0.4s ease;
-  border-bottom: 4px solid var(--gold-muted);
-}
-.card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-.card small { 
-  display: inline-block; background: var(--velvet); color: white; 
-  padding: 3px 12px; border-radius: 999px; font-size: 11px; font-weight: bold;
-}
-.card h4 { font-family: 'Playfair Display'; margin: 15px 0 8px; font-size: 22px; line-height: 1.2; }
-.card p { margin: 0; opacity: 0.8; font-size: 14px; }
-.card em { display: block; margin-top: 12px; font-size: 14px; opacity: 0.7; color: var(--velvet); font-weight: 600; }
-
-/* ARCHIVE PLAQUE */
-.plaque {
-  background: linear-gradient(145deg, #d4b673, #8c6f38);
-  color: #1a1102;
-  padding: 30px;
-  border-radius: 4px; /* More rectangular plaque feel */
-  text-align: center;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.2);
-  border: 1px solid #5a4a24;
-  position: relative;
-}
-.plaque::before, .plaque::after {
-  content: ""; position: absolute; width: 6px; height: 6px; background: #3a2e12; border-radius: 50%;
-}
-.plaque::before { top: 10px; left: 10px; }
-.plaque::after { bottom: 10px; right: 10px; }
-
-.plaque h5 { font-family: 'Playfair Display'; margin: 0 0 10px; font-size: 20px; font-weight: 700; }
-.plaque .mood { font-style: italic; font-size: 14px; margin: 12px 0; font-weight: bold; color: #3a2e12; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; }
-.plaque small { opacity: 0.8; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: bold; }
-
-.controls {
-  margin-top: 30px;
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-}
+.stars { display: flex; gap: 8px; font-size: 24px; color: #333; justify-content: center; }
+.star { cursor: pointer; transition: color 0.2s; }
+.star.active { color: var(--brass); }
 </style>
 </head>
-
 <body>
-
-<div class="curtain-wrapper">
-  <div class="curtain-panel left-panel"></div>
-  <div class="curtain-panel right-panel"></div>
-</div>
-
-<header>
-  <p>Echo Arena Presents</p>
-  <h1>The Amphitheatre</h1>
-  <p>A sanctuary for the spoken word</p>
-</header>
-
-<section class="stage">
-  <div class="stage-content">
-    <span class="badge" id="now-performing-type">Now Performing — Podcast</span>
-    <h2 id="now-performing-title" style="font-family: 'Playfair Display', serif; margin: 10px 0; font-size: 32px;">The Joe Rogan Experience</h2>
-    
-    <div class="progress-arc">
-      <svg viewBox="0 0 220 120">
-        <path d="M20 100 A90 90 0 0 1 200 100" stroke="rgba(255,255,255,.1)" stroke-width="12" fill="none"/>
-        <path id="progress-path" d="M20 100 A90 90 0 0 1 200 100"
-              stroke="url(#gold-gradient)"
-              stroke-width="12"
-              fill="none"
-              stroke-linecap="round"
-              stroke-dasharray="283"
-              stroke-dashoffset="283"
-              style="transition: stroke-dashoffset 0.5s linear;" />
-        <defs>
-          <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#b08a3c"/>
-            <stop offset="50%" stop-color="#f3d58a"/>
-            <stop offset="100%" stop-color="#8c6f38"/>
-          </linearGradient>
-        </defs>
-      </svg>
-      <div class="progress-label" id="progress-text">0% attended</div>
-    </div>
-
-    <div class="meta" style="margin-top: 15px; font-family: 'Playfair Display';">Status: <span id="playback-status" style="color: var(--gold);">Ready</span></div>
-
-    <div class="controls">
-      <button class="btn" onclick="togglePlay()" id="play-btn">▶ Play</button>
-      <button class="btn secondary" onclick="concludePerformance()">Conclude</button>
-    </div>
-  </div>
-</section>
-
-<div class="add-form">
-  <input type="text" id="new-title" placeholder="Title of the Work">
-  <select id="new-type">
-    <option value="Podcast">Podcast</option>
-    <option value="Audiobook">Audiobook</option>
-    <option value="Essay">Essay</option>
-    <option value="Talk">Talk</option>
-  </select>
-  <input type="text" id="new-meta" placeholder="Duration (e.g. 1h 20m)">
-  <input type="text" id="new-mood" placeholder="Mood (e.g. Intellectual)">
-  <button class="btn" onclick="addPerformance()">+ Add to Upcoming</button>
-</div>
+<div class="curtain-wrapper"><div class="curtain-panel left-panel"></div><div class="curtain-panel right-panel"></div></div>
+<header><div class="on-air-sign" id="on-air">OFF AIR</div><h1>THE HI-FI LOUNGE <span id="connectionStatus" class="status-badge">Off</span></h1><p>Archive Station • Est 1954</p></header>
 
 <section class="section">
-  <h3>Upcoming Performances</h3>
-  <div class="grid" id="upcoming-list"></div>
+    <div class="section-title"><i class="fa-solid fa-tower-broadcast"></i> THE SPOTLIGHT</div>
+    <div id="spotlight-container"></div>
 </section>
 
-<section class="section">
-  <h3>Hall of Past Performances</h3>
-  <div class="grid" id="past-list"></div>
-</section>
+<div style="text-align: center; margin: 40px 0;"><button class="btn" onclick="openAddModal()">+ CATALOG NEW SERIES</button></div>
+
+<section class="section"><div class="section-title"><i class="fa-solid fa-list-ul"></i> UPCOMING SESSIONS</div><div class="grid" id="upcoming-list"></div></section>
+<section class="section"><div class="section-title"><i class="fa-solid fa-box-archive"></i> THE VAULT</div><div class="grid" id="past-list"></div></section>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModals()">&times;</button>
+        <h2 style="font-family:'Bebas Neue'; text-align:center; font-size:2rem; border-bottom:2px solid #000; color: var(--ink);">LOG MASTER FILE</h2>
+        <div style="background:rgba(184,154,90,0.1); padding:15px; margin:15px 0; border:1px dashed var(--brass);">
+            <label style="font-family:'Special Elite'; font-weight:bold;">✨ MAGIC FETCH</label>
+            <div style="display:flex; gap:10px;"><input type="text" id="magicSearch" placeholder="Search Podcast or Audiobook..." style="flex:1;"><button class="btn" style="font-size:0.9rem;" onclick="searchArchives()">FETCH</button></div>
+            <div id="search-results" class="search-results hidden"></div>
+        </div>
+        <input type="hidden" id="edit-id">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div><label>Title:</label><input type="text" id="new-title"></div>
+            <div><label>Host/Author:</label><input type="text" id="new-host"></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:10px;">
+            <div><label>Format:</label><select id="new-type"><option value="Podcast">Podcast</option><option value="Audiobook">Audiobook</option></select></div>
+            <div><label>Cover URL:</label><input type="text" id="new-img"></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:10px;">
+            <div><label>Duration:</label><input type="text" id="new-meta" placeholder="e.g. 1h 20m"></div>
+            <div><label>Overall Mood:</label><input type="text" id="new-mood" placeholder="e.g. Noir, Jazzy"></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:10px;">
+            <div>
+                <label>Crate Status:</label>
+                <select id="new-status">
+                    <option value="upcoming">Upcoming Broadcast</option>
+                    <option value="now-playing">Now in Spotlight</option>
+                    <option value="past">Archive Vault</option>
+                </select>
+            </div>
+            <div><label>Date Performed:</label><input type="date" id="new-date"></div>
+        </div>
+        <div style="margin-top:10px;">
+            <label>Series Rating:</label>
+            <div class="stars" id="mainStarContainer">
+                <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+            </div>
+        </div>
+        <div style="margin-top:10px;">
+            <label>Technical Reviews:</label>
+            <textarea id="new-notes" rows="2" placeholder="Overall series log..."></textarea>
+        </div>
+        <div style="margin-top:15px;"><label style="font-family:'Special Elite'; font-size:12px; font-weight:bold;">Episode/Chapter Log:</label><div id="episode-editor"></div><button class="btn" style="font-size:0.8rem; margin-top:10px;" onclick="addEpisodeInput()">+ Add Item</button></div>
+        <button class="btn" style="width:100%; margin-top:30px;" onclick="saveSeries()">COMMIT TO VAULT</button>
+    </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="modal-overlay" id="detailsModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModals()">&times;</button>
+        <div style="text-align:center;">
+            <img id="v-img" style="width:150px; height:150px; border:8px solid #000; margin-bottom:15px; object-fit:cover;">
+            <h2 id="v-title" style="font-family:'Bebas Neue'; margin:0; font-size:2.2rem; color: var(--ink);"></h2>
+            <p id="v-host" style="font-family:'Special Elite'; opacity:0.7; color: var(--ink); margin-bottom: 5px;"></p>
+            <div id="v-main-rating"></div>
+        </div>
+        <div style="margin-top:20px; border-top:2px solid #000; padding-top:10px;"><h3 style="font-family:'Bebas Neue'; font-size:1.2rem; color: var(--ink);">Segments / Chapters (Select to Spotlight)</h3><div id="v-episodes"></div></div>
+        <div style="margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px;">
+            <label style="font-family:'Bebas Neue'; font-size: 14px; color: var(--ink);">Full Series Review:</label>
+            <div id="v-notes-view" style="font-family:'Special Elite'; font-size: 14px; line-height: 1.4; color: var(--ink);"></div>
+        </div>
+        <div style="display:flex; gap:15px; margin-top:40px;">
+            <button class="btn" style="flex: 1" onclick="initiateEdit()">EDIT MASTER</button>
+            <button class="btn danger" style="flex: 1" onclick="deleteSeries()">SCRAP FILE</button>
+        </div>
+    </div>
+</div>
+
+<!-- EPISODE EDIT MODAL -->
+<div class="modal-overlay" id="episodeEditModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeEpisodeEdit()">&times;</button>
+        <h2 style="font-family:'Bebas Neue'; text-align:center; font-size:2rem; border-bottom:2px solid #000; color: var(--ink);">TRACK SPECIFICATION LOG</h2>
+        <input type="hidden" id="edit-ep-id">
+        <div class="form-group"><label>Item Title:</label><input type="text" id="edit-ep-title"></div>
+        <div class="form-group"><label>Rating (0-5):</label><input type="number" id="edit-ep-rating" min="0" max="5"></div>
+        <div class="form-group"><label>Vibe / Mood:</label><input type="text" id="edit-ep-mood"></div>
+        <div class="form-group"><label>Curation Review:</label><textarea id="edit-ep-notes" rows="4"></textarea></div>
+        <button class="btn" style="width:100%; margin-top:20px;" onclick="saveSingleEpisode()">COMMIT TRACK CHANGE</button>
+    </div>
+</div>
 
 <script>
-  // Top Spotify Stats / Trending Podcasts 2024-2025
-  let upcoming = [
-    { id: 1, type: 'Podcast', title: 'The Joe Rogan Experience', meta: '2h 45m', mood: 'Provocative' },
-    { id: 2, type: 'Podcast', title: 'The Daily', meta: '25m', mood: 'Informative' },
-    { id: 3, type: 'Podcast', title: 'Call Her Daddy', meta: '1h 10m', mood: 'Empowering' },
-    { id: 4, type: 'Podcast', title: 'Huberman Lab', meta: '2h 15m', mood: 'Scientific' }
-  ];
+  let podcasts = [];
+  let selectedPod = null;
+  let currentMainRating = 0;
+  const API_BASE = "http://127.0.0.1:5000/api/podcasts";
 
-  // Rich historical data for the Hall of Past Performances
-  let past = [
-    { id: 101, title: 'Meditations by Marcus Aurelius', date: 'Jan 4, 2025', mood: 'Stoic', type: 'Audiobook' },
-    { id: 102, title: 'The Lex Fridman Podcast #400', date: 'Jan 2, 2025', mood: 'Visionary', type: 'Podcast' },
-    { id: 103, title: 'TED: The Power of Vulnerability', date: 'Dec 28, 2024', mood: 'Emotional', type: 'Talk' },
-    { id: 104, title: 'A Short History of Nearly Everything', date: 'Dec 20, 2024', mood: 'Awe-inspiring', type: 'Audiobook' }
-  ];
+  window.addEventListener('load', () => { setTimeout(() => document.body.classList.add('loaded'), 1000); loadData(); });
 
-  let isPlaying = false;
-  let progress = 0;
-  let progressInterval;
+  async function loadData() {
+    try {
+        const res = await fetch(API_BASE);
+        podcasts = await res.json();
+        updateStatus(true); render();
+    } catch (e) { updateStatus(false); render(); }
+  }
 
-  // Wait for load then trigger dramatic opening
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      document.body.classList.add('loaded');
-    }, 1000);
-  });
-
-  function updateArc(val) {
-    const path = document.getElementById('progress-path');
-    const label = document.getElementById('progress-text');
-    // Ensure value doesn't exceed 100
-    const clampedVal = Math.min(val, 100);
-    const offset = 283 - (283 * clampedVal) / 100;
-    path.style.strokeDashoffset = offset;
-    label.innerText = `${clampedVal}% attended`;
+  function updateStatus(on) {
+    const el = document.getElementById('connectionStatus');
+    if(el) { el.innerText = on ? "Live" : "Off"; el.className = `status-badge ${on ? 'status-online' : ''}`; }
   }
 
   function render() {
-    const upcomingContainer = document.getElementById('upcoming-list');
-    const pastContainer = document.getElementById('past-list');
-
-    upcomingContainer.innerHTML = upcoming.length ? '' : '<p class="empty-msg">The stage manager has no upcoming notes.</p>';
-    upcoming.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'card';
-      div.innerHTML = `
-        <small>${item.type}</small>
-        <h4>${item.title}</h4>
-        <p>${item.meta}</p>
-        <em>"${item.mood}"</em>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-           <button class="btn" style="padding: 6px 16px; font-size: 13px" onclick="setNowPerforming(${item.id})">Stage This</button>
-           <button class="btn delete" style="margin:0" onclick="deletePerformance(${item.id})">Remove</button>
-        </div>
-      `;
-      upcomingContainer.appendChild(div);
-    });
-
-    pastContainer.innerHTML = past.length ? '' : '<p class="empty-msg">The archives are awaiting the first performance.</p>';
-    past.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'plaque';
-      div.innerHTML = `
-        <h5>${item.title}</h5>
-        <small>${item.type} • ${item.date}</small>
-        <div class="mood">Atmosphere: ${item.mood}</div>
-        <button class="btn delete" onclick="deletePast(${item.id})">Melt Archive</button>
-      `;
-      pastContainer.appendChild(div);
-    });
-  }
-
-  function togglePlay() {
-    isPlaying = !isPlaying;
-    const status = document.getElementById('playback-status');
-    const playBtn = document.getElementById('play-btn');
+    const spotlight = document.getElementById('spotlight-container');
+    const upcomingList = document.getElementById('upcoming-list');
+    const pastList = document.getElementById('past-list');
+    if(spotlight) spotlight.innerHTML = '';
+    if(upcomingList) upcomingList.innerHTML = '';
+    if(pastList) pastList.innerHTML = '';
     
-    status.innerText = isPlaying ? "Performing..." : "Intermission";
-    playBtn.innerText = isPlaying ? "⏸ Pause" : "▶ Play";
+    const nowPlaying = podcasts.find(p => p.status === 'now-playing');
+        if(nowPlaying) {
+            document.body.classList.add('streaming'); 
+            document.getElementById('on-air').innerText = "ON AIR";
+            const activeEp = nowPlaying.episodes.find(e => e.id === nowPlaying.active_episode_id) || nowPlaying.episodes[0] || { episode_title: "General Broadcast" };
+            
+            spotlight.innerHTML = `
+                <div class="now-playing-hero" onclick="openDetails('${nowPlaying.id}')">
+                    <div class="reel-visual" style="background-image: url('${nowPlaying.img || 'https://via.placeholder.com/180/333'}')"></div>
+                    <div class="hero-info">
+                        <div class="live-indicator blink"><i class="fa-solid fa-circle"></i> NOW BROADCASTING</div>
+                        <h4>EPISODE: ${activeEp.episode_title}</h4>
+                        <h2>${nowPlaying.title}</h2>
+                        <p>Hosted by ${nowPlaying.host} • ${nowPlaying.episodes.length} Segments total</p>
+                        <div style="margin: 5px 0;">${"★".repeat(activeEp.rating || nowPlaying.rating || 0)}${"☆".repeat(5 - (activeEp.rating || nowPlaying.rating || 0))}</div>
+                        
+                        <!-- Updated Button Container -->
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn" style="font-size:0.8rem; margin-top: 10px;" onclick="event.stopPropagation(); patchStatus('${nowPlaying.id}', 'past')">CONCLUDE & ARCHIVE</button>
+                            
+                            <button class="btn secondary" style="font-size:0.8rem; margin-top: 10px;" onclick="event.stopPropagation(); patchStatus('${nowPlaying.id}', 'upcoming')">PAUSE / CHANGE</button>
+                        </div>
+                    </div>
+                </div>`;
+} else {
+        document.body.classList.remove('streaming'); document.getElementById('on-air').innerText = "OFF AIR";
+        spotlight.innerHTML = `<div class="now-playing-hero"><div class="reel-visual"></div><div class="hero-info"><h2>SYSTEM IDLE</h2><p>Select a series and stage an episode to begin.</p></div></div>`;
+    }
 
-    if (isPlaying) {
-      progressInterval = setInterval(() => {
-        if (progress < 100) {
-          progress += 0.5; // Smoother increment
-          updateArc(Math.floor(progress));
+    podcasts.forEach(p => {
+        if(p.status === 'now-playing') return;
+        const div = document.createElement('div');
+        if(p.status === 'upcoming') {
+            div.className = 'reel-box'; div.onclick = () => openDetails(p.id);
+            div.innerHTML = `<div class="reel-label"><h4>${p.title}</h4><div style="font-size:12px;">${p.host}</div></div><div class="box-bottom"><span style="color:var(--brass); font-family:Bebas Neue;">${p.type}</span><i class="fa-solid fa-tape" style="opacity:0.2"></i></div>`;
+            upcomingList.appendChild(div);
         } else {
-          clearInterval(progressInterval);
-          status.innerText = "Curtain Call (Finished)";
+            div.className = 'reel-box'; div.style.opacity = '0.7'; div.onclick = () => openDetails(p.id);
+            div.innerHTML = `<div class="reel-label" style="background:#ccc; border-left-color:#555;"><h4>${p.title}</h4><div style="font-size:12px;">${p.host}</div></div><div class="box-bottom"><span style="color:#777; font-family:Bebas Neue;">ARCHIVED</span></div>`;
+            pastList.appendChild(div);
         }
-      }, 200);
-    } else {
-      clearInterval(progressInterval);
-    }
-  }
-
-  function concludePerformance() {
-    const title = document.getElementById('now-performing-title').innerText;
-    const typeLabel = document.getElementById('now-performing-type').innerText;
-    
-    if(title === "The Amphitheatre is Quiet") return;
-
-    const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const type = typeLabel.split('— ')[1] || 'Performance';
-    
-    // Add to past
-    past.unshift({ 
-      id: Date.now(), 
-      title, 
-      date, 
-      mood: progress >= 100 ? 'Complete' : 'Briefly Visited', 
-      type: type 
     });
-    
-    // Reset Stage
-    document.getElementById('now-performing-title').innerText = "The Amphitheatre is Quiet";
-    document.getElementById('now-performing-type').innerText = "Select from Upcoming";
-    
-    clearInterval(progressInterval);
-    isPlaying = false;
-    progress = 0;
-    updateArc(0);
-    
-    document.getElementById('playback-status').innerText = "Ready";
-    document.getElementById('play-btn').innerText = "▶ Play";
-    
-    render();
   }
 
-  function addPerformance() {
-    const titleEl = document.getElementById('new-title');
-    const typeEl = document.getElementById('new-type');
-    const metaEl = document.getElementById('new-meta');
-    const moodEl = document.getElementById('new-mood');
+  function openDetails(id) {
+    const p = podcasts.find(x => x.id === id); if(!p) return;
+    selectedPod = p;
+    document.getElementById('v-title').innerText = p.title;
+    document.getElementById('v-host').innerText = p.host;
+    document.getElementById('v-img').src = p.img || 'https://via.placeholder.com/150';
+    document.getElementById('v-main-rating').innerHTML = "★".repeat(p.rating || 0) + "☆".repeat(5 - (p.rating || 0));
+    document.getElementById('v-notes-view').innerText = p.notes || "No technical logs recorded.";
 
-    if (!titleEl.value.trim()) return;
-
-    upcoming.push({ 
-      id: Date.now(), 
-      title: titleEl.value, 
-      type: typeEl.value, 
-      meta: metaEl.value || 'TBD',
-      mood: moodEl.value || 'Curated'
+    const list = document.getElementById('v-episodes');
+    list.innerHTML = '';
+    (p.episodes || []).forEach((e, i) => {
+        const item = document.createElement('div'); item.className = 'track-item';
+        const isActive = (p.active_episode_id === e.id && p.status === 'now-playing');
+        item.innerHTML = `
+            <span style="${isActive ? 'color: var(--neon-red); font-weight: bold;' : ''}">${(i+1).toString().padStart(2,'0')}. ${e.episode_title}</span>
+            <span style="display:flex;gap:12px; align-items:center;">
+                ${"★".repeat(e.rating || 0)}
+                <i class="fa-solid fa-play" style="color: var(--brass); cursor: pointer;" title="Stage Episode" onclick="event.stopPropagation(); stageEpisode('${p.id}', '${e.id}')"></i>
+                <i class="fa-solid fa-edit" style="opacity:0.6; cursor: pointer;" onclick="event.stopPropagation(); openEpisodeEdit('${e.id}')"></i>
+            </span>
+        `;
+        const sub = document.createElement('div'); sub.className = 'track-details-sub';
+        sub.innerHTML = `<div><b>Mood:</b> ${e.mood || 'Standard'}<br><b>Note:</b> ${e.notes || 'None'}</div>`;
+        item.onclick = () => sub.classList.toggle('active');
+        list.appendChild(item); list.appendChild(sub);
     });
-    
-    titleEl.value = '';
-    metaEl.value = '';
-    moodEl.value = '';
-    render();
+    document.getElementById('detailsModal').classList.add('show');
   }
 
-  function deletePerformance(id) {
-    upcoming = upcoming.filter(i => i.id !== id);
-    render();
+  async function stageEpisode(podId, epId) {
+      try {
+          await fetch(`${API_BASE}/${podId}`, {
+              method: 'PATCH',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ status: 'now-playing', active_episode_id: epId })
+          });
+          closeModals(); loadData();
+      } catch (e) { alert("Failed to stage episode."); }
   }
 
-  function deletePast(id) {
-    past = past.filter(i => i.id !== id);
-    render();
+  async function patchStatus(id, newStatus) {
+    try {
+        await fetch(`${API_BASE}/${id}`, { 
+            method: 'PATCH', headers: {'Content-Type':'application/json'}, 
+            body: JSON.stringify({ status: newStatus }) 
+        });
+        closeModals(); loadData();
+    } catch (e) { alert("Action failed."); }
   }
 
-  function setNowPerforming(id) {
-    const item = upcoming.find(i => i.id === id);
-    if (item) {
-      document.getElementById('now-performing-title').innerText = item.title;
-      document.getElementById('now-performing-type').innerText = `Now Performing — ${item.type}`;
-      
-      clearInterval(progressInterval);
-      isPlaying = false;
-      progress = 0;
-      updateArc(0);
-      document.getElementById('playback-status').innerText = "Ready";
-      document.getElementById('play-btn').innerText = "▶ Play";
-
-      deletePerformance(id);
-    }
+  async function saveSeries() {
+    const id = document.getElementById('edit-id').value;
+    const eps = [];
+    document.querySelectorAll('.ep-input-block').forEach(b => {
+        eps.push({ episode_title: b.querySelector('.e-title').value, rating: b.querySelector('.e-rating').value, mood: b.querySelector('.e-mood').value, notes: b.querySelector('.e-review').value });
+    });
+    const payload = { 
+        title: document.getElementById('new-title').value, host: document.getElementById('new-host').value, type: document.getElementById('new-type').value, 
+        img: document.getElementById('new-img').value, meta: document.getElementById('new-meta').value, mood: document.getElementById('new-mood').value,
+        notes: document.getElementById('new-notes').value, rating: currentMainRating, episodes: eps, status: document.getElementById('new-status').value 
+    };
+    const method = id ? 'PATCH' : 'POST';
+    await fetch(id ? `${API_BASE}/${id}` : API_BASE, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    closeModals(); loadData();
   }
 
-  render();
-  updateArc(0);
+  function addEpisodeInput(title="", rating=0, mood="", notes="") {
+    const div = document.createElement('div'); div.className = 'ep-input-block';
+    div.style.background = "rgba(0,0,0,0.05)"; div.style.padding = "10px"; div.style.marginBottom = "5px";
+    div.innerHTML = `<div style="display:flex; gap:5px;"><input type="text" class="e-title" value="${title}" placeholder="Item Title" style="flex:1;"><input type="number" class="e-rating" value="${rating}" max="5" style="width:50px;"></div><input type="text" class="e-mood" value="${mood}" placeholder="Mood" style="width:100%; margin-top:5px;"><textarea class="e-review" placeholder="Item Review" style="width:100%; margin-top:5px; height:40px;">${notes}</textarea>`;
+    document.getElementById('episode-editor').appendChild(div);
+  }
+
+  function openAddModal() { 
+    document.getElementById('edit-id').value = ""; document.getElementById('episode-editor').innerHTML = ""; 
+    document.getElementById('new-title').value = ""; document.getElementById('new-host').value = "";
+    document.getElementById('addModal').classList.add('show'); 
+  }
+  function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show')); }
+  function closeEpisodeEdit() { document.getElementById('episodeEditModal').classList.remove('show'); }
+  
+  document.querySelectorAll('#mainStarContainer .star').forEach(s => {
+    s.onclick = () => { currentMainRating = parseInt(s.dataset.v); updateStars(currentMainRating); };
+  });
+  function updateStars(v) { document.querySelectorAll('#mainStarContainer .star').forEach(s => s.classList.toggle('active', parseInt(s.dataset.v) <= v)); }
+
+  async function searchArchives() {
+    const q = document.getElementById('magicSearch').value;
+    const res = await fetch(`http://127.0.0.1:5000/api/magic-podcast-search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    const results = document.getElementById('search-results'); results.innerHTML = ''; results.classList.remove('hidden');
+    data.results.forEach(item => {
+        const div = document.createElement('div'); div.className = 'search-item';
+        div.innerHTML = `<img src="${item.artwork}" width="30"><div><b>${item.title}</b><br><span>${item.host}</span></div>`;
+        div.onclick = () => {
+            document.getElementById('new-title').value = item.title; document.getElementById('new-host').value = item.host;
+            document.getElementById('new-img').value = item.artwork; document.getElementById('episode-editor').innerHTML = '';
+            (item.episodes || []).forEach(e => addEpisodeInput(e.episode_title));
+            results.classList.add('hidden');
+        };
+        results.appendChild(div);
+    });
+  }
+
+  function openEpisodeEdit(eid) {
+      const e = selectedPod.episodes.find(x => x.id === eid);
+      if(!e) return;
+      document.getElementById('edit-ep-id').value = e.id;
+      document.getElementById('edit-ep-title').value = e.episode_title;
+      document.getElementById('edit-ep-rating').value = e.rating || 0;
+      document.getElementById('edit-ep-mood').value = e.mood || "";
+      document.getElementById('edit-ep-notes').value = e.notes || "";
+      document.getElementById('episodeEditModal').classList.add('show');
+  }
+
+  async function saveSingleEpisode() {
+      const payload = { episodes: selectedPod.episodes.map(e => e.id === document.getElementById('edit-ep-id').value ? {
+          episode_title: document.getElementById('edit-ep-title').value,
+          rating: document.getElementById('edit-ep-rating').value,
+          mood: document.getElementById('edit-ep-mood').value,
+          notes: document.getElementById('edit-ep-notes').value
+      } : e) };
+      await fetch(`${API_BASE}/${selectedPod.id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      closeEpisodeEdit(); loadData().then(() => openDetails(selectedPod.id));
+  }
+
+  function initiateEdit() {
+      const p = selectedPod;
+      document.getElementById('edit-id').value = p.id;
+      document.getElementById('new-title').value = p.title;
+      document.getElementById('new-host').value = p.host;
+      document.getElementById('new-img').value = p.img || "";
+      document.getElementById('new-status').value = p.status;
+      document.getElementById('episode-editor').innerHTML = "";
+      (p.episodes || []).forEach(e => addEpisodeInput(e.episode_title, e.rating, e.mood, e.notes));
+      closeModals(); document.getElementById('addModal').classList.add('show');
+  }
+
+  async function deleteSeries() { if(confirm("Scrap series?")) { await fetch(`${API_BASE}/${selectedPod.id}`, {method:'DELETE'}); closeModals(); loadData(); } }
 </script>
-
 </body>
 </html>

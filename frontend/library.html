@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>The Nook — Grand Library</title>
+<title>The Nook – Grand Library</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Crimson+Text&display=swap" rel="stylesheet">
 <style>
@@ -21,10 +21,13 @@ header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spac
 .shelf-section { margin-bottom: 120px; padding: 40px 0; }
 .shelf-title { text-align: center; font-family: 'Playfair Display', serif; letter-spacing: 0.3em; margin-bottom: 35px; color: var(--gold); }
 .shelf { background: linear-gradient(to bottom, var(--wood), var(--wood-dark)); height: 30px; display: flex; gap: 16px; padding: 0 18px; align-items: flex-end; border-radius: 4px; box-shadow: 0 15px 25px rgba(0,0,0,0.4); }
-.book { width: 54px; height: 210px; background: linear-gradient(180deg, #7a2e3a, #4b1820); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 28px; transition: transform 0.2s; }
-.book:hover { transform: translateY(-5px); }
-.book span { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Playfair Display', serif; font-size: 0.9rem; color: #f6f1e7; pointer-events: none; }
-.book.finished { background: linear-gradient(180deg, #c9a44c, #8c6b2e); }
+
+.book { width: 120px; height: 180px; background: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 28px; transition: transform 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.2); position: relative; overflow: hidden; border: 2px solid var(--wood-dark); }
+.book:hover { transform: translateY(-8px); box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+.book img { width: 100%; height: 100%; object-fit: cover; }
+.book .placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #8b7355, #6b4228); display: flex; align-items: center; justify-content: center; padding: 10px; text-align: center; }
+.book .placeholder-text { font-family: 'Playfair Display', serif; font-size: 12px; color: #f6f1e7; font-weight: bold; line-height: 1.3; word-wrap: break-word; }
+
 .analytics { text-align: center; margin-top: 40px; font-family: 'Playfair Display', serif; }
 .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
 .modal-content { background: #fffaf3; padding: 30px; width: 400px; max-height: 90vh; overflow-y: auto; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
@@ -38,6 +41,13 @@ header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spac
 .btn-fetch { background: var(--ink); color: white; margin-bottom: 15px; width: 100%; }
 .view-text { margin-bottom: 15px; font-size: 1.1rem; line-height: 1.4; color: var(--ink); }
 .hidden { display: none !important; }
+
+.search-results { background: rgba(0,0,0,0.05); border: 1px solid var(--gold); border-radius: 8px; margin: 15px 0; max-height: 250px; overflow-y: auto; }
+.search-item { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border-bottom: 1px solid rgba(201,164,76,0.2); transition: background 0.2s; }
+.search-item:hover { background: rgba(201,164,76,0.15); }
+.search-item img { width: 50px; height: 75px; object-fit: cover; border-radius: 2px; border: 1px solid var(--gold); }
+.search-item-info b { display: block; font-size: 14px; color: var(--wood); margin-bottom: 3px; }
+.search-item-info span { font-size: 11px; color: #666; }
 </style>
 </head>
 <body>
@@ -80,8 +90,11 @@ header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spac
   <div class="modal-content">
     <h3>Add Book</h3>
     <label>Magic Import</label>
-    <input id="importUrl" placeholder="Paste Goodreads/Amazon/Google URL">
-    <button class="btn-fetch" id="fetchBtn" onclick="autoFillDetails()">Auto-fill Details</button>
+    <input id="importUrl" placeholder="Search for book...">
+    <button class="btn-fetch" id="fetchBtn" onclick="autoFillDetails()">Search Books</button>
+    
+    <div id="search-results" class="search-results hidden"></div>
+    
     <hr style="margin-bottom:15px">
     
     <label>Title</label>
@@ -90,6 +103,9 @@ header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spac
     <input id="author" placeholder="Author">
     <label>Genre</label>
     <input id="genre" placeholder="Genre">
+    
+    <label>Book Cover URL (Optional)</label>
+    <input id="coverUrl" placeholder="https://...">
     
     <label>Shelf Status</label>
     <select id="status">
@@ -131,7 +147,7 @@ header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spac
         <label>Status</label><p class="view-text" id="vStatus"></p>
         <label>Rating</label><p class="view-text" id="vRating"></p>
         <label>Moods</label><p class="view-text" id="vMoods"></p>
-        <label>Dates</label><p class="view-text"><span id="vStartDate"></span> — <span id="vFinishDate"></span></p>
+        <label>Dates</label><p class="view-text"><span id="vStartDate"></span> – <span id="vFinishDate"></span></p>
         <label>Review</label><p class="view-text" id="vReview"></p>
         <div style="display: flex; justify-content: space-between; margin-top: 20px;">
             <div><button class="btn-edit" onclick="setEditMode(true)">Edit</button><button class="btn-secondary" onclick="closeDetails()">Close</button></div>
@@ -143,6 +159,7 @@ header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spac
         <label>Title</label><input id="detTitle">
         <label>Author</label><input id="detAuthor">
         <label>Genre</label><input id="detGenre">
+        <label>Cover URL</label><input id="detCoverUrl">
         <label>Status</label>
         <select id="detStatus">
             <option value="tbr">To Be Read</option>
@@ -163,239 +180,261 @@ header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; letter-spac
 </div>
 
 <script>
-let books = [];
-const API_URL = "http://127.0.0.1:5000/api/books";
-let dragId = null;
+    let books = [];
+    const API_URL = "http://127.0.0.1:5000/api/books";
+    let dragId = null;
 
-function updateStatus(isOnline) {
-  const el = document.getElementById('connectionStatus');
-  if (isOnline) { el.textContent = "Online"; el.className = "status-badge status-online"; }
-  else { el.textContent = "Offline"; el.className = "status-badge status-offline"; }
-}
+    function updateStatus(isOnline) {
+      const el = document.getElementById('connectionStatus');
+      if (isOnline) { el.textContent = "Online"; el.className = "status-badge status-online"; }
+      else { el.textContent = "Offline"; el.className = "status-badge status-offline"; }
+    }
 
-async function fetchBooks() {
-  try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error("Server error");
-    books = await res.json();
-    updateStatus(true);
-    render();
-  } catch (err) { updateStatus(false); }
-}
-
-function render() {
-  ['tbr','current','finished'].forEach(id => {
-    const shelf = document.getElementById(id);
-    if (shelf) shelf.innerHTML = '';
-  });
-  books.forEach(b => {
-    const el = document.createElement('div');
-    el.className = 'book' + (b.status === 'finished' ? ' finished' : '');
-    el.draggable = true;
-    el.addEventListener('dragstart', () => dragId = b.id);
-    el.addEventListener('click', () => openDetails(b.id));
-    el.innerHTML = `<span>${b.title}</span>`;
-    const shelf = document.getElementById(b.status);
-    if (shelf) shelf.appendChild(el);
-  });
-  document.getElementById('totalBooks').textContent = books.length;
-  document.getElementById('finishedBooks').textContent = books.filter(b => b.status === 'finished').length;
-}
-
-// Drag and Drop Logic
-document.querySelectorAll('.shelf-section').forEach(section => {
-  section.addEventListener('dragover', e => e.preventDefault());
-  section.addEventListener('drop', async () => {
-    const zone = section.dataset.zone;
-    const book = books.find(b => b.id === dragId);
-    if (book && book.status !== zone) {
-      const oldStatus = book.status;
-      book.status = zone;
-      render();
+    async function fetchBooks() {
       try {
-        await fetch(`${API_URL}/${book.id}`, {
-          method: 'PATCH',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ status: zone })
-        });
-      } catch (e) { book.status = oldStatus; render(); }
-    }
-  });
-});
-
-function openAdd() { document.getElementById('addModal').style.display = 'flex'; }
-function closeAdd() { 
-    document.getElementById('addModal').style.display = 'none';
-    clearInputs('addModal');
-}
-
-// Helper to clear inputs in a modal
-function clearInputs(modalId) {
-    const modal = document.getElementById(modalId);
-    if (!modal) return;
-    const inputs = modal.querySelectorAll('input, textarea');
-    inputs.forEach(input => input.value = '');
-    const selects = modal.querySelectorAll('select');
-    selects.forEach(select => select.selectedIndex = 0);
-}
-
-function openDetails(id) {
-  const b = books.find(x => x.id === id);
-  if (!b) return;
-  document.getElementById('detId').value = b.id;
-  document.getElementById('vTitle').textContent = b.title;
-  document.getElementById('vAuthor').textContent = b.author || 'N/A';
-  document.getElementById('vGenre').textContent = b.genre || 'N/A';
-  document.getElementById('vStatus').textContent = b.status === 'tbr' ? 'To Be Read' : b.status === 'current' ? 'Currently Reading' : 'Finished';
-  document.getElementById('vRating').textContent = '★'.repeat(b.rating || 0) + '☆'.repeat(5 - (b.rating || 0));
-  document.getElementById('vMoods').textContent = (b.moods || []).join(', ') || 'None';
-  document.getElementById('vStartDate').textContent = b.start_date || 'None';
-  document.getElementById('vFinishDate').textContent = b.finish_date || 'None';
-  document.getElementById('vReview').textContent = b.review || 'No review yet.';
-
-  document.getElementById('detTitle').value = b.title;
-  document.getElementById('detAuthor').value = b.author || '';
-  document.getElementById('detGenre').value = b.genre || '';
-  document.getElementById('detStatus').value = b.status;
-  document.getElementById('detRating').value = b.rating || 0;
-  document.getElementById('detMoods').value = (b.moods || []).join(', ');
-  document.getElementById('detStartDate').value = b.start_date || '';
-  document.getElementById('detFinishDate').value = b.finish_date || '';
-  document.getElementById('detReview').value = b.review || '';
-
-  setEditMode(false);
-  document.getElementById('detailsModal').style.display = 'flex';
-}
-
-function setEditMode(isEdit) {
-    document.getElementById('viewMode').classList.toggle('hidden', isEdit);
-    document.getElementById('editMode').classList.toggle('hidden', !isEdit);
-    document.getElementById('detHeader').textContent = isEdit ? "Edit Book" : "Book Details";
-}
-
-function closeDetails() { document.getElementById('detailsModal').style.display = 'none'; }
-
-async function autoFillDetails() {
-  const url = document.getElementById('importUrl').value.trim();
-  if (!url) return alert("Paste a URL first");
-  const btn = document.getElementById('fetchBtn');
-  btn.textContent = "Magic is working...";
-  btn.disabled = true;
-
-  try {
-    let query = "";
-    // Check for 10 or 13 digit numbers which are likely ISBNs
-    const isbnMatch = url.match(/\b\d{10,13}\b/);
-    if (isbnMatch) {
-      query = `isbn:${isbnMatch[0]}`;
-    } else {
-      // Extract keywords from URL path
-      query = url.split('/').pop().split(/[?#]/)[0].replace(/[_\-\+]/g, ' ').trim();
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("Server error");
+        books = await res.json();
+        updateStatus(true);
+        render();
+      } catch (err) { updateStatus(false); }
     }
 
-    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=1`);
-    const data = await res.json();
-    
-    if (data.items && data.items.length > 0) {
-      const info = data.items[0].volumeInfo;
+    function render() {
+      ['tbr','current','finished'].forEach(id => {
+        const shelf = document.getElementById(id);
+        if (shelf) shelf.innerHTML = '';
+      });
+      books.forEach(b => {
+        const el = document.createElement('div');
+        el.className = 'book';
+        el.draggable = true;
+        el.dataset.id = b.id;
+        el.addEventListener('dragstart', () => dragId = b.id);
+        el.addEventListener('click', () => openDetails(b.id));
+        
+        if (b.cover_url) {
+          el.innerHTML = `<img src="${b.cover_url}" alt="${b.title}">`;
+        } else {
+          el.innerHTML = `<div class="placeholder"><div class="placeholder-text">${b.title}</div></div>`;
+        }
+        
+        const shelf = document.getElementById(b.status);
+        if (shelf) shelf.appendChild(el);
+      });
+      document.getElementById('totalBooks').textContent = books.length;
+      document.getElementById('finishedBooks').textContent = books.filter(b => b.status === 'finished').length;
+    }
+
+    // Drag and Drop Logic
+    document.querySelectorAll('.shelf-section').forEach(section => {
+      section.addEventListener('dragover', e => e.preventDefault());
+      section.addEventListener('drop', async () => {
+        const zone = section.dataset.zone;
+        const book = books.find(b => b.id === dragId);
+        if (book && book.status !== zone) {
+          const oldStatus = book.status;
+          book.status = zone;
+          render();
+          try {
+            await fetch(`${API_URL}/${book.id}`, {
+              method: 'PATCH',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ status: zone })
+            });
+          } catch (e) { book.status = oldStatus; render(); }
+        }
+      });
+    });
+
+    function openAdd() { document.getElementById('addModal').style.display = 'flex'; }
+    function closeAdd() { 
+        document.getElementById('addModal').style.display = 'none';
+        clearInputs('addModal');
+        document.getElementById('search-results').classList.add('hidden');
+    }
+
+    function clearInputs(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        const inputs = modal.querySelectorAll('input, textarea');
+        inputs.forEach(input => input.value = '');
+        const selects = modal.querySelectorAll('select');
+        selects.forEach(select => select.selectedIndex = 0);
+    }
+
+    function openDetails(id) {
+      const b = books.find(x => x.id === id);
+      if (!b) return;
+      document.getElementById('detId').value = b.id;
+      document.getElementById('vTitle').textContent = b.title;
+      document.getElementById('vAuthor').textContent = b.author || 'N/A';
+      document.getElementById('vGenre').textContent = b.genre || 'N/A';
+      document.getElementById('vStatus').textContent = b.status === 'tbr' ? 'To Be Read' : b.status === 'current' ? 'Currently Reading' : 'Finished';
+      document.getElementById('vRating').textContent = '★'.repeat(b.rating || 0) + '☆'.repeat(5 - (b.rating || 0));
+      document.getElementById('vMoods').textContent = (b.moods || []).join(', ') || 'None';
+      document.getElementById('vStartDate').textContent = b.start_date || 'None';
+      document.getElementById('vFinishDate').textContent = b.finish_date || 'None';
+      document.getElementById('vReview').textContent = b.review || 'No review yet.';
+
+      document.getElementById('detTitle').value = b.title;
+      document.getElementById('detAuthor').value = b.author || '';
+      document.getElementById('detGenre').value = b.genre || '';
+      document.getElementById('detCoverUrl').value = b.cover_url || '';
+      document.getElementById('detStatus').value = b.status;
+      document.getElementById('detRating').value = b.rating || 0;
+      document.getElementById('detMoods').value = (b.moods || []).join(', ');
+      document.getElementById('detStartDate').value = b.start_date || '';
+      document.getElementById('detFinishDate').value = b.finish_date || '';
+      document.getElementById('detReview').value = b.review || '';
+
+      setEditMode(false);
+      document.getElementById('detailsModal').style.display = 'flex';
+    }
+
+    function setEditMode(isEdit) {
+        document.getElementById('viewMode').classList.toggle('hidden', isEdit);
+        document.getElementById('editMode').classList.toggle('hidden', !isEdit);
+        document.getElementById('detHeader').textContent = isEdit ? "Edit Book" : "Book Details";
+    }
+
+    function closeDetails() { document.getElementById('detailsModal').style.display = 'none'; }
+
+    async function autoFillDetails() {
+      const query = document.getElementById('importUrl').value.trim();
+      if (!query) return alert("Enter a search term");
+      
+      const btn = document.getElementById('fetchBtn');
+      const resultsDiv = document.getElementById('search-results');
+      
+      btn.textContent = "Searching...";
+      btn.disabled = true;
+      resultsDiv.innerHTML = "";
+      resultsDiv.classList.add('hidden');
+
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/magic-book-search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        
+        if (data.items && data.items.length > 0) {
+          resultsDiv.classList.remove('hidden');
+          
+          data.items.forEach(item => {
+            const info = item.volumeInfo;
+            const div = document.createElement('div');
+            div.className = 'search-item';
+            
+            const thumbnail = info.imageLinks?.thumbnail || 'https://via.placeholder.com/50x75?text=No+Cover';
+            
+            div.innerHTML = `
+              <img src="${thumbnail}" alt="cover">
+              <div class="search-item-info">
+                <b>${info.title || 'Unknown'}</b>
+                <span>${info.authors ? info.authors.join(', ') : 'Unknown'} • ${info.categories ? info.categories.join(', ') : 'Book'}</span>
+              </div>
+            `;
+            
+            div.onclick = () => selectBook(info);
+            resultsDiv.appendChild(div);
+          });
+        } else {
+          alert("No books found");
+        }
+      } catch (e) {
+        alert("Search failed");
+      } finally {
+        btn.textContent = "Search Books";
+        btn.disabled = false;
+      }
+    }
+
+    function selectBook(info) {
       document.getElementById('title').value = info.title || '';
       document.getElementById('author').value = info.authors ? info.authors.join(', ') : '';
       document.getElementById('genre').value = info.categories ? info.categories.join(', ') : '';
-      btn.textContent = "Book Found!";
-      setTimeout(() => { btn.textContent = "Auto-fill Details"; btn.disabled = false; }, 2000);
-    } else { 
-        alert("We couldn't find that exact book. Please try another link or enter details manually."); 
-        btn.textContent = "Auto-fill Details";
-        btn.disabled = false;
+      document.getElementById('coverUrl').value = info.imageLinks?.thumbnail?.replace('&edge=curl', '') || '';
+      document.getElementById('search-results').classList.add('hidden');
     }
-  } catch (e) { 
-      alert("Error connecting to the book service."); 
-      btn.textContent = "Auto-fill Details";
-      btn.disabled = false;
-  }
-}
 
-async function addBook() {
-  const title = document.getElementById('title').value.trim();
-  if (!title) return alert("Title is required to save a book.");
+    async function addBook() {
+      const title = document.getElementById('title').value.trim();
+      if (!title) return alert("Title is required to save a book.");
 
-  const payload = {
-    title: title,
-    author: document.getElementById('author').value,
-    genre: document.getElementById('genre').value,
-    status: document.getElementById('status').value,
-    rating: document.getElementById('rating').value,
-    moods: document.getElementById('moods').value.split(',').map(s => s.trim()).filter(s => s),
-    start_date: document.getElementById('startDate').value,
-    finish_date: document.getElementById('finishDate').value,
-    review: document.getElementById('review').value
-  };
+      const payload = {
+        title: title,
+        author: document.getElementById('author').value,
+        genre: document.getElementById('genre').value,
+        cover_url: document.getElementById('coverUrl').value,
+        status: document.getElementById('status').value,
+        rating: document.getElementById('rating').value,
+        moods: document.getElementById('moods').value.split(',').map(s => s.trim()).filter(s => s),
+        start_date: document.getElementById('startDate').value,
+        finish_date: document.getElementById('finishDate').value,
+        review: document.getElementById('review').value
+      };
 
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload)
-    });
-    if (res.ok) {
-        const data = await res.json();
-        alert(data.message || "Excellent! The book has been added to your collection.");
-        closeAdd();
-        fetchBooks();
-    } else {
-        const err = await res.json();
-        alert(`Failed to add book: ${err.error}`);
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+            alert("Book added!");
+            closeAdd();
+            fetchBooks();
+        } else {
+            alert("Failed to add book");
+        }
+      } catch (e) { alert("Could not reach backend server"); }
     }
-  } catch (e) { alert("Could not reach backend server. Is it running?"); }
-}
 
-async function saveEdit() {
-  const id = document.getElementById('detId').value;
-  const payload = {
-    title: document.getElementById('detTitle').value,
-    author: document.getElementById('detAuthor').value,
-    genre: document.getElementById('detGenre').value,
-    status: document.getElementById('detStatus').value,
-    rating: document.getElementById('detRating').value,
-    moods: document.getElementById('detMoods').value.split(',').map(s => s.trim()).filter(s => s),
-    start_date: document.getElementById('detStartDate').value,
-    finish_date: document.getElementById('detFinishDate').value,
-    review: document.getElementById('detReview').value
-  };
-  try {
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload)
-    });
-    if (res.ok) {
-        const data = await res.json();
-        alert(data.message || "Your changes have been saved to the library.");
-        closeDetails();
-        fetchBooks();
-    } else {
-        alert("There was an error saving your changes.");
+    async function saveEdit() {
+      const id = document.getElementById('detId').value;
+      const payload = {
+        title: document.getElementById('detTitle').value,
+        author: document.getElementById('detAuthor').value,
+        genre: document.getElementById('detGenre').value,
+        cover_url: document.getElementById('detCoverUrl').value,
+        status: document.getElementById('detStatus').value,
+        rating: document.getElementById('detRating').value,
+        moods: document.getElementById('detMoods').value.split(',').map(s => s.trim()).filter(s => s),
+        start_date: document.getElementById('detStartDate').value,
+        finish_date: document.getElementById('detFinishDate').value,
+        review: document.getElementById('detReview').value
+      };
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+            alert("Changes saved!");
+            closeDetails();
+            fetchBooks();
+        } else {
+            alert("Error saving changes");
+        }
+      } catch (e) { alert("Server connection lost"); }
     }
-  } catch (e) { alert("Server connection lost."); }
-}
 
-async function deleteBook() {
-  const id = document.getElementById('detId').value;
-  if (!confirm("Are you sure you want to remove this book from your library forever?")) return;
-  try {
-    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-        const data = await res.json();
-        alert(data.message || "The book has been removed.");
-        closeDetails();
-        fetchBooks();
-    } else {
-        alert("The book could not be deleted.");
+    async function deleteBook() {
+      const id = document.getElementById('detId').value;
+      if (!confirm("Are you sure you want to remove this book?")) return;
+      try {
+        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            alert("Book removed");
+            closeDetails();
+            fetchBooks();
+        } else {
+            alert("Could not delete book");
+        }
+      } catch (e) { alert("Server connection error"); }
     }
-  } catch (e) { alert("Server connection error."); }
-}
 
-fetchBooks();
+    fetchBooks();
 </script>
 </body>
 </html>
