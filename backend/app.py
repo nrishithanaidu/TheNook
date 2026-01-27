@@ -5,11 +5,14 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 import urllib.parse
 import uuid
+import os
 from datetime import datetime
 import requests
-import traceback
+from recommender.routes import recommender_bp
+    
 
 app = Flask(__name__)
+app.register_blueprint(recommender_bp)
 
 # -------------------------
 # CORS

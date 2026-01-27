@@ -1,39 +1,50 @@
-# recommender_engine.py
-
 import math
+import sqlite3
+from pathlib import Path
+
+DB_PATH = Path(__file__).parents[1] / "database" / "nook.db"
 
 
 class EmotionalRecommender:
     """
-    Recommends media based on emotional similarity.
+    Emotion-based recommender using stored media emotion vectors.
     """
 
-    def __init__(self, emotion_memory):
-        self.emotion_memory = emotion_memory
-
     def emotional_distance(self, e1, e2):
-        """
-        Euclidean distance between two emotion vectors.
-        """
-        return math.sqrt((e1[0] - e2[0]) ** 2 + (e1[1] - e2[1]) ** 2)
+        return math.sqrt(
+            (e1[0] - e2[0]) ** 2 +
+            (e1[1] - e2[1]) ** 2
+        )
 
     def recommend(self, target_emotion: tuple, top_k=5):
-        """
-        Recommend media closest to desired emotional state.
-        """
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
 
-        recommendations = []
+        cursor.execute("""
+            SELECT id, title, media_type, emotion_x, emotion_y
+            FROM media
+            WHERE emotion_x IS NOT NULL
+            AND emotion_y IS NOT NULL
+        """)
 
-        profiles = self.emotion_memory.all_media_profiles()
+        rows = cursor.fetchall()
+        conn.close()
 
-        for media_id, emotion in profiles.items():
-            if emotion is None:
-                continue
+        ranked = []
 
-            distance = self.emotional_distance(target_emotion, emotion)
-            recommendations.append((media_id, distance))
+        for media_id, title, media_type, ex, ey in rows:
+            distance = self.emotional_distance(
+                target_emotion,
+                (ex, ey)
+            )
 
-        # smaller distance = better match
-        recommendations.sort(key=lambda x: x[1])
+            ranked.append({
+                "id": media_id,
+                "title": title,
+                "type": media_type,
+                "distance": round(distance, 3)
+            })
 
-        return recommendations[:top_k]
+        ranked.sort(key=lambda x: x["distance"])
+
+        return ranked[:top_k]
