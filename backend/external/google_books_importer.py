@@ -23,19 +23,25 @@ def import_books():
     cursor = conn.cursor()
 
     queries = [
-        "romance novel",
-        "psychological fiction",
-        "fantasy novel",
-        "self help",
-        "dark romance",
-        "thriller book",
-        "classic literature"
-    ]
+    "romance novel",
+    "dark romance",
+    "psychological thriller book",
+    "fantasy fiction",
+    "young adult fiction",
+    "classic literature",
+    "mystery novel",
+    "historical fiction",
+    "self discovery book",
+    "coming of age novel",
+    "emotional fiction",
+    "modern literature"
+]
+
 
     total = 0
 
     for query in queries:
-        for start in range(0, 120, 40):   # 3 pages × 40 = 120 per query
+        for start in range(0, 400, 40):   
             books = fetch_books(query, start_index=start)
 
             for book in books:
