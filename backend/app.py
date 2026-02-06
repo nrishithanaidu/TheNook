@@ -9,19 +9,42 @@ import os
 from datetime import datetime
 import requests
 from recommender.routes import recommender_bp
-    
+from flask_jwt_extended import JWTManager
+from config import Config      
+
+DATABASE_URL = "postgresql+psycopg2://postgres.ylaxaumvhhhiwtdvewsm:Aadhya%403003@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
+
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(bind=engine)
+Base = declarative_base()
+
 
 app = Flask(__name__)
 app.register_blueprint(recommender_bp)
+
+# -------------------------
+# JWT CONFIG (TEMP FIX)
+# -------------------------
+app.config["JWT_SECRET_KEY"] = "dev-secret-key-change-later"
+app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+
+jwt = JWTManager(app)
 
 # -------------------------
 # CORS
 # -------------------------
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Add this extra safety line
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    return response
+
 # -------------------------
 # DATABASE CONFIG (Supabase Connection)
-# -------------------------
 user = "postgres"
 password = urllib.parse.quote_plus("TheNook@Rishitha1594")
 host = "db.tnogvzlpaqzzxcmplopa.supabase.co"
@@ -31,8 +54,12 @@ dbname = "postgres"
 DATABASE_URL = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}?sslmode=require"
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
+# ✅ OVERRIDE WITH MY WORKING DATABASE (LOCAL FIX)
+DATABASE_URL = Config.SQLALCHEMY_DATABASE_URI
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine)
-Base = declarative_base()
+
 
 # -------------------------
 # MODELS
