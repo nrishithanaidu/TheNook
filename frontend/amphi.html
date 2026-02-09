@@ -234,6 +234,7 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
 
 .hidden { display: none !important; }
 </style>
+
 </head>
 <body>
 
@@ -253,8 +254,12 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
                 <svg class="w-7 h-7 border-2 border-current rounded-full p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
-                <span id="user-display-name">Loading...</span>
+                <span data-user-name>Guest</span>
             </span>
+                
+            <button data-auth-action class="ml-4 nav-link">Login</button>
+
+    
         </div>
     </div>
 </nav>
@@ -449,33 +454,24 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
   </div>
 </div>
 
-<script>
+<script type="module">
+import Auth, { bootstrapAuth } from "./auth.js";
+window.Auth = Auth;
+
   let podcasts = [];
   let customCollections = [];
   let activeId = null;
   let activeCaseId = null;
   let currentMainRating = 0;
   let selectedPodForArchive = null;
-  const API_BASE = "http://127.0.0.1:5000/api/podcasts";
-  const COLL_URL = "http://127.0.0.1:5000/api/collections";
-  const USER_URL = "http://127.0.0.1:5000/api/user";
-
-  async function loadUser() {
-    try {
-        const response = await fetch(USER_URL);
-        const user = await response.json();
-        document.getElementById('user-display-name').textContent = user.alias || user.full_name || 'Explorer';
-    } catch (error) {
-        document.getElementById('user-display-name').textContent = 'Explorer';
-    }
-  }
-
+  const API_BASE = "/api/podcasts";
+  const COLL_URL = "/api/collections";
 
   function scrollShelf(id, amount) { const el = document.getElementById(id); if(el) el.scrollLeft += amount; }
 
   async function loadData() {
     try {
-        const [podRes, collRes] = await Promise.all([fetch(API_BASE), fetch(`${COLL_URL}?media_type=episode`)]);
+        const [podRes, collRes] = await Promise.all([Auth.apiCall(API_BASE), Auth.apiCall(`${COLL_URL}?media_type=episode`)]);
         podcasts = await podRes.json();
         customCollections = await collRes.json();
         updateStatus(true); updateDropdowns(); render();
@@ -594,10 +590,28 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
     const target = document.getElementById('detailsCollectionSelect').value;
     const checks = document.querySelectorAll('.song-picker-checkbox:checked');
     if(!target || checks.length === 0) return alert("Select a case and segments!");
+    
+    const p = podcasts.find(x => x.id === activeId);
+    if(!p) return;
+    
     for (let cb of checks) {
-        await fetch(`${COLL_URL}/${target}/items`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ item_id: activeId, note: `Episode: ${cb.value}` }) });
+        const episodeTitle = cb.value;
+        const episode = p.episodes.find(e => e.episode_title === episodeTitle);
+        if(episode) {
+            await Auth.apiCall(`${COLL_URL}/${target}/items`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ 
+                    item_id: episode.id,
+                    note: `Track: ${episodeTitle}` 
+                }) 
+            });
+        }
     }
-    alert("Segments Filed!"); loadData();
+    alert("Segments Filed!"); 
+    document.getElementById('songPickerSection').classList.add('hidden');
+    document.getElementById('detailsCollectionSelect').value = "";
+    loadData();
   }
 
   function openJournal(id) {
@@ -607,24 +621,43 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
     document.getElementById('collectionJournalTitle').innerText = case_pod.name;
     const grid = document.getElementById('collectionGrid');
     grid.innerHTML = "";
-    if(!case_pod.items || case_pod.items.length === 0) grid.innerHTML = '<p style="opacity:0.5; grid-column:1/-1; text-align:center; padding: 40px;">Archive case unassigned.</p>';
-    else case_pod.items.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'segment-card'; div.style.position = 'relative';
-        const trackName = item.note && item.note.startsWith("Episode: ") ? item.note.replace("Episode: ", "") : item.title || "Broadcast Track";
-        div.innerHTML = `<h5>SERIES: ${item.podcast || 'Unknown Series'}</h5><h4>${trackName}</h4><p>Rating: ${"★".repeat(item.rating || 0)}</p>`;
-        const del = document.createElement('div');
-        del.className = 'remove-icon'; del.innerHTML = '&times;';
-        del.onclick = async (e) => {
-            e.stopPropagation();
-            await fetch(`${COLL_URL}/${activeCaseId}/items/${item.id}`, { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ note: item.note }) });
-            loadData();
-        };
-        div.appendChild(del);
-        grid.appendChild(div);
-    });
+    
+    if(!case_pod.items || case_pod.items.length === 0) {
+        grid.innerHTML = '<p style="opacity:0.5; grid-column:1/-1; text-align:center; padding: 40px;">Archive case unassigned.</p>';
+    } else {
+        case_pod.items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'segment-card'; 
+            div.style.position = 'relative';
+            
+            const trackName = item.note && item.note.startsWith("Track: ") 
+                ? item.note.replace("Track: ", "") 
+                : item.title || "Broadcast Track";
+            
+            div.innerHTML = `
+                <h5>SERIES: ${item.podcast || 'Unknown Series'}</h5>
+                <h4>${trackName}</h4>
+                <p>Rating: ${"★".repeat(item.rating || 0)}</p>
+            `;
+            
+            const del = document.createElement('div');
+            del.className = 'remove-icon'; 
+            del.innerHTML = '&times;';
+            del.onclick = async (e) => {
+                e.stopPropagation();
+                await Auth.apiCall(`${COLL_URL}/${activeCaseId}/items/${item.id}`, { 
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ note: item.note })
+                });
+                loadData();
+            };
+            div.appendChild(del);
+            grid.appendChild(div);
+        });
+    }
     document.getElementById('collectionOverlay').classList.add('show');
-  }
+}
 
   function openSelectionModal() {
     document.getElementById('selectionGrid').classList.remove('hidden');
@@ -660,13 +693,28 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
   function cancelSelectionSongPicker() { selectedPodForArchive = null; openSelectionModal(); }
 
   async function confirmSelectionAdd() {
-      const checks = document.querySelectorAll('.sel-episode-check:checked');
-      if (checks.length === 0) return alert("Select at least one segment!");
-      for (let cb of checks) {
-          await fetch(`${COLL_URL}/${activeCaseId}/items`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ item_id: selectedPodForArchive.id, note: `Episode: ${cb.value}` }) });
-      }
-      closeSelectionModal(); loadData();
-  }
+    const checks = document.querySelectorAll('.sel-episode-check:checked');
+    if (checks.length === 0) return alert("Select at least one segment!");
+    if (!selectedPodForArchive) return;
+    
+    for (let cb of checks) {
+        const episodeTitle = cb.value;
+        const episode = selectedPodForArchive.episodes.find(e => e.episode_title === episodeTitle);
+        if(episode) {
+            await Auth.apiCall(`${COLL_URL}/${activeCaseId}/items`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ 
+                    item_id: episode.id,
+                    note: `Track: ${episodeTitle}` 
+                }) 
+            });
+        }
+    }
+    selectedPodForArchive = null;
+    closeSelectionModal(); 
+    loadData();
+}
 
   function updateDropdowns() {
     const select = document.getElementById('detailsCollectionSelect');
@@ -682,7 +730,7 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
   async function createCollection() {
     const name = document.getElementById('collectionTitle').value.trim();
     if(!name) return;
-    await fetch(COLL_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, media_type: 'episode' }) });
+    await Auth.apiCall(COLL_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, media_type: 'episode' }) });
     closeModals(); loadData();
   }
 
@@ -700,6 +748,12 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
     document.getElementById('addModal').classList.add('show'); 
   }
 
+  function closeAddModal() {
+  document.getElementById('addModal').classList.remove('show');
+}
+
+
+
   function addEpisodeInput(title="", rating=0) {
     const div = document.createElement('div'); div.className = 'ep-input-block';
     div.style.background = "rgba(0,0,0,0.08)"; div.style.padding = "10px"; div.style.marginBottom = "8px";
@@ -713,7 +767,7 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
     document.querySelectorAll('.ep-input-block').forEach(b => { eps.push({ episode_title: b.querySelector('.e-title').value, rating: b.querySelector('.e-rating').value }); });
     const payload = { title: document.getElementById('new-title').value, host: document.getElementById('new-host').value, type: document.getElementById('new-type').value, img: document.getElementById('new-img').value, meta: document.getElementById('new-meta').value, mood: document.getElementById('new-mood').value, notes: document.getElementById('new-notes').value, date: document.getElementById('new-date').value, rating: currentMainRating, episodes: eps, status: document.getElementById('new-status').value };
     const method = id ? 'PATCH' : 'POST';
-    await fetch(id ? `${API_BASE}/${id}` : API_BASE, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    await Auth.apiCall(id ? `${API_BASE}/${id}` : API_BASE, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     closeModals(); loadData();
   }
 
@@ -723,7 +777,7 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
     const btn = document.querySelector('#addModal .btn');
     btn.innerText = "FETCHING..."; btn.disabled = true;
     try {
-        const res = await fetch(`http://127.0.0.1:5000/api/magic-podcast-search?q=${encodeURIComponent(q)}`);
+        const res = await Auth.apiCall(`/api/magic-podcast-search?q=${encodeURIComponent(q)}`);
         const data = await res.json();
         const results = document.getElementById('magic-search-results'); results.innerHTML = ''; results.classList.remove('hidden');
         data.results.forEach(item => {
@@ -740,8 +794,8 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
     } finally { btn.innerText = "FETCH"; btn.disabled = false; }
   }
 
-  async function stageEpisode(podId, epId) { await fetch(`${API_BASE}/${podId}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ status: 'now-playing', active_episode_id: epId }) }); closeModals(); loadData(); }
-  async function patchStatus(id, newStatus) { await fetch(`${API_BASE}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ status: newStatus }) }); closeModals(); loadData(); }
+  async function stageEpisode(podId, epId) { await Auth.apiCall(`${API_BASE}/${podId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'now-playing', active_episode_id: epId }) }); closeModals(); loadData(); }
+  async function patchStatus(id, newStatus) { await Auth.apiCall(`${API_BASE}/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) }); closeModals(); loadData(); }
   document.querySelectorAll('#mainStarContainer .star').forEach(s => { s.onclick = () => { currentMainRating = parseInt(s.dataset.v); updateStars(currentMainRating); }; });
   function updateStars(v) { document.querySelectorAll('#mainStarContainer .star').forEach(s => s.classList.toggle('active', parseInt(s.dataset.v) <= v)); }
   function initiateEdit() {
@@ -754,25 +808,61 @@ body.streaming .reel-visual { animation: rotate 4s linear infinite; }
       document.getElementById('episode-editor').innerHTML = ""; (p.episodes || []).forEach(e => addEpisodeInput(e.episode_title, e.rating));
       closeModals(); document.getElementById('addModal').classList.add('show');
   }
-  async function deleteSeries() { if(confirm("Scrap master archive file?")) { await fetch(`${API_BASE}/${activeId}`, {method:'DELETE'}); closeModals(); loadData(); } }
+  async function deleteSeries() { if(confirm("Scrap master archive file?")) { await Auth.apiCall(`${API_BASE}/${activeId}`, {method:'DELETE'}); closeModals(); loadData(); } }
   async function renameCollectionPrompt() {
       const name = prompt("Identification Change for Archive Case:");
-      if (name && activeCaseId) { await fetch(`${COLL_URL}/${activeCaseId}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name }) }); loadData(); }
+      if (name && activeCaseId) { await Auth.apiCall(`${COLL_URL}/${activeCaseId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) }); loadData(); }
   }
-  window.addEventListener('load', () => { 
-    setTimeout(() => {
-      document.body.classList.add('loaded');
-    }, 100); 
-    
-    loadUser();
-    loadData(); 
-  });
-
-  function scrollShelf(id, amount) { const el = document.getElementById(id); if(el) el.scrollLeft += amount; }
+  
 
   async function deleteCollectionPrompt() {
-      if (confirm("Decommission this Archive Case? Series logs will remain in Vault.")) { await fetch(`${COLL_URL}/${activeCaseId}`, { method: 'DELETE' }); closeModals(); loadData(); }
+      if (confirm("Decommission this Archive Case? Series logs will remain in Vault.")) { await Auth.apiCall(`${COLL_URL}/${activeCaseId}`, { method: 'DELETE' }); closeModals(); loadData(); }
   }
+
+
+  // ===== EXPOSE FUNCTIONS USED BY HTML =====
+window.handleCollectionSelect = handleCollectionSelect;
+window.openSelectionSongPicker = openSelectionSongPicker;
+window.cancelSelectionSongPicker = cancelSelectionSongPicker;
+window.confirmSelectionAdd = confirmSelectionAdd;
+window.createCollection = createCollection;
+window.addEpisodeInput = addEpisodeInput;
+window.saveSeries = saveSeries;
+window.searchArchives = searchArchives;
+window.stageEpisode = stageEpisode;
+window.patchStatus = patchStatus;
+window.updateStars = updateStars;
+window.scrollShelf = scrollShelf;
+window.triggerFilter = triggerFilter;
+
+window.openAddModal = openAddModal;
+window.closeAddModal = closeAddModal;
+
+window.openCollectionForgeModal = openCollectionForgeModal;
+window.openSelectionModal = openSelectionModal;
+window.closeSelectionModal = closeSelectionModal;
+
+window.openJournal = openJournal;
+window.closeModals = closeModals;
+
+window.openDetails = openDetails;
+window.addCurrentToCollection = addCurrentToCollection;
+
+window.renameCollectionPrompt = renameCollectionPrompt;
+window.deleteCollectionPrompt = deleteCollectionPrompt;
+
+window.initiateEdit = initiateEdit;
+window.deleteSeries = deleteSeries;
+
+window.addCurrentToCollection = addCurrentToCollection;
+window.confirmSelectionAdd = confirmSelectionAdd;
+window.openJournal = openJournal;
+
+
+   document.addEventListener("DOMContentLoaded", async () => {
+    await bootstrapAuth({ requireAuth: true });
+    await loadData();
+});
 </script>
 </body>
 </html>

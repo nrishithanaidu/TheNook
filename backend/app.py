@@ -1,813 +1,108 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
-from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
-import urllib.parse
-import uuid
-import os
-from datetime import datetime
-import requests
-from recommender.routes import recommender_bp
 from flask_jwt_extended import JWTManager
-from config import Config      
-
-DATABASE_URL = "postgresql+psycopg2://postgres.ylaxaumvhhhiwtdvewsm:Aadhya%403003@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
-
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=engine)
-Base = declarative_base()
+from config import Config
+from models import Base, engine
+from routes import api_bp
+from recommender.routes import recommender_bp
 
 
-app = Flask(__name__)
-app.register_blueprint(recommender_bp)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    
+        # ✅ Create all tables automatically
+    Base.metadata.create_all(bind=engine)
 
-# -------------------------
-# JWT CONFIG (TEMP FIX)
-# -------------------------
-app.config["JWT_SECRET_KEY"] = "dev-secret-key-change-later"
-app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+    # Initialize CORS with proper configuration
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": Config.CORS_ORIGINS,
+            "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
+    
+    # Initialize JWT
+    jwt = JWTManager(app)
+    
+    # JWT error handlers
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            "error": "Token has expired",
+            "message": "Please log in again"
+        }), 401
+    
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return jsonify({
+            "error": "Invalid token",
+            "message": "Signature verification failed"
+        }), 401
+    
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return jsonify({
+            "error": "Authorization required",
+            "message": "Request does not contain an access token"
+        }), 401
+    
+    # Register Blueprints
+    # This prefixes all routes in routes.py with /api
+    app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(recommender_bp)
 
-jwt = JWTManager(app)
-
-# -------------------------
-# CORS
-# -------------------------
-CORS(app, resources={r"/*": {"origins": "*"}})
-
-# Add this extra safety line
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "*"
-    return response
-
-# -------------------------
-# DATABASE CONFIG (Supabase Connection)
-user = "postgres"
-password = urllib.parse.quote_plus("TheNook@Rishitha1594")
-host = "db.tnogvzlpaqzzxcmplopa.supabase.co"
-port = "6543"
-dbname = "postgres"
-
-DATABASE_URL = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}?sslmode=require"
-
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-
-# ✅ OVERRIDE WITH MY WORKING DATABASE (LOCAL FIX)
-DATABASE_URL = Config.SQLALCHEMY_DATABASE_URI
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=engine)
-
-
-# -------------------------
-# MODELS
-# -------------------------
-
-class Movie(Base):
-    __tablename__ = "movies"
-    id = Column(String, primary_key=True)
-    title = Column(String, nullable=False)
-    director = Column(String)
-    year = Column(String)
-    genre = Column(String)
-    runtime = Column(Integer)
-    status = Column(String)
-    language = Column(String)
-    rating = Column(Integer)
-    moods = Column(ARRAY(String))
-    img = Column(Text)
-    synopsis = Column(Text)
-    review = Column(Text)
-    start_date = Column(Date)
-    finish_date = Column(Date)
-
-class Book(Base):
-    __tablename__ = "books"
-    id = Column(String, primary_key=True)
-    title = Column(String, nullable=False)
-    author = Column(String)
-    genre = Column(String)
-    status = Column(String)
-    rating = Column(Integer)
-    moods = Column(ARRAY(String))
-    start_date = Column(Date)
-    finish_date = Column(Date)
-    review = Column(Text)
-    cover_url = Column(Text)
-
-class Podcast(Base):
-    __tablename__ = "podcasts"
-    id = Column(String, primary_key=True)
-    title = Column(String, nullable=False)
-    host = Column(String)
-    type = Column(String)
-    status = Column(String)
-    duration = Column(String)
-    mood = Column(String)
-    rating = Column(Integer)
-    notes = Column(Text)
-    date_performed = Column(Date)
-    img = Column(Text)
-    genre = Column(String)
-    year = Column(String)
-    active_episode_id = Column(String)
-    episodes = relationship("Episode", back_populates="podcast", cascade="all, delete-orphan")
-
-class Episode(Base):
-    __tablename__ = "episodes"
-    id = Column(String, primary_key=True)
-    podcast_id = Column(String, ForeignKey("podcasts.id", ondelete="CASCADE"), nullable=False)
-    episode_title = Column(String, nullable=False)
-    mood = Column(String)
-    rating = Column(Integer)
-    notes = Column(Text)
-    review = Column(Text)
-    podcast = relationship("Podcast", back_populates="episodes")
-
-class Album(Base):
-    __tablename__ = "albums"
-    id = Column(String, primary_key=True)
-    album_name = Column(String, nullable=False)
-    artist = Column(String, nullable=False)
-    status = Column(String)
-    mood = Column(String)
-    rating = Column(Integer)
-    notes = Column(Text)
-    img = Column(Text)
-    genre = Column(String)
-    year = Column(String)
-    songs = relationship("Song", back_populates="album", cascade="all, delete-orphan")
-
-class Song(Base):
-    __tablename__ = "songs"
-    id = Column(String, primary_key=True)
-    album_id = Column(String, ForeignKey("albums.id", ondelete="CASCADE"), nullable=False)
-    song_title = Column(String, nullable=False)
-    mood = Column(String)
-    rating = Column(Integer)
-    notes = Column(Text)
-    review = Column(Text)
-    album = relationship("Album", back_populates="songs")
-
-# FIX 1: Updated Collection Media Types
-class Collection(Base):
-    __tablename__ = "collections"
-    id = Column(String, primary_key=True)
-    name = Column(String, nullable=False)
-    description = Column(Text)
-    media_type = Column(String, nullable=False)  
-    # book | movie | episode | song
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-class CollectionItem(Base):
-    __tablename__ = "collection_items"
-    id = Column(String, primary_key=True)
-    collection_id = Column(String, ForeignKey("collections.id", ondelete="CASCADE"), nullable=False)
-    item_id = Column(String, nullable=False)  # Specific Item ID (e.g., Episode ID or Book ID)
-    added_at = Column(DateTime, default=datetime.utcnow)
-    note = Column(Text)
-
-# Create all tables in Supabase
-Base.metadata.create_all(engine)
-
-# -------------------------
-# HELPERS
-# -------------------------
-def parse_date(date_str):
-    if not date_str: return None
-    try: return datetime.strptime(date_str, "%Y-%m-%d").date()
-    except: return None
-
-def safe_int(val, default=0):
+    
+    # Health check endpoint
+    @app.route('/health')
+    def health_check():
+        return jsonify({"status": "healthy", "message": "API is running"}), 200
+    
+    # Root endpoint
+    @app.route('/')
+    def index():
+        return jsonify({
+            "message": "Media Tracker API",
+            "version": "1.0.0",
+            "endpoints": {
+                "health": "/health",
+                "api": "/api",
+                "auth": {
+                    "register": "/api/auth/register",
+                    "login": "/api/auth/login",
+                    "me": "/api/auth/me"
+                }
+            }
+        }), 200
+    
+    # Global error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({"error": "Endpoint not found"}), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        return jsonify({"error": "Internal server error"}), 500
+    
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({"error": "Bad request"}), 400
+    
+    # Create Database Tables in Supabase
+    # Only creates if they don't exist
     try:
-        if val is None or str(val).strip() == "": return default
-        return int(val)
-    except: return default
-
-# -------------------------
-# HEALTH & UTILITIES
-# -------------------------
-@app.route("/api/health")
-def health():
-    return jsonify({"status": "online", "server": "The Nook Master Backend"})
-
-# -------------------------
-# MAGIC SEARCH APIs (Integrations)
-# -------------------------
-TMDB_API_KEY = "c1049f6f7a836087e3f3a57acbfe70f0"
-
-@app.route("/api/magic-movie-search")
-def magic_movie_search():
-    query = request.args.get("q")
-    if not query: return jsonify({"results": []})
-    try:
-        search_res = requests.get("https://api.themoviedb.org/3/search/movie",
-            params={"query": query, "api_key": TMDB_API_KEY, "language": "en-US"}, timeout=10)
-        search_data = search_res.json()
-        results = []
-        for item in search_data.get("results", [])[:5]:
-            movie_id = item.get("id")
-            try:
-                details_res = requests.get(f"https://api.themoviedb.org/3/movie/{movie_id}",
-                    params={"api_key": TMDB_API_KEY, "append_to_response": "credits"}, timeout=5)
-                details = details_res.json()
-                director = "Unknown"
-                if "credits" in details and "crew" in details["credits"]:
-                    directors = [crew["name"] for crew in details["credits"]["crew"] if crew["job"] == "Director"]
-                    if directors: director = directors[0]
-                genres = details.get("genres", [])
-                genre = genres[0]["name"] if genres else "Film"
-                results.append({
-                    "trackName": item.get("title"), "artistName": director,
-                    "releaseDate": item.get("release_date", ""), "primaryGenreName": genre,
-                    "genre": genre, "artworkUrl100": f"https://image.tmdb.org/t/p/w500{item['poster_path']}" if item.get("poster_path") else "",
-                    "longDescription": item.get("overview", ""), "shortDescription": item.get("overview", "")[:150] + "..." if item.get("overview") else "",
-                    "trackTimeMillis": details.get("runtime", 0) * 60000 if details.get("runtime") else 0
-                })
-            except: pass
-        return jsonify({"results": results})
+        Base.metadata.create_all(engine)
+        print("✓ Database tables created/verified successfully")
     except Exception as e:
-        return jsonify({"error": str(e), "results": []}), 200
-
-@app.route("/api/magic-book-search")
-def magic_book_search():
-    query = request.args.get("q")
-    if not query: return jsonify({"items": []})
-    try:
-        res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": query, "maxResults": 5}, timeout=10)
-        return jsonify(res.json())
-    except: return jsonify({"items": []}), 200
-
-@app.route("/api/magic-podcast-search")
-def magic_podcast_search():
-    query = request.args.get("q")
-    if not query: return jsonify({"results": []})
-    results = []
-    try:
-        itunes_res = requests.get("https://itunes.apple.com/search", params={"media": "podcast", "term": query, "limit": 5}, timeout=10)
-        itunes_data = itunes_res.json()
-        for item in itunes_data.get("results", []):
-            try:
-                ep_res = requests.get("https://itunes.apple.com/lookup", params={"id": item.get("collectionId"), "entity": "podcastEpisode", "limit": 15}, timeout=5)
-                ep_data = ep_res.json()
-                episodes = [{"episode_title": e.get("trackName"), "mood": "", "rating": 0, "notes": ""} for e in ep_data.get("results", []) if e.get("wrapperType") == "podcastEpisode"]
-            except: episodes = []
-            results.append({
-                "title": item.get("collectionName"), "host": item.get("artistName"),
-                "artwork": item.get("artworkUrl600"), "type": "Podcast",
-                "genre": item.get("primaryGenreName"), "episodes": episodes
-            })
-    except: pass
-    return jsonify({"results": results})
-
-@app.route("/api/magic-music-search")
-def magic_music_search():
-    query = request.args.get("q")
-    if not query: return jsonify({"results": []})
-    try:
-        res = requests.get("https://itunes.apple.com/search", params={"media": "music", "entity": "album", "term": query, "limit": 5}, timeout=10)
-        data = res.json()
-        results = []
-        for item in data.get("results", []):
-            album_id = item.get("collectionId")
-            try:
-                track_res = requests.get("https://itunes.apple.com/lookup", params={"id": album_id, "entity": "song"}, timeout=5)
-                track_data = track_res.json()
-                songs = [{"song_title": t.get("trackName"), "mood": "", "rating": 0, "notes": ""} for t in track_data.get("results", []) if t.get("wrapperType") == "track"]
-            except: songs = []
-            results.append({
-                "album_name": item.get("collectionName"), "artist": item.get("artistName"),
-                "artwork": item.get("artworkUrl100", "").replace("100x100bb", "600x600bb"),
-                "genre": item.get("primaryGenreName"), "year": item.get("releaseDate", "")[:4] if item.get("releaseDate") else "",
-                "songs": songs
-            })
-        return jsonify({"results": results})
-    except: return jsonify({"results": []}), 200
-
-# -------------------------
-# COLLECTIONS API (FIX 2: High-Density Resolution)
-# -------------------------
-@app.route("/api/collections", methods=["GET"])
-def get_collections():
-    session = SessionLocal()
-    try:
-        media_type = request.args.get("media_type")
-        query = session.query(Collection)
-        if media_type:
-            query = query.filter(Collection.media_type == media_type)
-        collections = query.all()
-        
-        result = []
-        for c in collections:
-            items_query = session.query(CollectionItem).filter(CollectionItem.collection_id == c.id).all()
-            items = []
-            for ci in items_query:
-                if c.media_type == "movie":
-                    item = session.query(Movie).filter(Movie.id == ci.item_id).first()
-                    if item: items.append({"id": item.id, "title": item.title, "img": item.img, "rating": item.rating})
-                elif c.media_type == "book":
-                    item = session.query(Book).filter(Book.id == ci.item_id).first()
-                    if item: items.append({"id": item.id, "title": item.title, "img": item.cover_url, "rating": item.rating})
-                elif c.media_type == "episode":
-                    ep = session.query(Episode).filter(Episode.id == ci.item_id).first()
-                    if ep:
-                        pod = session.query(Podcast).filter(Podcast.id == ep.podcast_id).first()
-                        items.append({
-                            "id": ep.id,
-                            "title": ep.episode_title,
-                            "podcast": pod.title if pod else "",
-                            "img": pod.img if pod else "",
-                            "rating": ep.rating,
-                            "note": ci.note
-                        })
-                elif c.media_type == "song":
-                    song = session.query(Song).filter(Song.id == ci.item_id).first()
-                    if song:
-                        album = session.query(Album).filter(Album.id == song.album_id).first()
-                        items.append({
-                            "id": song.id, 
-                            "title": song.song_title, 
-                            "album": album.album_name if album else "", 
-                            "artist": album.artist if album else "", 
-                            "img": album.img if album else "", 
-                            "rating": song.rating, 
-                            "note": ci.note
-                        })
-
-            result.append({
-                "id": c.id, "name": c.name, "description": c.description,
-                "media_type": c.media_type, "created_at": c.created_at.isoformat() if c.created_at else None,
-                "items": items, "item_count": len(items)
-            })
-        return jsonify(result)
-    finally: session.close()
-
-@app.route("/api/collections", methods=["POST"])
-def create_collection():
-    session = SessionLocal()
-    try:
-        data = request.json
-        new_collection = Collection(
-            id=str(uuid.uuid4()), name=data["name"],
-            description=data.get("description", ""), media_type=data["media_type"]
-        )
-        session.add(new_collection)
-        session.commit()
-        return jsonify({"message": "Collection created", "id": new_collection.id}), 201
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
-
-@app.route("/api/collections/<id>", methods=["PATCH"])
-def update_collection(id):
-    session = SessionLocal()
-    try:
-        collection = session.query(Collection).filter(Collection.id == id).first()
-        if not collection: return jsonify({"error": "Not found"}), 404
-        data = request.json
-        if "name" in data: collection.name = data["name"]
-        if "description" in data: collection.description = data["description"]
-        session.commit()
-        return jsonify({"message": "Updated"})
-    finally: session.close()
-
-@app.route("/api/collections/<id>", methods=["DELETE"])
-def delete_collection(id):
-    session = SessionLocal()
-    try:
-        collection = session.query(Collection).filter(Collection.id == id).first()
-        if not collection: return jsonify({"error": "Not found"}), 404
-        session.delete(collection)
-        session.commit()
-        return jsonify({"message": "Deleted"})
-    finally: session.close()
-
-@app.route("/api/collections/<collection_id>/items", methods=["POST"])
-def add_to_collection(collection_id):
-    session = SessionLocal()
-    try:
-        data = request.json
-        item_id = data["item_id"]  # This is the podcast ID
-        note = data.get("note", "")
-        
-        print(f"DEBUG: Adding to collection {collection_id}, item_id: {item_id}, note: {note}")
-        
-        # Get collection to determine media type
-        collection = session.query(Collection).filter(Collection.id == collection_id).first()
-        if not collection:
-            return jsonify({"error": "Collection not found"}), 404
-        
-        # For episodes, we need to extract episode ID from the note
-        if collection.media_type == "episode" and note.startswith("Episode: "):
-            episode_title = note.replace("Episode: ", "")
-            print(f"DEBUG: Looking for episode '{episode_title}' in podcast {item_id}")
-            
-            # Find the episode by title and podcast ID
-            episode = session.query(Episode).filter(
-                Episode.podcast_id == item_id,
-                Episode.episode_title == episode_title
-            ).first()
-            
-            if episode:
-                actual_item_id = episode.id
-                print(f"DEBUG: Found episode with ID: {actual_item_id}")
-            else:
-                print(f"DEBUG: Episode not found")
-                return jsonify({"error": f"Episode '{episode_title}' not found in podcast"}), 404
-        else:
-            actual_item_id = item_id
-        
-        # Check for existing item
-        existing = session.query(CollectionItem).filter(
-            CollectionItem.collection_id == collection_id,
-            CollectionItem.item_id == actual_item_id,
-            CollectionItem.note == note
-        ).first()
-        if existing: 
-            return jsonify({"message": "Item already in collection"}), 200
-        
-        new_item = CollectionItem(
-            id=str(uuid.uuid4()), 
-            collection_id=collection_id,
-            item_id=actual_item_id, 
-            note=note
-        )
-        session.add(new_item)
-        session.commit()
-        print(f"DEBUG: Successfully added item to collection")
-        return jsonify({"message": "Added to collection"}), 201
-    except Exception as e:
-        session.rollback()
-        print(f"DEBUG: Error adding to collection: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-    finally: 
-        session.close()
-
-@app.route("/api/collections/<collection_id>/items/<item_id>", methods=["DELETE"])
-def remove_from_collection(collection_id, item_id):
-    session = SessionLocal()
-    try:
-        data = request.json or {}
-        note = data.get("note")
-        
-        # Get collection to determine media type
-        collection = session.query(Collection).filter(Collection.id == collection_id).first()
-        if not collection:
-            return jsonify({"error": "Collection not found"}), 404
-        
-        # For episodes, find the actual episode ID
-        if collection.media_type == "episode" and note and note.startswith("Episode: "):
-            episode_title = note.replace("Episode: ", "")
-            episode = session.query(Episode).join(Podcast).filter(
-                Podcast.id == item_id,
-                Episode.episode_title == episode_title
-            ).first()
-            if episode:
-                actual_item_id = episode.id
-            else:
-                return jsonify({"error": "Episode not found"}), 404
-        else:
-            actual_item_id = item_id
-        
-        query = session.query(CollectionItem).filter(
-            CollectionItem.collection_id == collection_id,
-            CollectionItem.item_id == actual_item_id
-        )
-        if note:
-            query = query.filter(CollectionItem.note == note)
-        
-        item = query.first()
-        if not item: 
-            return jsonify({"error": "Item not found in collection"}), 404
-        session.delete(item)
-        session.commit()
-        return jsonify({"message": "Removed from collection"})
-    finally: 
-        session.close()
-
-# -------------------------
-# MOVIES CRUD
-# -------------------------
-@app.route("/api/movies", methods=["GET"])
-def get_movies():
-    session = SessionLocal()
-    try:
-        movies = session.query(Movie).all()
-        return jsonify([{
-            "id": m.id, "title": m.title, "director": m.director, "year": m.year,
-            "genre": m.genre, "runtime": m.runtime, "status": m.status, "language": m.language,
-            "rating": m.rating, "moods": m.moods or [], "img": m.img, "synopsis": m.synopsis,
-            "review": m.review, "start_date": m.start_date.isoformat() if m.start_date else None,
-            "finish_date": m.finish_date.isoformat() if m.finish_date else None
-        } for m in movies])
-    finally: session.close()
-
-@app.route("/api/movies", methods=["POST"])
-def add_movie():
-    session = SessionLocal()
-    try:
-        data = request.json
-        movie = Movie(
-            id=str(uuid.uuid4()), title=data["title"], director=data.get("director"),
-            year=data.get("year"), genre=data.get("genre"),
-            runtime=safe_int(data.get("runtime")), status=data.get("status"),
-            language=data.get("language"), rating=safe_int(data.get("rating")),
-            moods=data.get("moods", []), img=data.get("img"), synopsis=data.get("synopsis"),
-            review=data.get("review"), start_date=parse_date(data.get("start_date")),
-            finish_date=parse_date(data.get("finish_date"))
-        )
-        session.add(movie)
-        session.commit()
-        return jsonify({"message": "Movie added", "id": movie.id}), 201
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
-
-@app.route("/api/movies/<id>", methods=["PATCH"])
-def update_movie(id):
-    session = SessionLocal()
-    try:
-        movie = session.query(Movie).filter(Movie.id == id).first()
-        if not movie: return jsonify({"error": "Not found"}), 404
-        data = request.json
-        for key, value in data.items():
-            if key not in ["start_date", "finish_date"] and hasattr(movie, key):
-                setattr(movie, key, value)
-        if "start_date" in data: movie.start_date = parse_date(data["start_date"])
-        if "finish_date" in data: movie.finish_date = parse_date(data["finish_date"])
-        session.commit()
-        return jsonify({"message": "Updated"})
-    finally: session.close()
-
-@app.route("/api/movies/<id>", methods=["DELETE"])
-def delete_movie(id):
-    session = SessionLocal()
-    try:
-        movie = session.query(Movie).filter(Movie.id == id).first()
-        if not movie: return jsonify({"error": "Not found"}), 404
-        session.delete(movie)
-        session.commit()
-        return jsonify({"message": "Deleted"})
-    finally: session.close()
-
-# -------------------------
-# BOOKS CRUD
-# -------------------------
-@app.route("/api/books", methods=["GET"])
-def get_books():
-    session = SessionLocal()
-    try:
-        books = session.query(Book).all()
-        return jsonify([{
-            "id": b.id, "title": b.title, "author": b.author, "genre": b.genre,
-            "status": b.status, "rating": b.rating, "moods": b.moods or [],
-            "start_date": b.start_date.isoformat() if b.start_date else None,
-            "finish_date": b.finish_date.isoformat() if b.finish_date else None,
-            "cover_url": b.cover_url, "review": b.review
-        } for b in books])
-    finally: session.close()
-
-@app.route("/api/books", methods=["POST"])
-def add_book():
-    session = SessionLocal()
-    try:
-        data = request.json
-        book = Book(
-            id=str(uuid.uuid4()), title=data["title"], author=data.get("author"),
-            genre=data.get("genre"), cover_url=data.get("cover_url"), status=data.get("status", "tbr"),
-            rating=safe_int(data.get("rating")), moods=data.get("moods", []),
-            start_date=parse_date(data.get("start_date")),
-            finish_date=parse_date(data.get("finish_date")), review=data.get("review")
-        )
-        session.add(book)
-        session.commit()
-        return jsonify({"message": "Book added", "id": book.id}), 201
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
-
-@app.route("/api/books/<id>", methods=["PATCH"])
-def update_book(id):
-    session = SessionLocal()
-    try:
-        book = session.query(Book).filter(Book.id == id).first()
-        if not book: return jsonify({"error": "Not found"}), 404
-        data = request.json
-        for key, value in data.items():
-            if key not in ["start_date", "finish_date"] and hasattr(book, key):
-                setattr(book, key, value)
-        if "start_date" in data: book.start_date = parse_date(data["start_date"])
-        if "finish_date" in data: book.finish_date = parse_date(data["finish_date"])
-        session.commit()
-        return jsonify({"message": "Updated"})
-    finally: session.close()
-
-@app.route("/api/books/<id>", methods=["DELETE"])
-def delete_book(id):
-    session = SessionLocal()
-    try:
-        book = session.query(Book).filter(Book.id == id).first()
-        if not book: return jsonify({"error": "Not found"}), 404
-        session.delete(book)
-        session.commit()
-        return jsonify({"message": "Deleted"})
-    finally: session.close()
-
-# -------------------------
-# PODCASTS & EPISODES CRUD
-# -------------------------
-@app.route("/api/podcasts", methods=["GET"])
-def get_podcasts():
-    session = SessionLocal()
-    try:
-        podcasts = session.query(Podcast).all()
-        return jsonify([{
-            "id": p.id, "title": p.title, "host": p.host, "type": p.type,
-            "status": p.status, "duration": p.duration, "mood": p.mood,
-            "rating": p.rating, "notes": p.notes,
-            "date_performed": p.date_performed.isoformat() if p.date_performed else None,
-            "img": p.img, "genre": p.genre, "year": p.year,
-            "active_episode_id": p.active_episode_id,
-            "episodes": [{
-                "id": e.id, "episode_title": e.episode_title,
-                "mood": e.mood, "rating": e.rating, "notes": e.notes, "review": e.review
-            } for e in p.episodes]
-        } for p in podcasts])
-    finally: session.close()
-
-@app.route("/api/podcasts", methods=["POST"])
-def add_podcast():
-    session = SessionLocal()
-    try:
-        data = request.json
-        podcast_id = str(uuid.uuid4())
-        new_podcast = Podcast(
-            id=podcast_id, title=data["title"], host=data.get("host"),
-            type=data.get("type", "Podcast"), status=data.get("status", "upcoming"),
-            duration=data.get("meta"), mood=data.get("mood"), rating=safe_int(data.get("rating")),
-            notes=data.get("notes"), date_performed=parse_date(data.get("date")),
-            img=data.get("img"), genre=data.get("genre"), year=data.get("year")
-        )
-        if "episodes" in data and data["episodes"]:
-            for ep_data in data["episodes"]:
-                if ep_data.get("episode_title"):
-                    new_episode = Episode(
-                        id=str(uuid.uuid4()), podcast_id=podcast_id,
-                        episode_title=ep_data["episode_title"], mood=ep_data.get("mood"),
-                        rating=safe_int(ep_data.get("rating")), notes=ep_data.get("notes"),
-                        review=ep_data.get("review")
-                    )
-                    new_podcast.episodes.append(new_episode)
-        session.add(new_podcast)
-        session.commit()
-        return jsonify({"message": "Podcast saved", "id": podcast_id}), 201
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
-
-@app.route("/api/podcasts/<id>", methods=["PATCH"])
-def update_podcast(id):
-    session = SessionLocal()
-    try:
-        podcast = session.query(Podcast).filter(Podcast.id == id).first()
-        if not podcast: return jsonify({"error": "Not found"}), 404
-        data = request.json
-        # Exclusive 'now-playing' status handling
-        if data.get("status") == "now-playing":
-            session.query(Podcast).filter(Podcast.status == "now-playing", Podcast.id != id).update({"status": "upcoming"})
-        
-        for key in ["title", "host", "status", "active_episode_id", "img", "mood", "notes", "type"]:
-            if key in data: setattr(podcast, key, data[key])
-            
-        if "meta" in data: podcast.duration = data["meta"]
-        if "date" in data: podcast.date_performed = parse_date(data["date"])
-        if "rating" in data: podcast.rating = safe_int(data["rating"])
-        
-        if "episodes" in data:
-            session.query(Episode).filter(Episode.podcast_id == id).delete()
-            for ep_data in data["episodes"]:
-                if ep_data.get("episode_title"):
-                    new_episode = Episode(
-                        id=str(uuid.uuid4()), podcast_id=id,
-                        episode_title=ep_data["episode_title"], mood=ep_data.get("mood"),
-                        rating=safe_int(ep_data.get("rating")), notes=ep_data.get("notes"),
-                        review=ep_data.get("review")
-                    )
-                    session.add(new_episode)
-        session.commit()
-        return jsonify({"message": "Updated master series"})
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
-
-@app.route("/api/podcasts/<id>", methods=["DELETE"])
-def delete_podcast(id):
-    session = SessionLocal()
-    try:
-        podcast = session.query(Podcast).filter(Podcast.id == id).first()
-        if not podcast: return jsonify({"error": "Not found"}), 404
-        session.delete(podcast)
-        session.commit()
-        return jsonify({"message": "Broadcast series expunged"})
-    finally: session.close()
-
-# -------------------------
-# ALBUMS & SONGS CRUD
-# -------------------------
-@app.route("/api/albums", methods=["GET"])
-def get_albums():
-    session = SessionLocal()
-    try:
-        albums = session.query(Album).all()
-        return jsonify([{
-            "id": a.id, "album_name": a.album_name, "artist": a.artist,
-            "status": a.status or "queued", "mood": a.mood, "rating": a.rating,
-            "notes": a.notes, "img": a.img, "genre": a.genre, "year": a.year,
-            "songs": [{
-                "id": s.id, "song_title": s.song_title, "mood": s.mood,
-                "rating": s.rating, "notes": s.notes, "review": s.review
-            } for s in a.songs]
-        } for a in albums])
-    finally: session.close()
-
-@app.route("/api/albums", methods=["POST"])
-def add_album():
-    session = SessionLocal()
-    try:
-        data = request.json
-        album_id = str(uuid.uuid4())
-        new_album = Album(
-            id=album_id, album_name=data["album_name"], artist=data["artist"],
-            status=data.get("status", "queued"), mood=data.get("mood"),
-            rating=safe_int(data.get("rating")), notes=data.get("notes"),
-            img=data.get("img"), genre=data.get("genre"), year=data.get("year")
-        )
-        if "songs" in data and data["songs"]:
-            for song_data in data["songs"]:
-                if song_data.get("song_title"):
-                    new_song = Song(
-                        id=str(uuid.uuid4()), album_id=album_id,
-                        song_title=song_data["song_title"], mood=song_data.get("mood"),
-                        rating=safe_int(song_data.get("rating")), notes=song_data.get("notes"),
-                        review=song_data.get("review")
-                    )
-                    new_album.songs.append(new_song)
-        session.add(new_album)
-        session.commit()
-        return jsonify({"message": "Album saved", "id": album_id}), 201
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
-
-@app.route("/api/albums/<id>", methods=["PATCH"])
-def update_album(id):
-    session = SessionLocal()
-    try:
-        album = session.query(Album).filter(Album.id == id).first()
-        if not album: return jsonify({"error": "Not found"}), 404
-        data = request.json
-        for key in ["album_name", "artist", "status", "mood", "notes", "img", "genre", "year"]:
-            if key in data: setattr(album, key, data[key])
-        if "rating" in data: album.rating = safe_int(data["rating"])
-        if "songs" in data:
-            session.query(Song).filter(Song.album_id == id).delete()
-            for song_data in data["songs"]:
-                if song_data.get("song_title"):
-                    new_song = Song(
-                        id=str(uuid.uuid4()), album_id=id,
-                        song_title=song_data["song_title"], mood=song_data.get("mood"),
-                        rating=safe_int(song_data.get("rating")), notes=song_data.get("notes"),
-                        review=song_data.get("review")
-                    )
-                    session.add(new_song)
-        session.commit()
-        return jsonify({"message": "Master record updated"})
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
-
-@app.route("/api/albums/<id>", methods=["DELETE"])
-def delete_album(id):
-    session = SessionLocal()
-    try:
-        album = session.query(Album).filter(Album.id == id).first()
-        if not album: return jsonify({"error": "Not found"}), 404
-        session.delete(album)
-        session.commit()
-        return jsonify({"message": "Master record expunged"})
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally: session.close()
+        print(f"✗ Error creating database tables: {e}")
+    
+    return app
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app = create_app()
+    app.run(
+        debug=Config.DEBUG,
+        port=5000,
+        host='0.0.0.0'  # Allow external connections
+    )

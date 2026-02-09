@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Nook Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Crimson+Pro:ital,wght@0,400;0,600;0,800;1,400&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --parchment: #fdfaf1; 
+            --ink: #1b1412; 
+            --gold: #8c6f38; 
+            --blood: #7a2b2b;
+            --deep-gold: #6b5530;
+            --light-gold: #b8956a;
+        }
+        body { 
+            font-family: 'Crimson Pro', serif; 
+            background-color: #0d0908; 
+            color: var(--ink); 
+            background-image: radial-gradient(circle at center, #1a1412 0%, #0d0908 100%);
+        }
+        .journal-container { 
+            box-shadow: 0 60px 120px rgba(0,0,0,0.9); 
+            border: 1px solid rgba(0,0,0,0.4);
+            transform: perspective(1000px) rotateY(-2deg);
+        }
+        .spine-gradient { 
+            background: linear-gradient(to right, #140a06, #2d180d, #140a06);
+            position: relative;
+        }
+        .spine-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.3), transparent);
+        }
+        .parchment-bg { 
+            background-color: var(--parchment); 
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(139, 69, 19, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 69, 19, 0.03) 0%, transparent 50%);
+        }
+        .parchment-bg::before { 
+            content: ""; 
+            position: absolute; 
+            inset: 0; 
+            opacity: 0.25; 
+            pointer-events: none; 
+            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png'); 
+            mix-blend-mode: multiply; 
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { 
+            background: linear-gradient(to bottom, var(--gold), var(--deep-gold)); 
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .input-line { 
+            height: 2px; 
+            width: 0; 
+            background: linear-gradient(90deg, var(--gold), var(--light-gold)); 
+            transition: width 0.7s ease-in-out;
+            box-shadow: 0 0 8px rgba(140, 111, 56, 0.3);
+        }
+        input:focus ~ .input-line, textarea:focus ~ .input-line { width: 100%; }
+        .btn-fill { 
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(135deg, var(--ink), #2d1b0e); 
+            transform: translateY(100%); 
+            transition: transform 0.5s ease-out; 
+        }
+        .btn-container:hover .btn-fill { transform: translateY(0); }
+        .btn-container:hover span { color: var(--parchment); text-shadow: 0 0 10px rgba(253, 250, 241, 0.5); }
+        .btn-container {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-container:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+        }
+        h1, h2, h3, h4, h5 { font-family: 'Playfair Display', serif; }
+        .tab-btn { 
+            padding: 16px 28px; 
+            cursor: pointer; 
+            transition: all 0.4s ease; 
+            opacity: 0.6; 
+            position: relative; 
+            font-family: 'IM Fell English SC', serif;
+            border-radius: 8px 8px 0 0;
+            background: linear-gradient(to bottom, transparent, rgba(140, 111, 56, 0.05));
+        }
+        .tab-btn:hover {
+            opacity: 0.8;
+            background: linear-gradient(to bottom, rgba(140, 111, 56, 0.1), rgba(140, 111, 56, 0.15));
+            transform: translateY(-2px);
+        }
+        .tab-btn.active { 
+            opacity: 1;
+            background: linear-gradient(to bottom, rgba(140, 111, 56, 0.15), rgba(140, 111, 56, 0.2));
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab-btn.active::after { 
+            content: ""; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            height: 3px; 
+            background: linear-gradient(90deg, var(--gold), var(--light-gold)); 
+            box-shadow: 0 0 10px rgba(140, 111, 56, 0.5);
+        }
+        .preference-chip { 
+            background: white; 
+            border: 2px solid rgba(140, 111, 56, 0.2); 
+            padding: 10px 18px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .preference-chip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(140, 111, 56, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .preference-chip:hover::before {
+            left: 100%;
+        }
+        .preference-chip:hover { 
+            border-color: var(--gold); 
+            background: rgba(140, 111, 56, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .preference-chip.selected { 
+            background: linear-gradient(135deg, var(--gold), var(--light-gold)); 
+            color: white; 
+            border-color: var(--deep-gold);
+            box-shadow: 0 4px 15px rgba(140, 111, 56, 0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .password-strength { 
+            height: 6px; 
+            background: rgba(0,0,0,0.1); 
+            border-radius: 3px; 
+            overflow: hidden; 
+            margin-top: 12px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .password-strength-fill { 
+            height: 100%; 
+            width: 0%; 
+            transition: all 0.4s ease; 
+            border-radius: 3px;
+            position: relative;
+        }
+        .password-strength-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .strength-weak { background: linear-gradient(90deg, #dc2626, #ef4444); width: 33%; }
+        .strength-medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 66%; }
+        .strength-strong { background: linear-gradient(90deg, #16a34a, #22c55e); width: 100%; }
+        
+        .avatar-section {
+            position: relative;
+        }
+        .avatar-section::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, transparent, rgba(140, 111, 56, 0.1), transparent);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .form-section-divider {
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            height: 1px;
+            margin: 2rem 0;
+            opacity: 0.3;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+            border: 1px solid rgba(140, 111, 56, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(140, 111, 56, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        .stat-card:hover::before {
+            left: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: var(--gold);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 56px;
+            height: 28px;
+            background: linear-gradient(135deg, #e5e5e5, #d1d1d1);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #ffffff, #f5f5f5);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .toggle-switch input:checked + .toggle-switch {
+            background: linear-gradient(135deg, var(--gold), var(--light-gold));
+        }
+        .toggle-switch input:checked + .toggle-switch::after {
+            transform: translateX(28px);
+        }
+        
+        /* Back Button Enhancement */
+        .back-btn { 
+            font-family: 'IM Fell English SC', serif; 
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+        }
+        .back-btn:hover {
+            background: rgba(140, 111, 56, 0.1);
+            transform: translateX(-4px);
+        }
+        
+        /* Enhanced spine decoration */
+        .spine-decoration {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--light-gold), var(--deep-gold));
+            border: 2px solid rgba(0,0,0,0.3);
+            box-shadow: 
+                0 2px 4px rgba(0,0,0,0.3),
+                inset 0 1px 2px rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        .spine-decoration:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.4),
+                inset 0 1px 2px rgba(255,255,255,0.4),
+                0 0 15px rgba(140, 111, 56, 0.5);
+        }
+    </style>
+    
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-10">
+    <div class="journal-container relative w-full max-w-5xl flex rounded-lg overflow-hidden bg-[#fdfaf1]">
+        <div class="hidden md:flex w-16 spine-gradient border-r border-black/60 relative z-50 flex-col items-center py-12 gap-24 shadow-[10px_0_20px_rgba(0,0,0,0.6)]">
+            <div class="spine-decoration"></div>
+            <div class="spine-decoration"></div>
+            <div class="spine-decoration"></div>
+            <div class="spine-decoration"></div>
+            <div class="spine-decoration"></div>
+        </div>
+        
+        <div class="flex-1 parchment-bg min-h-[750px] flex flex-col overflow-hidden">
+            <div class="relative z-10 p-6 md:p-12 lg:p-16 overflow-y-auto max-h-[95vh] custom-scrollbar">
+                
+                <nav class="flex justify-between items-center mb-8">
+                    <button onclick="window.location.href='nook_homepage_final.html'" class="back-btn flex items-center gap-2 text-xs font-bold opacity-60 hover:opacity-100 transition-opacity">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        RETURN TO THE MAP
+                    </button>
+                    <div class="text-[10px] font-black uppercase tracking-widest opacity-30">The Nook Private Archives</div>
+                </nav>
+
+                <header class="flex flex-col md:flex-row items-center gap-8 mb-10 pb-8 border-b-2 border-black/5">
+                    <div class="relative flex-shrink-0 group">
+                        <div class="w-32 h-32 rounded-full border-[4px] border-[#8c6f38]/30 overflow-hidden shadow-2xl bg-[#cfc3ab]">
+                            <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nook" class="w-full h-full object-cover">
+                            <label class="absolute inset-0 bg-black/70 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                <svg class="w-6 h-6 text-[#e6c68a] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <span class="text-[9px] text-[#e6c68a] font-bold tracking-widest">UPLOAD</span>
+                                <input type="file" id="avatar-input" class="hidden" accept="image/*">
+                            </label>
+                        </div>
+                        <button id="remove-avatar" class="absolute -bottom-2 -right-2 w-8 h-8 bg-[#7a2b2b] text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity font-bold hover:bg-[#5a1b1b]">×</button>
+                    </div>
+                    <div class="text-center md:text-left flex-1">
+                        <h1 id="display-alias" class="text-5xl font-bold mb-2 text-[#2d1b0e]">Loading...</h1>
+                        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[#8c6f38] opacity-70">Registered Patron</p>
+                        <p class="text-[10px] mt-1 opacity-50 italic">Member since <span id="join-date">Loading...</span></p>
+                    </div>
+                </header>
+
+                <div class="flex gap-6 mb-8 border-b border-black/10">
+                    <div id="tab-profile-btn" class="tab-btn active text-sm font-bold uppercase tracking-wider" onclick="switchTab('profile')">Profile</div>
+                    <div id="tab-preferences-btn" class="tab-btn text-sm font-bold uppercase tracking-wider" onclick="switchTab('preferences')">Preferences</div>
+                    <div id="tab-security-btn" class="tab-btn text-sm font-bold uppercase tracking-wider" onclick="switchTab('security')">Security</div>
+                </div>
+
+                <!-- PROFILE TAB -->
+                <div id="tab-profile" class="tab-content">
+                    <form id="profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                        <div class="col-span-2 flex items-center gap-3 mb-2">
+                            <div class="w-3 h-3 rounded-full bg-[#7a2b2b]"></div>
+                            <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Identity Records</h2>
+                            <div class="h-px flex-1 bg-black/5"></div>
+                        </div>
+                        <div class="relative pt-6">
+                            <input type="text" id="fullName" required placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                            <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Full Name</label>
+                            <div class="input-line"></div>
+                        </div>
+                        <div class="relative pt-6">
+                            <input type="text" id="alias" required placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                            <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Display Name</label>
+                            <div class="input-line"></div>
+                        </div>
+                        <div class="relative pt-6">
+                            <input type="email" id="email" required placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                            <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Email Address</label>
+                            <div class="input-line"></div>
+                        </div>
+                        <div class="relative pt-6">
+                            <input type="tel" id="phone" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                            <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Phone Number</label>
+                            <div class="input-line"></div>
+                        </div>
+                        <div class="relative pt-6">
+                            <input type="text" id="location" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                            <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Location</label>
+                            <div class="input-line"></div>
+                        </div>
+                        <div class="relative pt-6">
+                            <input type="url" id="website" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                            <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Website</label>
+                            <div class="input-line"></div>
+                        </div>
+                        <div class="col-span-2 relative pt-6">
+                            <textarea id="bio" rows="3" maxlength="500" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all resize-none"></textarea>
+                            <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Biography</label>
+                            <div class="input-line"></div>
+                            <p class="text-[10px] mt-2 opacity-50 text-right"><span id="bio-count">0</span>/500</p>
+                        </div>
+                        <div class="col-span-2 mt-4">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-3 h-3 rounded-full bg-[#7a2b2b]"></div>
+                                <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Account Overview</h2>
+                                <div class="h-px flex-1 bg-black/5"></div>
+                            </div>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="stat-card">
+                                    <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Role</div>
+                                    <div class="font-bold text-sm">Newcomer</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Rank</div>
+                                    <div class="font-bold text-sm">Scholar</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Journey</div>
+                                    <div class="font-bold text-sm">Active</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="text-[8px] font-black uppercase tracking-widest text-[#8c6f38] mb-1 opacity-70">Records</div>
+                                    <div class="font-bold text-sm" id="stat-records">96 Items</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-2 flex flex-col items-center pt-10 pb-6">
+                            <button type="submit" class="btn-container relative w-full md:w-64 py-5 border-2 border-[#2d1b0e] overflow-hidden transition-all active:scale-95">
+                                <div class="btn-fill"></div>
+                                <span class="relative z-10 text-[10px] font-black uppercase tracking-[0.6em] text-[#2d1b0e] transition-colors duration-500">SAVE RECORDS</span>
+                            </button>
+                            <p id="status-msg" class="mt-6 text-[10px] font-black uppercase tracking-[0.3em] hidden"></p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- PREFERENCES TAB -->
+                <div id="tab-preferences" class="tab-content hidden">
+                    <div class="space-y-10">
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-3 h-3 rounded-full bg-[#7a2b2b]"></div>
+                                <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Reading Preferences</h2>
+                                <div class="h-px flex-1 bg-black/5"></div>
+                            </div>
+                            <p class="text-sm font-semibold mb-3 opacity-70">Favorite Genres</p>
+                            <div class="flex flex-wrap gap-2" id="genre-chips">
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Fantasy</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Sci-Fi</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Mystery</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Romance</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Horror</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Non-Fiction</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Biography</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">History</div>
+                            </div>
+                            <p class="text-sm font-semibold mb-3 mt-6 opacity-70">Content Interests</p>
+                            <div class="flex flex-wrap gap-2" id="interest-chips">
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Books</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Movies</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Music</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Podcasts</div>
+                                <div class="preference-chip text-sm" onclick="toggleChip(this)">Games</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-3 h-3 rounded-full bg-[#7a2b2b]"></div>
+                                <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Display Settings</h2>
+                                <div class="h-px flex-1 bg-black/5"></div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between py-4 border-b border-black/5">
+                                    <div><p class="text-sm font-semibold">Email Notifications</p><p class="text-xs opacity-50 mt-1">Receive updates</p></div>
+                                    <label class="relative inline-block w-12 h-6"><input type="checkbox" id="notif-email" class="sr-only peer"><div class="w-full h-full bg-black/10 rounded-full peer-checked:bg-[#8c6f38] transition-all cursor-pointer"></div><div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></div></label>
+                                </div>
+                                <div class="flex items-center justify-between py-4 border-b border-black/5">
+                                    <div><p class="text-sm font-semibold">Show Stats</p><p class="text-xs opacity-50 mt-1">Display on profile</p></div>
+                                    <label class="relative inline-block w-12 h-6"><input type="checkbox" id="show-stats" class="sr-only peer" checked><div class="w-full h-full bg-black/10 rounded-full peer-checked:bg-[#8c6f38] transition-all cursor-pointer"></div><div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></div></label>
+                                </div>
+                                <div class="flex items-center justify-between py-4">
+                                    <div><p class="text-sm font-semibold">Public Profile</p><p class="text-xs opacity-50 mt-1">Allow others to view</p></div>
+                                    <label class="relative inline-block w-12 h-6"><input type="checkbox" id="public-profile" class="sr-only peer"><div class="w-full h-full bg-black/10 rounded-full peer-checked:bg-[#8c6f38] transition-all cursor-pointer"></div><div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></div></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center pt-6">
+                            <button onclick="savePreferences()" class="btn-container relative w-full md:w-64 py-5 border-2 border-[#2d1b0e] overflow-hidden transition-all active:scale-95">
+                                <div class="btn-fill"></div>
+                                <span class="relative z-10 text-[10px] font-black uppercase tracking-[0.6em] text-[#2d1b0e] transition-colors duration-500">SAVE PREFERENCES</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECURITY TAB -->
+                <div id="tab-security" class="tab-content hidden">
+                    <div class="max-w-xl">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-3 h-3 rounded-full bg-[#7a2b2b]"></div>
+                            <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Change Password</h2>
+                            <div class="h-px flex-1 bg-black/5"></div>
+                        </div>
+                        <form id="password-form" class="space-y-8">
+                            <div class="relative pt-6">
+                                <input type="password" id="current-password" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                                <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Current Password</label>
+                                <div class="input-line"></div>
+                            </div>
+                            <div class="relative pt-6">
+                                <input type="password" id="new-password" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                                <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">New Password</label>
+                                <div class="input-line"></div>
+                                <div class="password-strength"><div id="strength-bar" class="password-strength-fill"></div></div>
+                                <p id="strength-text" class="text-xs mt-2 opacity-50"></p>
+                            </div>
+                            <div class="relative pt-6">
+                                <input type="password" id="confirm-password" placeholder=" " class="peer w-full bg-transparent border-b-2 border-black/10 py-2 text-lg focus:outline-none focus:border-[#8c6f38] transition-all">
+                                <label class="absolute left-0 top-7 text-lg opacity-40 transition-all pointer-events-none peer-focus:-top-1 peer-focus:text-[9px] peer-focus:font-black peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black">Confirm Password</label>
+                                <div class="input-line"></div>
+                            </div>
+                            <button type="submit" class="btn-container relative w-full py-5 border-2 border-[#2d1b0e] overflow-hidden transition-all active:scale-95">
+                                <div class="btn-fill"></div>
+                                <span class="relative z-10 text-[10px] font-black uppercase tracking-[0.6em] text-[#2d1b0e] transition-colors duration-500">UPDATE PASSWORD</span>
+                            </button>
+                        </form>
+                        <div class="mt-12 pt-8 border-t border-black/10">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-3 h-3 rounded-full bg-[#7a2b2b]"></div>
+                                <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#5d4037]">Account Actions</h2>
+                                <div class="h-px flex-1 bg-black/5"></div>
+                            </div>
+                            <div class="space-y-4">
+                                <button onclick="exportData()" class="w-full py-3 border border-black/20 text-sm font-semibold hover:bg-black/5 transition-colors">Export My Data</button>
+                                <button onclick="deleteAccount()" class="w-full py-3 border-2 border-[#7a2b2b] text-[#7a2b2b] text-sm font-semibold hover:bg-[#7a2b2b] hover:text-white transition-colors">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="mt-10 pt-8 border-t border-black/5 text-center opacity-30 italic text-[11px]">"Written records in The Nook are preserved for antiquity."</footer>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import Auth, { bootstrapAuth } from "./auth.js";
+        window.Auth = Auth;
+
+        async function init() {
+            await bootstrapAuth({ requireAuth: true });
+            const user = window.currentUser;
+            
+            if (user) {
+                // Update display name immediately
+                document.getElementById('display-alias').innerText = user.alias || user.full_name || 'Explorer';
+                
+                // Populate form fields
+                document.getElementById('fullName').value = user.full_name || '';
+                document.getElementById('alias').value = user.alias || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('location').value = user.location || '';
+                document.getElementById('website').value = user.website || '';
+                if (user.bio) { 
+                    document.getElementById('bio').value = user.bio; 
+                    document.getElementById('bio-count').innerText = user.bio.length; 
+                }
+                if (user.avatar_url) document.getElementById('avatar-preview').src = user.avatar_url;
+                
+                // Handle preferences
+                if (user.genres) user.genres.forEach(g => { 
+                    const chip = Array.from(document.querySelectorAll('#genre-chips .preference-chip')).find(c => c.textContent === g); 
+                    if(chip) chip.classList.add('selected'); 
+                });
+                if (user.interests) user.interests.forEach(i => { 
+                    const chip = Array.from(document.querySelectorAll('#interest-chips .preference-chip')).find(c => c.textContent === i); 
+                    if(chip) chip.classList.add('selected'); 
+                });
+                
+                if (user.notif_email !== undefined) document.getElementById('notif-email').checked = user.notif_email;
+                if (user.show_stats !== undefined) document.getElementById('show-stats').checked = user.show_stats;
+                if (user.public_profile !== undefined) document.getElementById('public-profile').checked = user.public_profile;
+                
+                // Set join date
+                const dateToParse = user.join_date || user.created_at;
+                if (dateToParse) {
+                    const joinDate = new Date(dateToParse).toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+                    document.getElementById('join-date').innerText = joinDate;
+                } else {
+                    document.getElementById('join-date').innerText = 'Recently';
+                }
+            }
+        }
+
+        // Profile Form Submit
+        document.getElementById('profile-form').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                const payload = {
+                    full_name: document.getElementById('fullName').value,
+                    alias: document.getElementById('alias').value,
+                    phone: document.getElementById('phone').value,
+                    location: document.getElementById('location').value,
+                    website: document.getElementById('website').value,
+                    bio: document.getElementById('bio').value,
+                    avatar_url: document.getElementById('avatar-preview').src,
+                    genres: Array.from(document.querySelectorAll('#genre-chips .preference-chip.selected')).map(c => c.textContent),
+                    interests: Array.from(document.querySelectorAll('#interest-chips .preference-chip.selected')).map(c => c.textContent),
+                    notif_email: document.getElementById('notif-email').checked,
+                    show_stats: document.getElementById('show-stats').checked,
+                    public_profile: document.getElementById('public-profile').checked
+                };
+
+                const response = await Auth.apiCall('/api/auth/me', {
+                    method: 'PATCH',
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showStatus('Records Archived Successfully', 'green');
+                    document.getElementById('display-alias').innerText = payload.alias || payload.full_name || 'Explorer';
+                } else {
+                    showStatus('Error saving profile', 'red');
+                }
+            } catch (error) {
+                showStatus('Error saving profile', 'red');
+            }
+        };
+
+        // Tab Switching Logic
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById('tab-' + tab + '-btn').classList.add('active');
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+        };
+
+        // Chip Toggling
+        window.toggleChip = (el) => { el.classList.toggle('selected'); };
+
+        // Bio Character Counter
+        document.getElementById('bio').oninput = (e) => {
+            document.getElementById('bio-count').innerText = e.target.value.length;
+        };
+
+        // Avatar Upload
+        document.getElementById('avatar-input').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => { document.getElementById('avatar-preview').src = event.target.result; };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Remove Avatar
+        document.getElementById('remove-avatar').onclick = () => {
+            document.getElementById('avatar-preview').src = 'https://api.dicebear.com/7.x/bottts/svg?seed=Nook';
+        };
+
+        // Password Strength
+        document.getElementById('new-password').oninput = (e) => {
+            const val = e.target.value;
+            const bar = document.getElementById('strength-bar');
+            const text = document.getElementById('strength-text');
+            if (val.length === 0) { bar.className = 'password-strength-fill'; text.innerText = ''; return; }
+            const hasUpper = /[A-Z]/.test(val), hasLower = /[a-z]/.test(val), hasNum = /[0-9]/.test(val), hasSpec = /[^A-Za-z0-9]/.test(val);
+            const score = [hasUpper, hasLower, hasNum, hasSpec, val.length >= 8].filter(Boolean).length;
+            if (score <= 2) { bar.className = 'password-strength-fill strength-weak'; text.innerText = 'Weak password'; }
+            else if (score <= 4) { bar.className = 'password-strength-fill strength-medium'; text.innerText = 'Medium strength'; }
+            else { bar.className = 'password-strength-fill strength-strong'; text.innerText = 'Strong password'; }
+        };
+
+        // Password Form Submit
+        document.getElementById('password-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const curr = document.getElementById('current-password').value;
+            const newP = document.getElementById('new-password').value;
+            const conf = document.getElementById('confirm-password').value;
+            if (!curr || !newP || !conf) return alert('All fields required');
+            if (newP !== conf) return alert('Passwords do not match');
+            if (newP.length < 8) return alert('Password must be at least 8 characters');
+            
+            try {
+                const response = await Auth.apiCall('/api/auth/password', {
+                    method: 'POST',
+                    body: JSON.stringify({ current_password: curr, new_password: newP })
+                });
+                
+                if (response.ok) {
+                    showStatus("Password Updated Successfully", "green");
+                    e.target.reset();
+                    document.getElementById('strength-bar').className = 'password-strength-fill';
+                    document.getElementById('strength-text').innerText = '';
+                } else {
+                    const data = await response.json();
+                    alert(data.error || "Failed to update password");
+                }
+            } catch (err) {
+                alert("Connection error updating password");
+            }
+        };
+
+        // Preferences Saving
+        window.savePreferences = async () => {
+            const payload = {
+                genres: Array.from(document.querySelectorAll('#genre-chips .preference-chip.selected')).map(c => c.textContent),
+                interests: Array.from(document.querySelectorAll('#interest-chips .preference-chip.selected')).map(c => c.textContent),
+                notif_email: document.getElementById('notif-email').checked,
+                show_stats: document.getElementById('show-stats').checked,
+                public_profile: document.getElementById('public-profile').checked
+            };
+
+            try {
+                const response = await Auth.apiCall('/api/auth/me', {
+                    method: 'PATCH',
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    showStatus("Preferences Saved", "green");
+                }
+            } catch (err) {
+                showStatus("Error saving preferences", "red");
+            }
+        };
+
+        // Export/Delete
+        window.exportData = async () => {
+            try {
+                const response = await Auth.apiCall('/api/auth/me');
+                const data = await response.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'nook-profile-export.json';
+                a.click();
+            } catch (err) {
+                alert("Failed to export data");
+            }
+        };
+
+        window.deleteAccount = async () => {
+            if (confirm('Are you sure? This action cannot be undone.')) {
+                if (confirm('Final confirmation: Delete all your data?')) {
+                    try {
+                        const response = await Auth.apiCall('/api/auth/me', { method: 'DELETE' });
+                        if (response.ok) {
+                            Auth.logout();
+                        }
+                    } catch (err) {
+                        alert("Error deleting account");
+                    }
+                }
+            }
+        };
+
+        // Status Message Helper
+        function showStatus(msg, color) {
+            const statusMsg = document.getElementById('status-msg');
+            statusMsg.innerText = msg;
+            statusMsg.className = `mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-${color}-700 block animate-pulse`;
+            setTimeout(() => statusMsg.classList.add('hidden'), 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

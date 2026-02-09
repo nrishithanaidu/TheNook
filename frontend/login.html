@@ -1,12 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>The Nook — Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Homepage Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -26,7 +25,6 @@
             font-family: "EB Garamond", serif;
             background-color: var(--bg-parchment);
             color: var(--ink-text);
-            /* Matching Homepage Texture */
             background-image: repeating-linear-gradient(
                 45deg,
                 rgba(0, 0, 0, 0.08),
@@ -46,7 +44,6 @@
         .font-title { font-family: 'IM Fell English SC', serif; }
         .font-accent { font-family: 'Kalam', cursive; }
 
-        /* --- TOP NAVIGATION BAR --- */
         .nav-parchment {
             background-color: var(--frame-parchment);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -74,7 +71,6 @@
             cursor: pointer;
         }
 
-        /* ---------------- AUTH PANEL ---------------- */
         .panel {
             width: 90%;
             max-width: 420px;
@@ -86,7 +82,6 @@
             margin: 2rem auto;
         }
 
-        /* Branding Stamp from Homepage */
         .panel::before {
             content: 'N';
             position: absolute;
@@ -170,7 +165,6 @@
         }
         .link:hover { text-decoration: underline; color: var(--emblem-red); }
 
-        /* Transition Ink Swell */
         .ink-swell {
             position: fixed;
             top: 50%; left: 50%; width: 100vw; height: 100vw;
@@ -206,11 +200,21 @@
             transition: opacity 0.3s, visibility 0.3s;
         }
         .message-box.visible { visibility: visible; opacity: 1; }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
     </style>
+    
 </head>
 
 <body>
-
     <div id="ink-swell" class="ink-swell"></div>
 
     <div id="message-box" class="message-box rounded-md">
@@ -218,49 +222,58 @@
         <button onclick="closeMessageBox()" class="mt-4 p-2 bg-white font-title border border-gray-800 hover:bg-gray-200">Close Scroll</button>
     </div>
 
-    <!-- NAVBAR ADDED FOR CONSISTENCY -->
     <nav class="nav-parchment w-full shadow-lg relative z-20">
         <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
             <div class="flex items-center space-x-6">
-                <!-- Circle Logo -->
                 <div class="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center font-title text-xl nav-link text-white" 
                      style="background-color: var(--emblem-red); border-color: var(--ink-text);" 
-                     onclick="handleNavigation('/')">N</div>
-                <!-- Title -->
+                     onclick="handleNavigation('/')">
+                    N
+                </div>
                 <span class="text-2xl font-bold font-title nav-link" onclick="handleNavigation('/')">The Nook</span>
             </div>
         </div>
     </nav>
 
     <div class="auth-container">
-        <!-- LOGIN BOX -->
         <div class="panel" id="login-box">
             <h2 class="font-title">Login</h2>
             
-            <input class="input-field" id="login-email" placeholder="Email">
-            <input class="input-field" id="login-password" type="password" placeholder="Password">
-            
-            <div class="link text-sm mb-4 text-right" style="margin-top: -10px;" onclick="showMessageBox('The archive keeper is currently searching for the password recovery scrolls.')">Forgot password?</div>
-            
-            <button class="btn" onclick="handleAuth('login')">Login</button>
+            <form id="login-form">
+                <input class="input-field" id="login-email" type="email" placeholder="Email" required>
+                <input class="input-field" id="login-password" type="password" placeholder="Password" required>
+                
+                <div class="link text-sm mb-4 text-right" style="margin-top: -10px;" onclick="showMessageBox('The archive keeper is currently searching for the password recovery scrolls.')">Forgot password?</div>
+                
+                <button type="submit" class="btn">Login</button>
+            </form>
             <div class="link" onclick="showSignup()">Don't have an account? Sign Up</div>
+            
+            <div id="login-error" class="error-message hidden"></div>
         </div>
 
-        <!-- SIGNUP BOX -->
         <div class="panel" id="signup-box" style="display:none;">
             <h2 class="font-title">Create Account</h2>
             
-            <input class="input-field" id="reg-name" placeholder="Full Name">
-            <input class="input-field" id="reg-email" placeholder="Email">
-            <input class="input-field" id="reg-password" type="password" placeholder="Password">
-            <input class="input-field" id="reg-confirm" type="password" placeholder="Confirm Password">
-            
-            <button class="btn" onclick="handleAuth('register')">Create Account</button>
+            <form id="register-form">
+                <input class="input-field" id="reg-name" placeholder="Full Name" required>
+                <input class="input-field" id="reg-alias" placeholder="Display Name" required>
+                <input class="input-field" id="reg-email" type="email" placeholder="Email" required>
+                <input class="input-field" id="reg-password" type="password" placeholder="Password" required>
+                <input class="input-field" id="reg-confirm" type="password" placeholder="Confirm Password" required>
+                
+                <button type="submit" class="btn">Create Account</button>
+            </form>
             <div class="link" onclick="showLogin()">Already have an account? Login</div>
+            
+            <div id="register-error" class="error-message hidden"></div>
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import Auth from "./auth.js";
+        window.Auth = Auth;
+
         window.showMessageBox = (message) => {
             document.getElementById('message-content').innerText = message;
             document.getElementById('message-box').classList.add('visible');
@@ -270,13 +283,13 @@
             document.getElementById('message-box').classList.remove('visible');
         };
 
-        function showSignup() {
+        window.showSignup = () => {
             document.getElementById("login-box").style.display = "none";
             document.getElementById("signup-box").style.display = "block";
             window.scrollTo(0, 0); 
         }
 
-        function showLogin() {
+        window.showLogin = () => {
             document.getElementById("signup-box").style.display = "none";
             document.getElementById("login-box").style.display = "block";
             window.scrollTo(0, 0); 
@@ -298,18 +311,72 @@
             }, 600);
         };
 
-        async function handleAuth(type) {
-            const swell = document.getElementById('ink-swell');
-            swell.classList.add('active');
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.classList.add('hidden');
             
-            console.log(`Processing ${type}...`);
-            
-            // Redirecting to the main town map after animation
-            setTimeout(() => {
-                window.location.href = 'nook_homepage_final.html';
-            }, 850);
-        }
-    </script>
+            try {
+                const response = await Auth.apiCall('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: document.getElementById('login-email').value,
+                        password: document.getElementById('login-password').value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    Auth.loginSuccess(data.token);
+                } else {
+                    errorDiv.textContent = data.error || 'Login failed';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.classList.remove('hidden');
+            }
+        };
 
+        document.getElementById('register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('register-error');
+            errorDiv.classList.add('hidden');
+            
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            
+            if (password !== confirm) {
+                errorDiv.textContent = 'Passwords do not match';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const response = await Auth.apiCall('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: document.getElementById('reg-email').value,
+                        password: password,
+                        full_name: document.getElementById('reg-name').value,
+                        alias: document.getElementById('reg-alias').value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    Auth.loginSuccess(data.token);
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.classList.remove('hidden');
+            }
+        };
+    </script>
 </body>
 </html>

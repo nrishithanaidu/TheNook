@@ -37,10 +37,8 @@ def log_emotion():
         user_id = get_jwt_identity()
 
     except NoAuthorizationError:
-        if not Config.ALLOW_GUEST_RECOMMENDER:
-            return jsonify({"error": "Login required"}), 401
+        return jsonify({"error": "Login required"}), 401
 
-        user_id = "guest"
 
     data = request.json or {}
 
@@ -83,10 +81,8 @@ def recommend():
         user_id = get_jwt_identity()
 
     except NoAuthorizationError:
-        if not Config.ALLOW_GUEST_RECOMMENDER:
-            return jsonify({"error": "Login required"}), 401
+        return jsonify({"error": "Login required"}), 401
 
-        user_id = "guest"
 
     data = request.json or {}
 

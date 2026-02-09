@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +7,7 @@
     <title>The Nook – Homepage</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%238b0000'/><circle cx='50' cy='50' r='48' fill='none' stroke='%23c5a059' stroke-width='3'/><text x='50' y='72' font-size='65' text-anchor='middle' fill='white' font-family='serif' font-weight='bold'>N</text></svg>">
 
     <style>
         :root {
@@ -243,6 +245,7 @@
             }
         }
     </style>
+    
 </head>
 <body>
     <div id="message-box" class="message-box rounded-md">
@@ -256,17 +259,18 @@
                 <div class="flex items-center space-x-4">
                     <div class="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center font-title text-xl nav-link text-white" 
                          style="background-color: var(--emblem-red); border-color: var(--ink-text);" 
-                         onclick="handleNavigation('/')">N</div>
-                    <span class="text-2xl font-bold font-title nav-link" onclick="handleNavigation('/')">The Nook</span>
+                         onclick="window.location.href='nook_homepage_final.html'">N</div>
+                    <span class="text-2xl font-bold font-title nav-link" onclick="window.location.href='nook_homepage_final.html'">The Nook</span>
                 </div>
 
                 <div class="flex items-center space-x-8 text-lg font-title">
                     <span class="nav-link flex items-center space-x-2" onclick="window.location.href='user.html'">
                         <svg class="w-6 h-6 border-2 border-current rounded-full p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7 7z"></path>
                         </svg>
-                        <span id="user-display-name">Loading...</span>
+                        <span data-user-name>Loading...</span>
                     </span>
+                    <button data-auth-action class="nav-link">Login</button>
                 </div>
             </div>
         </nav>
@@ -283,7 +287,7 @@
 
             <div class="stats-ribbon py-3 mb-8 text-center">
                 <p id="ribbon-text" class="text-sm sm:text-base font-accent text-white">
-                    <span id="total-discoveries" class="font-bold">0</span> total discoveries • Last visit: <span id="last-visit" class="italic">Today</span> • Currently exploring: <span id="current-exploring" class="font-bold">Nothing</span>
+                    <span id="total-discoveries" class="font-bold">0</span> total discoveries • Last visit: <span id="last-visit" class="italic">Today</span> • Currently exploring: <span id="current-exploring" class="font-bold">The Archives</span>
                 </p>
             </div>
             
@@ -306,11 +310,11 @@
                             <span class="hover-label">Enter the Everlight Library – Keeper of Your Tales & Tomes</span>
                         </div>
                     </a>
-
-                    <div id="hotspot-discovery" class="map-hotspot cursor-star" style="top: 35%; left: 40%; width: 20%; height: 20%;">
-                        <span class="hover-label">Hall of Discovery – Where Curiosities Gather & Insights Find You</span>
-                    </div>
-
+                    <a href="recommender.html" class="building-link">
+                        <div id="hotspot-discovery" class="map-hotspot cursor-star" style="top: 35%; left: 40%; width: 20%; height: 20%;">
+                            <span class="hover-label">Hall of Discovery – Where Curiosities Gather & Insights Find You</span>
+                        </div>
+                    </a>
                     <a href="amphi.html" class="building-link">
                         <div id="hotspot-amphi" class="map-hotspot cursor-mic" style="bottom: 22%; left: 8%; width: 24%; height: 24%;">
                             <span class="hover-label">Step Into the Whispering Amphitheatre – Home of Voices, Stories & Podcasts</span>
@@ -388,31 +392,22 @@
         </footer>
     </div>
 
-    <script>
-        const API_BASE = 'http://127.0.0.1:5000/api';
-
-        async function loadUser() {
-            try {
-                const response = await fetch(`${API_BASE}/user`);
-                const user = await response.json();
-                document.getElementById('user-display-name').textContent = user.alias || user.full_name || 'Explorer';
-            } catch (error) {
-                document.getElementById('user-display-name').textContent = 'Explorer';
-            }
-        }
+    <script type="module">
+        import Auth, { bootstrapAuth } from "./auth.js";
+        window.Auth = Auth;
 
         async function loadStats() {
             try {
-                const response = await fetch(`${API_BASE}/stats`);
+                const response = await Auth.apiCall('/api/stats');
                 const stats = await response.json();
                 
-                document.getElementById('count-movies').textContent = stats.movies;
-                document.getElementById('count-books').textContent = stats.books;
-                document.getElementById('count-songs').textContent = stats.songs;
-                document.getElementById('count-podcasts').textContent = stats.podcasts;
-                document.getElementById('avg-rating').textContent = stats.avg_rating;
+                document.getElementById('count-movies').textContent = stats.movies || 0;
+                document.getElementById('count-books').textContent = stats.books || 0;
+                document.getElementById('count-songs').textContent = stats.songs || 0;
+                document.getElementById('count-podcasts').textContent = stats.podcasts || 0;
+                document.getElementById('avg-rating').textContent = stats.avg_rating || 0;
                 
-                const totalDiscoveries = stats.movies + stats.books + stats.songs + stats.podcasts;
+                const totalDiscoveries = (stats.movies || 0) + (stats.books || 0) + (stats.songs || 0) + (stats.podcasts || 0);
                 document.getElementById('total-discoveries').textContent = totalDiscoveries;
             } catch (error) {
                 console.error('Failed to load stats:', error);
@@ -436,10 +431,14 @@
             }
         };
 
-        // Load stats and user when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            loadUser();
-            loadStats();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Functional connection: This handles the names/login/logout buttons
+            await bootstrapAuth();
+            
+            // Functional connection: This pulls the live numbers from Supabase
+            if (Auth.isAuthenticated()) {
+                loadStats();
+            }
         });
     </script>
 </body>
